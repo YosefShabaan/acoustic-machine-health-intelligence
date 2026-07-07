@@ -28,11 +28,13 @@
                             "task_02_performance_forensics":  "docs/TASK_02_PERFORMANCE_FORENSICS.md",
                             "task_03_reference_index_validation":  "docs/TASK_03_REFERENCE_INDEX_VALIDATION.md",
                             "task_04_same_audio_smoke":  "docs/TASK_04_SAME_AUDIO_SMOKE.md",
-                            "expert_b_qualitative_protocol":  "docs/expert_b_qualitative_protocol.md"
+                            "expert_b_qualitative_protocol":  "docs/expert_b_qualitative_protocol.md",
+                            "structured_context_schema":  "src/context/schemas.py",
+                            "structured_context_translator":  "src/context/translator.py"
                         },
-    "current_phase":  "task_06_structured_health_context_schema_and_translator",
-    "last_completed_phase":  "task_05_expert_b_qualitative_evidence_protocol",
-    "next_executable_phase":  "task_06_structured_health_context_schema_and_translator",
+    "current_phase":  "task_07_guardrailed_llm_explanation_agent",
+    "last_completed_phase":  "task_06_structured_health_context_schema_and_translator",
+    "next_executable_phase":  "task_07_guardrailed_llm_explanation_agent",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -55,13 +57,14 @@
                                                                            "notes":  "TASK-05 documented docs/expert_b_qualitative_protocol.md and applied it to the TASK-04 smoke output."
                                                                        },
                              "phase_4_structured_health_context":  {
-                                                                       "status":  "next_executable",
+                                                                       "status":  "complete_task_06",
                                                                        "primary_skill":  "$scientific-implementer",
-                                                                       "notes":  "Implement deterministic structured context preserving Expert A/B evidence and limitations."
+                                                                       "notes":  "TASK-06 implemented src/context schema/translator and saved one validated sample context JSON."
                                                                    },
                              "phase_5_llm_explanation_agent":  {
-                                                                   "status":  "planned",
-                                                                   "primary_skill":  "$scientific-implementer"
+                                                                   "status":  "next_executable",
+                                                                   "primary_skill":  "$scientific-implementer",
+                                                                   "notes":  "Generate cautious technician-facing explanation from Structured Health Context."
                                                                },
                              "phase_6_maintenance_rag":  {
                                                              "status":  "planned",
@@ -103,9 +106,14 @@
                                                                                   "notes":  "Documented docs/expert_b_qualitative_protocol.md with qualitative review procedure, MVP review record, acceptance criteria, and stop conditions."
                                                                              },
                              "task_06_structured_health_context_schema_and_translator":  {
-                                                                                           "status":  "next_executable",
+                                                                                           "status":  "complete",
                                                                                            "primary_skill":  "$scientific-implementer",
-                                                                                           "notes":  "Create versioned context schema and translator for Expert A/B outputs and system limits."
+                                                                                           "notes":  "Implemented schema version 0.1.0, translator, tests, and sample context D:\\PDM_Data\\MIMII\\processed\\structured_context_fan_id_00_minus6dB_task06.json."
+                                                                             },
+                             "task_07_guardrailed_llm_explanation_agent":  {
+                                                                              "status":  "next_executable",
+                                                                              "primary_skill":  "$scientific-implementer",
+                                                                              "notes":  "Implement deterministic/mocked LLM explanation layer over Structured Health Context with guardrails."
                                                                              }
                          },
     "verified_expert_a_snr_auc_results":  {
@@ -138,7 +146,7 @@
                                                           }
                                           },
     "current_expert_b_state":  {
-                                   "status":  "qualitative_protocol_complete_context_pending",
+                                   "status":  "qualitative_protocol_complete_context_translated",
                                    "implementation_files_present":  [
                                                                         "src/models/timbre_difference.py",
                                                                         "src/utils/audio_reference_index.py",
@@ -178,6 +186,27 @@
                                    "qualitative_protocol_scope":  "Level 1 integration and qualitative characterization only; no direction accuracy, diagnosis, confidence, RUL, or exact reproduction claim.",
                                    "timbral_models_compatibility":  "legacy NumPy/librosa API drift patched in src/models/timbre_difference.py without changing metric formulas."
                                },
+    "current_context_state":  {
+                                  "status":  "schema_and_translator_complete",
+                                  "schema_version":  "0.1.0",
+                                  "implementation_files_present":  [
+                                                                       "src/context/__init__.py",
+                                                                       "src/context/schemas.py",
+                                                                       "src/context/translator.py",
+                                                                       "tests/test_context_schema.py"
+                                                                   ],
+                                  "sample_context_output":  "D:\\PDM_Data\\MIMII\\processed\\structured_context_fan_id_00_minus6dB_task06.json",
+                                  "sample_event_id":  "fan_id_00_minus6dB_00000002",
+                                  "system_limits_required":  true,
+                                  "unsupported_claim_keys_rejected":  [
+                                                                          "confidence_pct",
+                                                                          "diagnosis",
+                                                                          "root_cause",
+                                                                          "rul_prediction",
+                                                                          "pronostia"
+                                                                      ],
+                                  "next_use":  "TASK-07 guardrailed LLM explanation agent"
+                              },
     "known_performance_blocker":  {
                                       "phase":  "phase_1_expert_b_performance_forensics",
                                       "command":  "python scripts/build_timbre_reference_index.py --machine-type fan --machine-id id_00 --snr-tag minus6dB --limit 40",
@@ -215,7 +244,7 @@
                                     "affects":  "Paper-like Expert B evaluation and domain robustness."
                                 },
                                 {
-                                    "blocker":  "No structured context, LLM, RAG, or dashboard implementation exists.",
+                                    "blocker":  "No LLM, RAG, or dashboard implementation exists.",
                                     "affects":  "End-to-end explanation and maintenance recommendation claims."
                                 },
                                 {
@@ -288,19 +317,19 @@
                        },
     "repository_disagreements":  [
                                      {
-                                         "item":  "Structured Health Context schema",
-                                         "expected":  "deterministic context object combining machine metadata, Expert A output, Expert B output, and system limits",
-                                         "actual":  "Expert A/B evidence exists, but no structured context translator is implemented yet",
-                                         "action":  "TASK-06 structured context schema and translator"
+                                         "item":  "Guardrailed LLM explanation agent",
+                                         "expected":  "cautious technician-facing explanation generated from Structured Health Context with limitations preserved",
+                                         "actual":  "Structured Health Context exists, but no explanation agent is implemented yet",
+                                         "action":  "TASK-07 guardrailed LLM explanation agent"
                                      },
                                      {
                                          "item":  "future explanation stack",
-                                         "expected":  "structured context, LLM/RAG, orchestration, and dashboard implemented later",
-                                         "actual":  "not implemented yet",
+                                         "expected":  "LLM/RAG, orchestration, and dashboard implemented later",
+                                         "actual":  "structured context is implemented, but LLM/RAG/orchestration/dashboard are not implemented yet",
                                          "action":  "planned TASK-07 through TASK-12; do not claim complete"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-05 documented the qualitative Expert B evidence protocol; continuing to TASK-06 structured context schema and translator.",
+    "last_state_update_reason":  "TASK-06 implemented Structured Health Context schema and translator; continuing to TASK-07 guardrailed LLM explanation agent.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -326,8 +355,8 @@
     "plan_version":  "master_execution_plan_v3_2026-07-07",
     "approved_plan_version":  "master_execution_plan_v3_2026-07-07",
     "current_task":  null,
-    "last_completed_task":  "TASK-05",
-    "next_task":  "TASK-06",
+    "last_completed_task":  "TASK-06",
+    "next_task":  "TASK-07",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -384,11 +413,14 @@
                                         "notes":  "Created docs/expert_b_qualitative_protocol.md and applied it to the TASK-04 smoke output without adding quantitative accuracy, diagnosis, confidence, RUL, or exact-reproduction claims."
                                     },
                         "TASK-06":  {
-                                        "status":  "ready",
-                                        "verdict":  null
+                                        "status":  "done",
+                                        "verdict":  "DONE",
+                                        "completed_utc":  "2026-07-07",
+                                        "primary_skill":  "$scientific-implementer",
+                                        "notes":  "Implemented Structured Health Context schema version 0.1.0, translator, 5 context tests, and sample context JSON for the TASK-04 Expert B output."
                                     },
                         "TASK-07":  {
-                                        "status":  "planned",
+                                        "status":  "ready",
                                         "verdict":  null
                                     },
                         "TASK-08":  {

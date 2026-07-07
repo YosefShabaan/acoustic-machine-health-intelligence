@@ -8,11 +8,11 @@ This repository implements the foundation of an explainable acoustic machine hea
 
 VERIFIED RESULT: Expert A and the controlled SNR experiment are complete for Fan `id_00`. AUC improves from `0.6142` at `-6 dB` to `0.8306` at `0 dB` and `0.9980` at `+6 dB`.
 
-IMPLEMENTED AND QUALITATIVELY REVIEWABLE FOR THE FAN MVP PATH: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index, TASK-04 saved one reviewed same-audio Expert A -> Expert B abnormal JSON, and TASK-05 defined the qualitative evidence protocol.
+IMPLEMENTED THROUGH STRUCTURED CONTEXT FOR THE FAN MVP PATH: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index, TASK-04 saved one reviewed same-audio Expert A -> Expert B abnormal JSON, TASK-05 defined the qualitative evidence protocol, and TASK-06 implemented the Structured Health Context schema and translator.
 
 PLANNED: Structured Health Context, LLM explanation, RAG maintenance grounding, orchestration, dashboard, multi-machine generalization, and domain robustness.
 
-NEXT TECHNICAL STEP: Implement the Structured Health Context schema and translator. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
+NEXT TECHNICAL STEP: Implement the guardrailed LLM explanation agent over Structured Health Context. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
 
 # 3. Problem Statement
 
@@ -519,11 +519,37 @@ current Fan MVP and was not run.
 
 # 16. Structured Health Context
 
-PLANNED, NOT IMPLEMENTED.
+IMPLEMENTED IN TASK-06.
 
 Purpose:
 
 Translate machine metadata, Expert A output, Expert B output, and explicit limitations into deterministic JSON before any LLM reasoning.
+
+Files:
+
+```text
+src/context/__init__.py
+src/context/schemas.py
+src/context/translator.py
+tests/test_context_schema.py
+```
+
+Smoke output:
+
+```text
+D:\PDM_Data\MIMII\processed\structured_context_fan_id_00_minus6dB_task06.json
+```
+
+Actual smoke summary:
+
+```text
+schema_version=0.1.0
+event_id=fan_id_00_minus6dB_00000002
+audio_path=D:\PDM_Data\MIMII\fan_minus6dB\id_00\abnormal\00000002.wav
+Expert A is_anomaly=True
+Expert B selected references=30
+system_limits count=6
+```
 
 Example shape:
 
@@ -531,10 +557,12 @@ Example shape:
 {
   "schema_version": "0.1.0",
   "event": {
+    "event_id": "fan_id_00_minus6dB_00000002",
+    "asset_id": "FAN-ID00-001",
     "machine_type": "fan",
     "machine_id": "id_00",
     "snr_tag": "minus6dB",
-    "audio_path": "..."
+    "audio_path": "D:\\PDM_Data\\MIMII\\fan_minus6dB\\id_00\\abnormal\\00000002.wav"
   },
   "expert_a": {
     "anomaly_score": 0.0,
@@ -542,17 +570,42 @@ Example shape:
     "is_anomaly": true
   },
   "expert_b": {
-    "method_status": "adaptation_not_exact_reproduction",
-    "rank_threshold": null,
-    "timbre_differences": {}
+    "expert": "AcousticTimbreDifferenceExpert",
+    "method": {
+      "status": "adaptation_not_exact_reproduction",
+      "embedding_model": "expert_a_bottleneck_adaptation",
+      "timbre_model": "AudioCommons timbral_models",
+      "k": 30,
+      "distance": "euclidean",
+      "rank_threshold": null
+    },
+    "references": {
+      "pool_size": 40,
+      "selected_count": 30
+    },
+    "timbre_rank_scores": {}
   },
-  "system_limits": [
-    "No RUL.",
-    "No root-cause diagnosis.",
-    "Expert B is qualitative until labels are available."
-  ]
+  "system_limits": {
+    "evidence_only": true,
+    "specific_fault_confirmed": false,
+    "physical_cause_confirmed": false,
+    "remaining_life_prediction_available": false,
+    "paper_equivalent_timbre_accuracy_validated": false,
+    "timbre_direction_accuracy_validated": false,
+    "rank_score_is_confidence": false,
+    "llm_or_rag_grounding_available": false,
+    "limitations": []
+  }
 }
 ```
+
+Validation behavior:
+
+- Requires `event`, `expert_a`, `expert_b`, and `system_limits`.
+- Preserves same event identity.
+- Preserves Expert A score, threshold, and decision.
+- Preserves Expert B method, reference metadata, warnings, and five rank scores.
+- Rejects unsupported claim keys such as `confidence_pct`, `diagnosis`, `root_cause`, `rul_prediction`, and `pronostia`.
 
 # 17. LLM Explanation Layer
 
@@ -740,7 +793,7 @@ The unique legacy unsuffixed model was preserved externally at
 | Expert B tests | DONE for guardrails | 7 tests OK | rank/filter/schema/API-compat/same-audio identity checks | scientific accuracy | later labels |
 | Expert B reference index | DONE for bounded Fan MVP | `D:\PDM_Data\MIMII\processed\timbre_reference_index_fan_id_00_minus6dB.json` | 40 references, k=30, load/filter/kNN validated | optional full 1011-reference offline index | later optional |
 | Expert A -> Expert B integration | DONE for one bounded smoke | `D:\PDM_Data\MIMII\processed\expert_b_smoke_fan_id_00_minus6dB_task04.json` | same abnormal audio path scored by Expert A and characterized by Expert B | structured context translation | TASK-06 |
-| Context layer | TODO | no `src/context` | none | schema/translator | TASK-06 |
+| Context layer | DONE for first schema | `src/context`, `tests/test_context_schema.py`, sample context JSON | versioned schema, translator, tests, one smoke context | downstream LLM/RAG usage | TASK-07 |
 | LLM | TODO | no agent implementation | none | guardrails/output | TASK-07 |
 | RAG | TODO | no `src/rag` | none | approved docs/retriever | TASK-08 |
 | Orchestrator | TODO | no end-to-end script | none | same-event pipeline | TASK-10 |
@@ -770,7 +823,7 @@ one bounded Fan same-audio smoke complete; qualitative evidence protocol documen
 Explanation/RAG/application layers:
 
 ```text
-not implemented
+context implemented; LLM/RAG/dashboard not implemented
 ```
 
 Generalization/robustness:
@@ -781,7 +834,7 @@ future work
 
 Core MVP implementation progress:
 
-Approximately one third of the engineering foundation is complete: data staging, preprocessing, Expert A, SNR evaluation, Expert B guardrail code, bounded Expert B runtime, a loadable bounded Expert B reference index, one same-audio Expert A -> Expert B smoke, and a qualitative Expert B review protocol now exist. The user-facing system is not complete because context, LLM, RAG, orchestration, and dashboard remain.
+Approximately one third of the engineering foundation is complete: data staging, preprocessing, Expert A, SNR evaluation, Expert B guardrail code, bounded Expert B runtime, a loadable bounded Expert B reference index, one same-audio Expert A -> Expert B smoke, a qualitative Expert B review protocol, and a first Structured Health Context schema/translator now exist. The user-facing system is not complete because LLM, RAG, orchestration, and dashboard remain.
 
 Research validation progress:
 
@@ -789,11 +842,11 @@ Expert A validation is strong for Fan `id_00` SNR sensitivity. Expert B scientif
 
 WHERE ARE WE NOW?
 
-We have a verified acoustic anomaly detector, a loadable bounded timbre-difference reference index for Fan `id_00` minus6dB, one reviewed same-audio abnormal Expert A -> Expert B JSON, and a documented qualitative Expert B evidence protocol. The immediate next step is the Structured Health Context schema and translator.
+We have a verified acoustic anomaly detector, a loadable bounded timbre-difference reference index for Fan `id_00` minus6dB, one reviewed same-audio abnormal Expert A -> Expert B JSON, a documented qualitative Expert B evidence protocol, and one validated Structured Health Context JSON. The immediate next step is the guardrailed LLM explanation agent.
 
 WHAT REMAINS?
 
-Structured context, LLM/RAG, orchestrator, dashboard, and later machine/domain generalization.
+LLM/RAG, orchestrator, dashboard, and later machine/domain generalization.
 
 # 27. Remaining Work
 
@@ -803,7 +856,7 @@ Structured context, LLM/RAG, orchestrator, dashboard, and later machine/domain g
 | TASK-03 | Expert B Reference Index Completion | DONE | TASK-02 complete | usable 40-reference index validated |
 | TASK-04 | Expert A To Expert B Same-Audio Integration | DONE | TASK-03 | reviewed Expert B JSON |
 | TASK-05 | Expert B Qualitative Evidence Protocol | DONE | TASK-04 | qualitative protocol |
-| TASK-06 | Structured Health Context Schema And Translator | give LLM/RAG deterministic evidence | TASK-04 | schema/tests/sample context |
+| TASK-06 | Structured Health Context Schema And Translator | DONE | TASK-04 | schema/tests/sample context |
 | TASK-07 | Guardrailed LLM Explanation Agent | explain evidence cautiously | TASK-06 | guardrailed explanation |
 | TASK-08 | Maintenance Knowledge Base And Retriever | source-ground recommendations | TASK-06 | retriever/tests |
 | TASK-09 | Grounded Maintenance Agent | combine explanation and retrieval | TASK-07 + TASK-08 | sourced technician output |
@@ -830,6 +883,7 @@ TASK-01 was superseded by TASK-00 because repository normalization and active-sc
 | Expert B reference indexing is operationally bounded | Yes | TASK-02 timings and TASK-03 final artifact | full 1011-reference offline index not run |
 | Expert B technically works end-to-end | Yes for one bounded Fan smoke | TASK-04 smoke JSON | not a broad accuracy evaluation |
 | Expert B qualitative review protocol exists | Yes | `docs/expert_b_qualitative_protocol.md` | does not replace labels |
+| Structured Health Context exists | Yes | `src/context`, 5 context tests OK, sample context JSON | LLM/RAG not implemented |
 | Expert B accurately predicts timbre direction | No | labels unavailable | requires labels/protocol |
 | Expert B diagnoses root cause | No | forbidden by architecture | no labels/model |
 | LLM explanation is grounded | No | no LLM/context/RAG | planned |
@@ -882,7 +936,7 @@ The final system should still avoid RUL, exact time-to-failure, and unsupported 
 
 # 32. Conclusion
 
-The project now has a coherent active architecture and a normalized report around same-machine acoustic health monitoring. Expert A and the SNR experiment are verified. Expert B is implemented at the code/guardrail level, has a loadable bounded Fan `id_00` minus6dB reference index, has one reviewed same-audio abnormal smoke JSON, and has a qualitative review protocol. The next technical blocker is the Structured Health Context schema and translator.
+The project now has a coherent active architecture and a normalized report around same-machine acoustic health monitoring. Expert A and the SNR experiment are verified. Expert B is implemented at the code/guardrail level, has a loadable bounded Fan `id_00` minus6dB reference index, has one reviewed same-audio abnormal smoke JSON, has a qualitative review protocol, and now translates into a versioned Structured Health Context. The next technical blocker is the guardrailed LLM explanation agent.
 
 # 33. References
 

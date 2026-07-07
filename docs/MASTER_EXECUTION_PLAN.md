@@ -766,7 +766,7 @@ TASK ID: `TASK-06`
 
 TITLE: Structured Health Context Schema And Translator
 
-STATUS: `READY`
+STATUS: `DONE`
 
 GOAL:
 
@@ -842,13 +842,23 @@ BLOCKER CONDITIONS:
 
 - Expert B output schema is unstable.
 
+TASK-06 RESULT:
+
+- Created `src/context/__init__.py`, `src/context/schemas.py`, and `src/context/translator.py`.
+- Added `tests/test_context_schema.py`.
+- Implemented schema version `0.1.0` with required `event`, `expert_a`, `expert_b`, and `system_limits` sections.
+- Translator preserves event identity, machine metadata, Expert A score/threshold/decision, Expert B method metadata, reference metadata, timbre rank scores, warnings, and explicit limitations.
+- Validator rejects unsupported claim keys such as `confidence_pct`, `diagnosis`, `root_cause`, `rul_prediction`, and `pronostia`.
+- Smoke output: `D:\PDM_Data\MIMII\processed\structured_context_fan_id_00_minus6dB_task06.json`.
+- Tests: `tests/test_context_schema.py` ran 5 tests OK; `tests/test_timbre_difference.py` ran 7 tests OK.
+
 ### TASK 07
 
 TASK ID: `TASK-07`
 
 TITLE: Guardrailed LLM Explanation Agent
 
-STATUS: `PLANNED`
+STATUS: `READY`
 
 GOAL:
 
