@@ -1,0 +1,4 @@
+interface:
+  display_name: "Performance Forensics"
+  short_description: "Diagnose slow or stuck runs"
+  default_prompt: "Use $performance-forensics to diagnose this slow command before optimizing it."

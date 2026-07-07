@@ -1,0 +1,52 @@
+# Large datasets and generated arrays
+data/raw/
+data/processed/*.npy
+data/processed/*.npz
+data/processed/*.pkl
+data/processed/*.json
+data/processed/*reference_index*
+data/processed/*smoke*
+
+# Keep intentional folder placeholders
+!data/**/.gitkeep
+
+# External archives or mirrored local artifacts
+*.zip
+*.tar
+*.tar.gz
+
+# Trained models and vector stores
+models_store/
+*.pt
+*.pth
+chroma_store/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc.*
+*.egg-info/
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local tool/runtime state. The repo skill source is .agents/skills/.
+.agent/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.opencode/
+
+# Misc / temp
+_tmp_*.py
+*_benchmark*.json
+*_timing*.json
+*.log
+.DS_Store

@@ -1,0 +1,10 @@
+# Core acoustic data processing
+librosa
+numpy
+scipy
+scikit-learn
+soundfile
+
+# Expert A and Expert B runtime dependencies
+torch
+timbral_models

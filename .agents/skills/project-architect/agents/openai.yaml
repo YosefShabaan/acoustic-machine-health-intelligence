@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Architect"
+  short_description: "Plan scientific architecture decisions"
+  default_prompt: "Use $project-architect to plan this project architecture decision before implementation."

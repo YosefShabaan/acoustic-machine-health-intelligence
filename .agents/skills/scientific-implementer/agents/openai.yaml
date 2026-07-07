@@ -1,0 +1,4 @@
+interface:
+  display_name: "Scientific Implementer"
+  short_description: "Implement approved scientific specs"
+  default_prompt: "Use $scientific-implementer to implement this approved bounded scientific task."

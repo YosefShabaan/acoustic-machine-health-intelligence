@@ -1,0 +1,4 @@
+interface:
+  display_name: "Paper Forensics"
+  short_description: "Extract and adapt paper methods"
+  default_prompt: "Use $paper-forensics to inspect the primary paper and produce a bounded implementation plan."

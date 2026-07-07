@@ -1,0 +1,369 @@
+{
+    "schema_version":  "1.0.0",
+    "state_file_created_utc":  "2026-07-07",
+    "active_architecture_identifier":  "same_machine_same_audio_expert_a_detects_expert_b_characterizes_context_rag_llm_dashboard",
+    "reference_mvp":  {
+                          "machine_type":  "fan",
+                          "machine_id":  "id_00",
+                          "primary_snr_tag":  "minus6dB",
+                          "available_snr_tags":  [
+                                                     "minus6dB",
+                                                     "0dB",
+                                                     "plus6dB"
+                                                 ]
+                      },
+    "source_of_truth":  {
+                            "active":  "CLAUDE.md",
+                            "legacy_rul_archive_expected":  "CLAUDE_LEGACY_RUL.md",
+                            "legacy_rul_archive_present":  false,
+                            "roadmap":  "docs/MASTER_PROJECT_ROADMAP.md",
+                            "expert_b_method_spec":  "docs/EXPERT_B_NISHIDA_METHOD_SPEC.md",
+                            "expert_a_snr_report":  "REPORT_PHASE1_2.md",
+                            "historical_report":  "REPORT_PHASE1_2.md",
+                            "active_technical_report":  "REPORT.md",
+                            "repository_audit":  "docs/REPOSITORY_AUDIT.md",
+                            "task_execution_log":  "docs/TASK_EXECUTION_LOG.md",
+                            "historical_expert_a_snr_report":  "REPORT_PHASE1_2.md",
+                            "local_artifact_reconciliation":  "docs/LOCAL_ARTIFACT_RECONCILIATION.md"
+                        },
+    "current_phase":  "phase_1_expert_b_performance_forensics",
+    "last_completed_phase":  "task_00b_local_artifact_reconciliation_git_baseline",
+    "next_executable_phase":  "phase_1_expert_b_performance_forensics",
+    "phase_status_map":  {
+                             "phase_0_source_baseline":  {
+                                                             "status":  "complete_with_task_00b_baseline",
+                                                             "primary_skill":  "$project-architect",
+                                                             "notes":  "TASK-00 and TASK-00B normalized docs/config/repository structure, reconciled local artifacts, and established a Git baseline."
+                                                         },
+                             "phase_1_expert_b_performance_forensics":  {
+                                                                            "status":  "next_executable_after_approval",
+                                                                            "primary_skill":  "$performance-forensics",
+                                                                            "notes":  "Next task is TASK-02. Diagnose the stopped slow reference-index job before any Expert B smoke."
+                                                                        },
+                             "phase_2_expert_b_integration_mvp":  {
+                                                                      "status":  "blocked_by_phase_1",
+                                                                      "primary_skill":  "$scientific-implementer"
+                                                                  },
+                             "phase_3_expert_b_qualitative_protocol":  {
+                                                                           "status":  "planned",
+                                                                           "primary_skill":  "$project-architect"
+                                                                       },
+                             "phase_4_structured_health_context":  {
+                                                                       "status":  "planned",
+                                                                       "primary_skill":  "$scientific-implementer"
+                                                                   },
+                             "phase_5_llm_explanation_agent":  {
+                                                                   "status":  "planned",
+                                                                   "primary_skill":  "$scientific-implementer"
+                                                               },
+                             "phase_6_maintenance_rag":  {
+                                                             "status":  "planned",
+                                                             "primary_skill":  "$scientific-implementer"
+                                                         },
+                             "phase_7_end_to_end_orchestration":  {
+                                                                      "status":  "planned",
+                                                                      "primary_skill":  "$scientific-implementer"
+                                                                  },
+                             "phase_8_dashboard":  {
+                                                       "status":  "planned",
+                                                       "primary_skill":  "$scientific-implementer"
+                                                   },
+                             "phase_9_multi_machine_generalization":  {
+                                                                          "status":  "planned",
+                                                                          "primary_skill":  "$project-architect"
+                                                                      },
+                             "phase_10_mimii_dg_robustness":  {
+                                                                  "status":  "planned",
+                                                                  "primary_skill":  "$paper-forensics"
+                                                              },
+                             "phase_11_optional_mimii_agent_inspired_evaluation":  {
+                                                                                       "status":  "optional_planned",
+                                                                                       "primary_skill":  "$paper-forensics"
+                                                                                   }
+                         },
+    "verified_expert_a_snr_auc_results":  {
+                                              "minus6dB":  {
+                                                               "auc":  0.6142,
+                                                               "threshold":  0.5932844281196594,
+                                                               "normal_mean":  0.4364790618419647,
+                                                               "abnormal_mean":  0.45760035514831543,
+                                                               "recall":  0.14,
+                                                               "fpr":  0.135,
+                                                               "specificity":  0.865
+                                                           },
+                                              "0dB":  {
+                                                          "auc":  0.8306,
+                                                          "threshold":  0.6800193786621094,
+                                                          "normal_mean":  0.45851433277130127,
+                                                          "abnormal_mean":  0.8366410136222839,
+                                                          "recall":  0.52,
+                                                          "fpr":  0.13,
+                                                          "specificity":  0.87
+                                                      },
+                                              "plus6dB":  {
+                                                              "auc":  0.998,
+                                                              "threshold":  1.133450984954834,
+                                                              "normal_mean":  0.706522524356842,
+                                                              "abnormal_mean":  3.223252773284912,
+                                                              "recall":  1.0,
+                                                              "fpr":  0.05,
+                                                              "specificity":  0.95
+                                                          }
+                                          },
+    "current_expert_b_state":  {
+                                   "status":  "partial_unverified_runtime_blocked",
+                                   "implementation_files_present":  [
+                                                                        "src/models/timbre_difference.py",
+                                                                        "src/utils/audio_reference_index.py",
+                                                                        "scripts/build_timbre_reference_index.py",
+                                                                        "scripts/run_expert_b_smoke.py",
+                                                                        "tests/test_timbre_difference.py"
+                                                                    ],
+                                   "method_status":  "nishida_inspired_adaptation_not_exact_reproduction",
+                                   "embedding_model":  "expert_a_bottleneck_adaptation",
+                                   "timbre_model":  "AudioCommons timbral_models",
+                                   "default_k":  30,
+                                   "distance":  "euclidean_project_choice",
+                                   "rank_threshold":  null,
+                                   "direction_output_without_threshold":  null,
+                                   "level_2_scientific_evaluation_available":  false
+                               },
+    "known_performance_blocker":  {
+                                      "phase":  "phase_1_expert_b_performance_forensics",
+                                      "command":  "python scripts/build_timbre_reference_index.py --machine-type fan --machine-id id_00 --snr-tag minus6dB --limit 40",
+                                      "observed_behavior":  [
+                                                                "40 normal WAV clips requested",
+                                                                "process remained active for hours",
+                                                                "CPU delta was 9.53 CPU seconds over 10 wall-clock seconds",
+                                                                "run was manually stopped",
+                                                                "one-file path-based benchmark exceeded 23 minutes before interruption"
+                                                            ],
+                                      "must_not_do_next":  [
+                                                               "do not rerun the 40-file job before one-file and three-file timing",
+                                                               "do not run abnormal Expert B smoke before performance review",
+                                                               "do not investigate or rerun benchmark during planning mode"
+                                                           ],
+                                      "required_skill":  "$performance-forensics"
+                                  },
+    "scientific_blockers":  [
+                                {
+                                    "blocker":  "No five-attribute timbre-difference ground-truth labels for current Fan id_00 data.",
+                                    "affects":  "Expert B quantitative timbre direction accuracy."
+                                },
+                                {
+                                    "blocker":  "MIMII DG and Nishida-style annotations/assets are not staged.",
+                                    "affects":  "Paper-like Expert B evaluation and domain robustness."
+                                },
+                                {
+                                    "blocker":  "No structured context, LLM, RAG, or dashboard implementation exists.",
+                                    "affects":  "End-to-end explanation and maintenance recommendation claims."
+                                },
+                                {
+                                    "blocker":  "RUL/PRONOSTIA are legacy-only and unsupported in active architecture.",
+                                    "affects":  "Any RUL claim."
+                                }
+                            ],
+    "available_machine_data_summary":  [
+                                           {
+                                               "machine_type":  "fan",
+                                               "machine_id":  "id_00",
+                                               "snr_or_domain":  "minus6dB",
+                                               "normal_count":  1011,
+                                               "abnormal_count":  407,
+                                               "status":  "REFERENCE_MVP",
+                                               "root":  "D:\\PDM_Data\\MIMII\\fan_minus6dB\\id_00"
+                                           },
+                                           {
+                                               "machine_type":  "fan",
+                                               "machine_id":  "id_00",
+                                               "snr_or_domain":  "0dB",
+                                               "normal_count":  1011,
+                                               "abnormal_count":  407,
+                                               "status":  "READY_FOR_PIPELINE",
+                                               "root":  "D:\\PDM_Data\\MIMII\\fan_0dB\\id_00"
+                                           },
+                                           {
+                                               "machine_type":  "fan",
+                                               "machine_id":  "id_00",
+                                               "snr_or_domain":  "plus6dB",
+                                               "normal_count":  1011,
+                                               "abnormal_count":  407,
+                                               "status":  "READY_FOR_PIPELINE",
+                                               "root":  "D:\\PDM_Data\\MIMII\\fan_plus6dB\\id_00"
+                                           },
+                                           {
+                                               "machine_type":  "pump",
+                                               "machine_id":  "id_00",
+                                               "snr_or_domain":  "unknown",
+                                               "normal_count":  0,
+                                               "abnormal_count":  0,
+                                               "status":  "MISSING",
+                                               "root":  "D:\\PDM_Data\\MIMII\\pump\\id_00"
+                                           },
+                                           {
+                                               "machine_type":  "valve",
+                                               "machine_id":  "id_00",
+                                               "snr_or_domain":  "unknown",
+                                               "normal_count":  0,
+                                               "abnormal_count":  0,
+                                               "status":  "MISSING",
+                                               "root":  "D:\\PDM_Data\\MIMII\\valve\\id_00"
+                                           },
+                                           {
+                                               "machine_type":  "slide rail",
+                                               "machine_id":  "id_00",
+                                               "snr_or_domain":  "unknown",
+                                               "normal_count":  0,
+                                               "abnormal_count":  0,
+                                               "status":  "MISSING",
+                                               "root":  "D:\\PDM_Data\\MIMII\\slide_rail\\id_00"
+                                           }
+                                       ],
+    "artifact_roots":  {
+                           "active_external_processed":  "D:\\PDM_Data\\MIMII\\processed",
+                           "active_external_models":  "D:\\PDM_Data\\MIMII\\models_store",
+                           "legacy_repo_processed":  "REMOVED_IN_TASK-00B",
+                           "legacy_repo_models":  "REMOVED_IN_TASK-00B",
+                           "externalized_legacy_repo_model":  "D:\\PDM_Data\\MIMII\\models_store\\anomaly_detector_legacy_repo_2026-06-29.pt"
+                       },
+    "repository_disagreements":  [
+                                     {
+                                         "item":  "Expert B reference-index runtime",
+                                         "expected":  "bounded reference-index build with measured one-file and three-file timing",
+                                         "actual":  "known slow path remains unresolved; 40-file run must not be repeated blindly",
+                                         "action":  "TASK-02 performance-forensics"
+                                     },
+                                     {
+                                         "item":  "future explanation stack",
+                                         "expected":  "structured context, LLM/RAG, orchestration, and dashboard implemented later",
+                                         "actual":  "not implemented yet",
+                                         "action":  "planned TASK-04 through TASK-12; do not claim complete"
+                                     }
+                                 ],
+    "last_state_update_reason":  "TASK-00B completed local artifact reconciliation and Git baseline; repo-local large artifacts removed or externalized; awaiting approval before TASK-02 Expert B performance-forensics.",
+    "continuation_policy_summary":  {
+                                        "on_continue_project":  [
+                                                                    "read AGENTS.md",
+                                                                    "read CLAUDE.md",
+                                                                    "read docs/MASTER_PROJECT_ROADMAP.md",
+                                                                    "read project_state.json",
+                                                                    "identify first executable phase",
+                                                                    "invoke the phase primary skill",
+                                                                    "execute only that bounded phase",
+                                                                    "run required gates",
+                                                                    "update project_state.json",
+                                                                    "stop at the phase stop condition"
+                                                                ],
+                                        "do_not":  [
+                                                       "execute every remaining phase",
+                                                       "skip scientific blockers",
+                                                       "invent labels, thresholds, equations, or paper facts",
+                                                       "silently change architecture",
+                                                       "rerun known slow Expert B job without timing evidence"
+                                                   ]
+                                    },
+    "execution_mode":  "awaiting_approval",
+    "plan_version":  "master_execution_plan_v3_2026-07-07",
+    "approved_plan_version":  null,
+    "current_task":  null,
+    "last_completed_task":  "TASK-00B",
+    "next_task":  "TASK-02",
+    "blocker":  null,
+    "last_review_verdict":  "DONE",
+    "execution_policy":  {
+                             "stage_1":  "architecture_and_complete_task_decomposition",
+                             "stage_2":  "sequential_implementation_and_review_after_start_implementation",
+                             "approval_command":  "start implementation",
+                             "continue_project_behavior":  "inspect_execution_mode_and_resume_or_request_approval"
+                         },
+    "task_status":  {
+                        "TASK-00":  {
+                                        "status":  "done",
+                                        "verdict":  "DONE",
+                                        "completed_utc":  "2026-07-07",
+                                        "primary_skill":  "$project-architect",
+                                        "notes":  "Repository normalized; active docs/report/audit created; Expert A artifacts preserved; no expensive data runs."
+                                    },
+                        "TASK-00B":  {
+                                         "status":  "done",
+                                         "verdict":  "DONE",
+                                         "completed_utc":  "2026-07-07",
+                                         "primary_skill":  "$project-architect",
+                                         "notes":  "Repo-local large artifacts reconciled; verified duplicates removed; unique legacy model moved externally; baseline Git commit created."
+                                     },
+                        "TASK-01":  {
+                                        "status":  "superseded_by_TASK-00",
+                                        "verdict":  "SUPERSEDED",
+                                        "notes":  "Original active-scope cleanup was completed inside TASK-00."
+                                    },
+                        "TASK-02":  {
+                                        "status":  "ready_after_approval",
+                                        "verdict":  null
+                                    },
+                        "TASK-03":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-04":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-05":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-06":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-07":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-08":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-09":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-10":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-11":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-12":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-13":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-14":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-15":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-16":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-17":  {
+                                        "status":  "planned",
+                                        "verdict":  null
+                                    },
+                        "TASK-18":  {
+                                        "status":  "optional_planned",
+                                        "verdict":  null
+                                    }
+                    },
+    "legacy_rul_archive_policy":  "CLAUDE_LEGACY_RUL.md intentionally deleted by Yosef; absence is not a blocker."
+}
