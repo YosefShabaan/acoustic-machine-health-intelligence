@@ -29,17 +29,16 @@ from utils.audio_reference_index import load_reference_index  # noqa: E402
 
 
 def _default_index(machine_type: str, machine_id: str, snr_tag: str) -> Path:
-    """Return the workspace-local default reference index path."""
+    """Return the external default reference index path."""
     return (
-        cfg.DATA_DIR
-        / "processed"
+        cfg.PROCESSED_DIR
         / f"timbre_reference_index_{machine_type}_{machine_id}_{snr_tag}.json"
     )
 
 
 def _default_output(snr_tag: str) -> Path:
-    """Return the workspace-local default smoke output path."""
-    return cfg.DATA_DIR / "processed" / f"expert_b_smoke_{snr_tag}.json"
+    """Return the external default smoke output path."""
+    return cfg.PROCESSED_DIR / f"expert_b_smoke_{snr_tag}.json"
 
 
 def _model_input_for_audio(

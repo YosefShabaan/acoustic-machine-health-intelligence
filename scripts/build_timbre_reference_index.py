@@ -22,10 +22,9 @@ from utils.audio_reference_index import ReferenceIndex, ReferenceItem, save_refe
 
 
 def _default_output(machine_type: str, machine_id: str, snr_tag: str) -> Path:
-    """Return a workspace-local smoke artifact path."""
+    """Return an external generated-artifact path."""
     return (
-        cfg.DATA_DIR
-        / "processed"
+        cfg.PROCESSED_DIR
         / f"timbre_reference_index_{machine_type}_{machine_id}_{snr_tag}.json"
     )
 
@@ -47,11 +46,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--timbre-input",
         choices=("path", "array"),
-        default="path",
+        default="array",
         help=(
-            "path preserves the original behavior where every timbral metric "
-            "receives a file path; array loads the WAV once and uses the official "
-            "AudioCommons array+fs API."
+            "array loads the WAV once and uses the official AudioCommons array+fs "
+            "API; path preserves the original behavior where every timbral metric "
+            "receives a file path."
         ),
     )
     return parser.parse_args()
@@ -155,6 +154,18 @@ def main() -> None:
     save_reference_index(reference_index, output_path)
     serialization_seconds = time.perf_counter() - save_start
     total_seconds = time.perf_counter() - total_start
+    if per_file_timings:
+        mean_embedding = sum(row["embedding"] for row in per_file_timings) / len(per_file_timings)
+        mean_audio_load = sum(row["audio_load"] for row in per_file_timings) / len(per_file_timings)
+        mean_timbre = sum(row["timbre_total"] for row in per_file_timings) / len(per_file_timings)
+        mean_total = sum(row["total"] for row in per_file_timings) / len(per_file_timings)
+        print("TIMING SUMMARY")
+        print(f"AUDIO LOAD: mean={mean_audio_load:.6f}s")
+        print("PREPROCESSING: included in AudioCommons metric/model stages")
+        print(f"EMBEDDING: mean={mean_embedding:.6f}s")
+        print(f"METRIC/MODEL STAGES: mean={mean_timbre:.6f}s")
+        print(f"SERIALIZATION: {serialization_seconds:.6f}s")
+        print(f"TOTAL PER FILE: mean={mean_total:.6f}s")
     print(f"REFERENCE_INDEX={output_path}")
     print(f"REFERENCES={len(reference_index.items)}")
     print("EMBEDDING_MODEL=expert_a_bottleneck_adaptation")

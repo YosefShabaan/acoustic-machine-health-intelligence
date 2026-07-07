@@ -8,11 +8,11 @@ This repository implements the foundation of an explainable acoustic machine hea
 
 VERIFIED RESULT: Expert A and the controlled SNR experiment are complete for Fan `id_00`. AUC improves from `0.6142` at `-6 dB` to `0.8306` at `0 dB` and `0.9980` at `+6 dB`.
 
-IMPLEMENTED BUT UNVERIFIED: Expert B code and unit tests exist, but Expert B is not verified end-to-end because the reference-index build has a known performance blocker.
+IMPLEMENTED BUT NOT YET END-TO-END VERIFIED: Expert B code and unit tests exist, and TASK-02 made the reference-index build operationally bounded for a 40-file benchmark. A production/reference MVP index is still TASK-03.
 
 PLANNED: Structured Health Context, LLM explanation, RAG maintenance grounding, orchestration, dashboard, multi-machine generalization, and domain robustness.
 
-BLOCKED: Expert B runtime profiling is the next technical blocker. Quantitative Expert B timbre-direction accuracy is blocked by missing five-attribute labels in the current Fan data.
+NEXT TECHNICAL STEP: Build the usable Fan `id_00` normal reference index. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
 
 # 3. Problem Statement
 
@@ -365,15 +365,15 @@ Based on repository evidence after cleanup:
 | Path | Purpose | Implemented | Tested | Verified | Missing |
 |---|---|---|---|---|---|
 | `src/models/timbre_difference.py` | Expert B timbre values, rank score, Expert A bottleneck embedder, characterization JSON | Yes | Unit-level | Partially | End-to-end smoke |
-| `src/utils/audio_reference_index.py` | Reference item/index, metadata filtering, deterministic kNN, JSON save/load | Yes | Unit-level through Expert B tests | Partially | Performance-reviewed index artifact |
-| `scripts/build_timbre_reference_index.py` | Build normal-reference index with timing/progress | Yes | Not fully | No | Performance root cause and bounded runtime |
+| `src/utils/audio_reference_index.py` | Reference item/index, metadata filtering, deterministic kNN, JSON save/load | Yes | Unit-level through Expert B tests | Partially | Final reference index artifact |
+| `scripts/build_timbre_reference_index.py` | Build normal-reference index with timing/progress | Yes | Bounded timing | Yes for 40-file benchmark | Final MVP reference index |
 | `scripts/run_expert_b_smoke.py` | Expert A -> Expert B smoke runner | Yes | Not fully | No | Requires usable reference index |
-| `tests/test_timbre_difference.py` | Unit tests for guardrails | Yes | Yes | 5 tests OK | Does not validate scientific accuracy |
+| `tests/test_timbre_difference.py` | Unit tests for guardrails | Yes | Yes | 6 tests OK | Does not validate scientific accuracy |
 
 Current tests:
 
 ```text
-Ran 5 tests in 0.001s
+Ran 6 tests in 5.581s
 OK
 ```
 
@@ -384,25 +384,30 @@ What the tests prove:
 - configured threshold conversion behavior.
 - same-machine/SNR filtering rejects mismatches.
 - JSON guardrails exclude confidence, root cause, and diagnosis keys.
+- AudioCommons `timbral_models` compatibility with current NumPy/librosa APIs.
 
 What they do not prove:
 
 - timbre direction accuracy.
-- AudioCommons runtime feasibility.
 - end-to-end same-audio integration.
-- reference-index scalability.
+- full 1011-reference index runtime.
 
-# 15. Expert B Performance Blocker
+# 15. Expert B Performance Forensics
 
-MEASURED FACT:
+TASK-02 RESULT:
 
-Known slow command:
+The prior Expert B reference-index blocker is resolved for the bounded 40-file
+job. The build is now operationally bounded, uses the official AudioCommons
+array+sample-rate API by default, and writes generated artifacts outside the
+repository under `D:\PDM_Data\MIMII\processed`.
+
+ORIGINAL COMMAND UNDER DIAGNOSIS:
 
 ```text
 python scripts/build_timbre_reference_index.py --machine-type fan --machine-id id_00 --snr-tag minus6dB --limit 40
 ```
 
-Observed:
+ORIGINAL OBSERVATION:
 
 - 40 normal WAV clips requested.
 - Process remained CPU-bound for hours.
@@ -411,21 +416,47 @@ Observed:
 - Run was manually stopped.
 - One-file path-based benchmark exceeded 23 minutes before interruption.
 
-CURRENT HYPOTHESIS:
+MEASURED ROOT CAUSE:
 
-The likely cause is repeated expensive work in `timbral_models` path-based calls:
+The installed AudioCommons `timbral_models` package used legacy NumPy/librosa
+API calls that failed under the current dependency versions:
 
-- file read
-- downmix
-- loudness normalization
-- resampling
-- repeated metric calls for each timbre attribute
+- `librosa.core.resample(audio, fs, target_fs)`
+- `librosa.onset.onset_detect(audio, fs, ...)`
+- `librosa.onset.onset_strength(audio, fs)`
+- `np.lib.pad(...)`
 
-The build script already has a `--timbre-input array` option, but this has not yet been reviewed under the approved performance-forensics task.
+TASK-02 CHANGE:
 
-Why the performance task is next:
+- Added a compatibility shim that delegates those old call shapes to the
+  current NumPy/librosa APIs.
+- Changed Expert B timbre computation and reference-index building to prefer
+  the official AudioCommons array+`fs` input path by default.
+- Kept `--timbre-input path` available for explicit comparison.
+- Added timing summary output.
 
-Expert B cannot be trusted operationally until one-file and three-file timings establish a bounded runtime and a 40-file estimate.
+BOUNDED TIMINGS:
+
+```text
+one sample, array mode: 9.100111s total
+one sample, path mode : 9.644822s total
+three samples, array  : 21.789717s total, 7.261207s mean/file
+40 samples, array     : 172.222937s total, 4.304610s mean/file
+```
+
+Detailed evidence:
+
+```text
+docs/TASK_02_PERFORMANCE_FORENSICS.md
+```
+
+REMAINING LIMIT:
+
+TASK-02 does not create the final production/reference MVP index. TASK-03 must
+decide and build the usable normal-reference index. Full 1011-normal-reference
+runtime is estimated around 72.55 minutes from the 40-file mean, so TASK-03
+should choose an approved bounded subset or explicitly approve a full offline
+build.
 
 # 16. Structured Health Context
 
@@ -646,9 +677,9 @@ The unique legacy unsuffixed model was preserved externally at
 | Preprocessing | DONE | `src/data_loader.py` | Log-Mel arrays | no context preprocessing | none |
 | Expert A | DONE | `src/models/anomaly_detector.py` | training/eval/scoring | multi-machine models | later |
 | SNR experiment | DONE | `snr_ad_summary.json/csv` | three-SNR comparison | DG robustness | later |
-| Expert B code | PARTIAL | Expert B source files | unit-level logic | runtime proof | TASK-02/03/04 |
-| Expert B tests | DONE for guardrails | 5 tests OK | rank/filter/schema checks | scientific accuracy | later labels |
-| Expert B reference index | BLOCKED | slow command record | script exists | bounded runtime | TASK-02 |
+| Expert B code | PARTIAL | Expert B source files | unit-level logic and bounded runtime path | final reference index and integration | TASK-03/04 |
+| Expert B tests | DONE for guardrails | 6 tests OK | rank/filter/schema/API-compat checks | scientific accuracy | later labels |
+| Expert B reference index | BOUNDED NOT FINAL | TASK-02 40-file benchmark | 40-file build in 172.222937s | usable MVP index | TASK-03 |
 | Expert A -> Expert B integration | TODO | smoke script exists | not verified | reference index | TASK-04 |
 | Context layer | TODO | no `src/context` | none | schema/translator | TASK-06 |
 | LLM | TODO | no agent implementation | none | guardrails/output | TASK-07 |
@@ -674,7 +705,7 @@ complete
 Expert B integration:
 
 ```text
-partial and performance-blocked
+partial; performance blocker resolved for bounded reference indexing
 ```
 
 Explanation/RAG/application layers:
@@ -691,7 +722,7 @@ future work
 
 Core MVP implementation progress:
 
-Approximately one third of the engineering foundation is complete: data staging, preprocessing, Expert A, SNR evaluation, and initial Expert B code exist. The user-facing system is not complete because Expert B runtime, context, LLM, RAG, orchestration, and dashboard remain.
+Approximately one third of the engineering foundation is complete: data staging, preprocessing, Expert A, SNR evaluation, initial Expert B code, and bounded Expert B reference-index runtime now exist. The user-facing system is not complete because the final reference index, context, LLM, RAG, orchestration, and dashboard remain.
 
 Research validation progress:
 
@@ -699,7 +730,7 @@ Expert A validation is strong for Fan `id_00` SNR sensitivity. Expert B scientif
 
 WHERE ARE WE NOW?
 
-We have a verified acoustic anomaly detector and a partially implemented timbre-difference expert. The immediate blocker is making Expert B reference indexing operationally bounded.
+We have a verified acoustic anomaly detector and a partially implemented timbre-difference expert. The immediate next step is building the usable Fan `id_00` normal reference index.
 
 WHAT REMAINS?
 
@@ -709,8 +740,8 @@ Performance-forensics for Expert B, one same-audio Expert A -> Expert B smoke, s
 
 | Task ID | Title | Why | Dependency | Expected Result |
 |---|---|---|---|---|
-| TASK-02 | Expert B Reference-Index Performance Root Cause And Optimization | unblock Expert B runtime | TASK-00 complete | measured one/three/40-file runtime or blocker |
-| TASK-03 | Expert B Reference Index Completion | provide same-machine normal references | TASK-02 | usable reference index |
+| TASK-02 | Expert B Reference-Index Performance Root Cause And Optimization | DONE | TASK-00B complete | root cause fixed; 40-file bounded runtime measured |
+| TASK-03 | Expert B Reference Index Completion | provide same-machine normal references | TASK-02 complete | usable reference index |
 | TASK-04 | Expert A To Expert B Same-Audio Integration | prove same-event characterization | TASK-03 | reviewed Expert B JSON |
 | TASK-05 | Expert B Qualitative Evidence Protocol | define honest review without labels | TASK-04 | qualitative protocol |
 | TASK-06 | Structured Health Context Schema And Translator | give LLM/RAG deterministic evidence | TASK-04 | schema/tests/sample context |
@@ -736,8 +767,9 @@ TASK-01 was superseded by TASK-00 because repository normalization and active-sc
 | Expert A detects anomalous Fan `id_00` sounds | Yes | Expert A code, artifacts, SNR metrics | Fan `id_00` only |
 | Expert A performance is SNR-sensitive | Yes | AUC 0.6142/0.8306/0.9980 | only evaluated on current Fan data |
 | Low SNR is strongly indicated as primary limitation at -6 dB | Yes | controlled SNR-only comparison | not the only possible limitation |
-| Expert B code implements rank/filter guardrails | Yes | 5 unit tests OK | code-level only |
-| Expert B technically works end-to-end | Not yet | smoke not completed | performance blocker |
+| Expert B code implements rank/filter/API guardrails | Yes | 6 unit tests OK | code-level only |
+| Expert B reference indexing is operationally bounded | Yes for 40-file benchmark | TASK-02 timings | final MVP index still TASK-03 |
+| Expert B technically works end-to-end | Not yet | smoke not completed | final reference index missing |
 | Expert B accurately predicts timbre direction | No | labels unavailable | requires labels/protocol |
 | Expert B diagnoses root cause | No | forbidden by architecture | no labels/model |
 | LLM explanation is grounded | No | no LLM/context/RAG | planned |

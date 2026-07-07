@@ -8,6 +8,7 @@ existing Expert A bottleneck, not one of the paper's experimental encoders.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import inspect
 from pathlib import Path
 from typing import Any, Protocol, Sequence
 import sys
@@ -67,8 +68,111 @@ def _finite_float(value: Any, name: str) -> float:
 
 def compute_timbre_values(audio_path: str | Path) -> TimbreValues:
     """Compute the five paper attributes using AudioCommons timbral models."""
-    values, _ = compute_timbre_values_timed(audio_path, reuse_loaded_audio=False)
+    values, _ = compute_timbre_values_timed(audio_path, reuse_loaded_audio=True)
     return values
+
+
+def _ensure_timbral_models_compatibility() -> None:
+    """Patch dependency API drift without changing timbral metric formulas.
+
+    The installed AudioCommons ``timbral_models`` package calls
+    ``librosa.core.resample(audio, fs, target_fs)`` from its internal
+    ``timbral_util.check_upsampling`` function. Newer librosa releases made
+    ``orig_sr`` and ``target_sr`` keyword-only, so the old positional call
+    raises ``TypeError`` before any metric can complete. This wrapper restores
+    that legacy call shape and delegates to librosa's current implementation.
+
+    It also calls ``librosa.onset.onset_detect(audio, fs, ...)`` and
+    ``librosa.onset.onset_strength(audio, fs)`` positionally, while newer
+    librosa releases made those arguments keyword-only.
+
+    The same package references the old ``np.lib.pad`` alias. NumPy 2.x exposes
+    the equivalent function as ``np.pad``.
+    """
+    try:
+        from timbral_models import timbral_util
+    except ImportError as exc:
+        raise ImportError(
+            "timbral_models is required for Expert B. Install the dependency "
+            "from requirements.txt before running timbre characterization."
+        ) from exc
+
+    if not hasattr(np.lib, "pad"):
+        np.lib.pad = np.pad  # type: ignore[attr-defined]
+
+    resample = timbral_util.librosa.core.resample
+    if not getattr(resample, "_iot_accepts_legacy_positional", False):
+        try:
+            inspect.signature(resample).bind(np.zeros(1), 16000, 44100)
+        except TypeError:
+
+            def legacy_positional_resample(
+                y: np.ndarray,
+                orig_sr: int | float | None = None,
+                target_sr: int | float | None = None,
+                *args: Any,
+                **kwargs: Any,
+            ) -> np.ndarray:
+                if orig_sr is None or target_sr is None:
+                    return resample(y, *args, **kwargs)
+                if args:
+                    positional_names = ("res_type", "fix", "scale", "axis")
+                    for name, value in zip(positional_names, args):
+                        kwargs.setdefault(name, value)
+                return resample(y, orig_sr=orig_sr, target_sr=target_sr, **kwargs)
+
+            legacy_positional_resample._iot_accepts_legacy_positional = True  # type: ignore[attr-defined]
+            timbral_util.librosa.core.resample = legacy_positional_resample
+
+    onset_detect = timbral_util.librosa.onset.onset_detect
+    if not getattr(onset_detect, "_iot_accepts_legacy_positional", False):
+        try:
+            inspect.signature(onset_detect).bind(np.zeros(16), 16000)
+        except TypeError:
+
+            def legacy_positional_onset_detect(
+                y: np.ndarray | None = None,
+                sr: int | float | None = None,
+                *args: Any,
+                **kwargs: Any,
+            ) -> Any:
+                if args:
+                    positional_names = ("onset_envelope",)
+                    for name, value in zip(positional_names, args):
+                        kwargs.setdefault(name, value)
+                if y is not None:
+                    kwargs.setdefault("y", y)
+                if sr is not None:
+                    kwargs.setdefault("sr", sr)
+                return onset_detect(**kwargs)
+
+            legacy_positional_onset_detect._iot_accepts_legacy_positional = True  # type: ignore[attr-defined]
+            timbral_util.librosa.onset.onset_detect = legacy_positional_onset_detect
+
+    onset_strength = timbral_util.librosa.onset.onset_strength
+    if not getattr(onset_strength, "_iot_accepts_legacy_positional", False):
+        try:
+            inspect.signature(onset_strength).bind(np.zeros(16), 16000)
+        except TypeError:
+
+            def legacy_positional_onset_strength(
+                y: np.ndarray | None = None,
+                sr: int | float | None = None,
+                *args: Any,
+                **kwargs: Any,
+            ) -> Any:
+                if args:
+                    positional_names = ("S", "lag", "max_size")
+                    for name, value in zip(positional_names, args):
+                        kwargs.setdefault(name, value)
+                if y is not None:
+                    kwargs.setdefault("y", y)
+                if sr is not None:
+                    kwargs.setdefault("sr", sr)
+                return onset_strength(**kwargs)
+
+            legacy_positional_onset_strength._iot_accepts_legacy_positional = True  # type: ignore[attr-defined]
+            timbral_util.librosa.onset.onset_strength = legacy_positional_onset_strength
 
 
 def _timbral_functions() -> dict[str, Any]:
@@ -80,6 +184,7 @@ def _timbral_functions() -> dict[str, Any]:
             "timbral_models is required for Expert B. Install the dependency "
             "from requirements.txt before running timbre characterization."
         ) from exc
+    _ensure_timbral_models_compatibility()
     return {
         "sharpness": timbral_models.timbral_sharpness,
         "roughness": timbral_models.timbral_roughness,

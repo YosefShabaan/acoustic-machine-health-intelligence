@@ -401,7 +401,7 @@ TASK ID: `TASK-02`
 
 TITLE: Expert B Reference-Index Performance Root Cause And Optimization
 
-STATUS: `PLANNED`
+STATUS: `DONE`
 
 GOAL:
 
@@ -484,13 +484,23 @@ BLOCKER CONDITIONS:
 - `timbral_models` official API cannot be made operational without changing metric semantics.
 - Runtime remains pathological after bounded equivalent optimization.
 
+TASK-02 RESULT:
+
+- Root cause was measured as dependency API drift between `timbral_models` and current NumPy/librosa.
+- Added compatibility shims for legacy `librosa` positional calls and `np.lib.pad`.
+- Switched the default Expert B timbre input path to the official AudioCommons array+`fs` API.
+- Added timing summaries and external default output paths.
+- One-sample, three-sample, and 40-file bounded runs completed.
+- 40-file array-mode runtime: `172.222937s`.
+- Scientific behavior did not change.
+
 ### TASK 03
 
 TASK ID: `TASK-03`
 
 TITLE: Expert B Reference Index Completion
 
-STATUS: `PLANNED`
+STATUS: `READY`
 
 GOAL:
 

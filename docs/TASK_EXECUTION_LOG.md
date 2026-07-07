@@ -91,6 +91,68 @@ TASK-02 - Expert B Reference-Index Performance Root Cause And Optimization, awai
 
 ```text
 TASK:
+TASK-02 - Expert B Reference-Index Performance Root Cause And Optimization
+
+STARTED:
+2026-07-07
+
+IMPLEMENTED:
+- Inspected Expert B reference-index call path and installed AudioCommons timbral_models source.
+- Measured pre-fix one-sample failure for both path and array modes.
+- Identified dependency API drift in timbral_models calls to current NumPy/librosa.
+- Added compatibility shims for librosa.core.resample, librosa.onset.onset_detect, librosa.onset.onset_strength, and np.lib.pad.
+- Switched Expert B default timbre computation to the official AudioCommons array+fs API.
+- Kept --timbre-input path available for comparison.
+- Moved default Expert B generated artifact outputs to D:\PDM_Data\MIMII\processed.
+- Added timing summary output.
+- Added docs/TASK_02_PERFORMANCE_FORENSICS.md.
+- Updated REPORT.md, docs/MASTER_EXECUTION_PLAN.md, and project_state.json.
+
+TESTS:
+- python tests/test_timbre_difference.py
+- python -m json.tool project_state.json
+- python scripts/build_timbre_reference_index.py --machine-type fan --machine-id id_00 --snr-tag minus6dB --limit 1 --timbre-input array --output D:\PDM_Data\MIMII\processed\task02_benchmarks\array_limit1_post.json
+- python scripts/build_timbre_reference_index.py --machine-type fan --machine-id id_00 --snr-tag minus6dB --limit 1 --timbre-input path --output D:\PDM_Data\MIMII\processed\task02_benchmarks\path_limit1_post.json
+- python scripts/build_timbre_reference_index.py --machine-type fan --machine-id id_00 --snr-tag minus6dB --limit 3 --timbre-input array --output D:\PDM_Data\MIMII\processed\task02_benchmarks\array_limit3_post.json
+- python scripts/build_timbre_reference_index.py --machine-type fan --machine-id id_00 --snr-tag minus6dB --limit 40 --timbre-input array --output D:\PDM_Data\MIMII\processed\task02_benchmarks\array_limit40_post.json
+- python scripts/build_timbre_reference_index.py --machine-type fan --machine-id id_00 --snr-tag minus6dB --limit 1 --output D:\PDM_Data\MIMII\processed\task02_benchmarks\default_limit1_post.json
+
+ACTUAL OUTPUT:
+- Pre-fix path and array one-sample runs failed on timbral_models/librosa API drift.
+- Unit tests: Ran 6 tests, OK.
+- One-sample array: TOTAL=9.100111s.
+- One-sample path: TOTAL=9.644822s.
+- Three-sample array: TOTAL=21.789717s, mean=7.261207s/file.
+- Forty-file array: TOTAL=172.222937s, mean=4.304610s/file.
+- Default one-sample run used TIMBRE_INPUT=array.
+- Generated benchmark artifacts were written under D:\PDM_Data\MIMII\processed\task02_benchmarks.
+
+IMPLEMENTATION REVIEW:
+- Root cause was measured from stack traces and installed dependency source.
+- The change restores old dependency call shapes and delegates to current APIs.
+- The default path now avoids repeated external file reads by using the official AudioCommons array+fs API.
+- Progress, per-file timing, ETA, and summary timings are present.
+
+SCIENTIFIC REVIEW:
+- AudioCommons metrics were not replaced.
+- Nishida rank-score semantics, k=30 default, distance default, Expert A model, SNR artifacts, and result values were not changed.
+- The bounded 40-file reference index is a benchmark artifact, not a final scientific evaluation claim.
+- Full 1011-reference runtime is estimated at ~72.55 minutes from the 40-file mean and remains a TASK-03 planning choice.
+
+DIFF REVIEW:
+- Changed files: src/models/timbre_difference.py, scripts/build_timbre_reference_index.py, scripts/run_expert_b_smoke.py, tests/test_timbre_difference.py, REPORT.md, docs/TASK_02_PERFORMANCE_FORENSICS.md, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No repo-local data/model artifacts were added.
+- Benchmark JSON artifacts are external under D:\PDM_Data\MIMII\processed.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-03 - Expert B Reference Index Completion.
+```
+
+```text
+TASK:
 TASK-00B - Local Artifact Reconciliation And Git Review Baseline
 
 STARTED:
