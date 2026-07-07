@@ -681,7 +681,7 @@ TASK ID: `TASK-05`
 
 TITLE: Expert B Qualitative Evidence Protocol
 
-STATUS: `READY`
+STATUS: `DONE`
 
 GOAL:
 
@@ -748,13 +748,25 @@ BLOCKER CONDITIONS:
 
 - No Expert B smoke output exists.
 
+TASK-05 RESULT:
+
+- Created `docs/expert_b_qualitative_protocol.md`.
+- Protocol distinguishes qualitative characterization from quantitative timbre-direction validation.
+- Protocol records paper facts, verified repository facts, project decisions, unknowns, required inputs, review procedure, acceptance criteria, and stop conditions.
+- Applied the protocol to the TASK-04 smoke JSON:
+  - `D:\PDM_Data\MIMII\processed\expert_b_smoke_fan_id_00_minus6dB_task04.json`.
+  - Input audio: `D:\PDM_Data\MIMII\fan_minus6dB\id_00\abnormal\00000002.wav`.
+  - Selected references: `30/40`.
+  - Rank-score review is qualitative only and keeps `direction=null`.
+- No quantitative accuracy, diagnosis, confidence, or exact-reproduction claim was added.
+
 ### TASK 06
 
 TASK ID: `TASK-06`
 
 TITLE: Structured Health Context Schema And Translator
 
-STATUS: `PLANNED`
+STATUS: `READY`
 
 GOAL:
 

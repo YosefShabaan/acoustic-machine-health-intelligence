@@ -27,11 +27,12 @@
                             "local_artifact_reconciliation":  "docs/LOCAL_ARTIFACT_RECONCILIATION.md",
                             "task_02_performance_forensics":  "docs/TASK_02_PERFORMANCE_FORENSICS.md",
                             "task_03_reference_index_validation":  "docs/TASK_03_REFERENCE_INDEX_VALIDATION.md",
-                            "task_04_same_audio_smoke":  "docs/TASK_04_SAME_AUDIO_SMOKE.md"
+                            "task_04_same_audio_smoke":  "docs/TASK_04_SAME_AUDIO_SMOKE.md",
+                            "expert_b_qualitative_protocol":  "docs/expert_b_qualitative_protocol.md"
                         },
-    "current_phase":  "task_05_expert_b_qualitative_evidence_protocol",
-    "last_completed_phase":  "task_04_expert_a_to_expert_b_same_audio_integration",
-    "next_executable_phase":  "task_05_expert_b_qualitative_evidence_protocol",
+    "current_phase":  "task_06_structured_health_context_schema_and_translator",
+    "last_completed_phase":  "task_05_expert_b_qualitative_evidence_protocol",
+    "next_executable_phase":  "task_06_structured_health_context_schema_and_translator",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -49,13 +50,14 @@
                                                                       "notes":  "TASK-04 produced one reviewed same-audio Expert A -> Expert B abnormal smoke JSON."
                                                                   },
                              "phase_3_expert_b_qualitative_protocol":  {
-                                                                           "status":  "next_executable",
+                                                                           "status":  "complete_task_05",
                                                                            "primary_skill":  "$project-architect",
-                                                                           "notes":  "Define the qualitative Expert B evidence protocol without quantitative timbre-accuracy claims."
+                                                                           "notes":  "TASK-05 documented docs/expert_b_qualitative_protocol.md and applied it to the TASK-04 smoke output."
                                                                        },
                              "phase_4_structured_health_context":  {
-                                                                       "status":  "planned",
-                                                                       "primary_skill":  "$scientific-implementer"
+                                                                       "status":  "next_executable",
+                                                                       "primary_skill":  "$scientific-implementer",
+                                                                       "notes":  "Implement deterministic structured context preserving Expert A/B evidence and limitations."
                                                                    },
                              "phase_5_llm_explanation_agent":  {
                                                                    "status":  "planned",
@@ -96,9 +98,14 @@
                                                                                        "notes":  "Saved and validated D:\\PDM_Data\\MIMII\\processed\\expert_b_smoke_fan_id_00_minus6dB_task04.json for abnormal 00000002.wav."
                                                                              },
                              "task_05_expert_b_qualitative_evidence_protocol":  {
-                                                                                  "status":  "next_executable",
+                                                                                  "status":  "complete",
                                                                                   "primary_skill":  "$project-architect",
-                                                                                  "notes":  "Define and run/inspect a small qualitative evidence protocol for Expert B without accuracy or diagnosis claims."
+                                                                                  "notes":  "Documented docs/expert_b_qualitative_protocol.md with qualitative review procedure, MVP review record, acceptance criteria, and stop conditions."
+                                                                             },
+                             "task_06_structured_health_context_schema_and_translator":  {
+                                                                                           "status":  "next_executable",
+                                                                                           "primary_skill":  "$scientific-implementer",
+                                                                                           "notes":  "Create versioned context schema and translator for Expert A/B outputs and system limits."
                                                                              }
                          },
     "verified_expert_a_snr_auc_results":  {
@@ -131,7 +138,7 @@
                                                           }
                                           },
     "current_expert_b_state":  {
-                                   "status":  "same_audio_smoke_complete_qualitative_protocol_pending",
+                                   "status":  "qualitative_protocol_complete_context_pending",
                                    "implementation_files_present":  [
                                                                         "src/models/timbre_difference.py",
                                                                         "src/utils/audio_reference_index.py",
@@ -166,6 +173,9 @@
                                                                         "roughness":  0.933333,
                                                                         "sharpness":  0.933333
                                                                     },
+                                   "qualitative_protocol_status":  "done",
+                                   "qualitative_protocol_path":  "docs/expert_b_qualitative_protocol.md",
+                                   "qualitative_protocol_scope":  "Level 1 integration and qualitative characterization only; no direction accuracy, diagnosis, confidence, RUL, or exact reproduction claim.",
                                    "timbral_models_compatibility":  "legacy NumPy/librosa API drift patched in src/models/timbre_difference.py without changing metric formulas."
                                },
     "known_performance_blocker":  {
@@ -278,19 +288,19 @@
                        },
     "repository_disagreements":  [
                                      {
-                                         "item":  "Expert B qualitative evidence protocol",
-                                         "expected":  "honest qualitative review protocol for Expert B outputs without quantitative timbre-accuracy claims",
-                                         "actual":  "one same-audio smoke exists, but the qualitative evidence protocol has not been defined yet",
-                                         "action":  "TASK-05 qualitative protocol"
+                                         "item":  "Structured Health Context schema",
+                                         "expected":  "deterministic context object combining machine metadata, Expert A output, Expert B output, and system limits",
+                                         "actual":  "Expert A/B evidence exists, but no structured context translator is implemented yet",
+                                         "action":  "TASK-06 structured context schema and translator"
                                      },
                                      {
                                          "item":  "future explanation stack",
                                          "expected":  "structured context, LLM/RAG, orchestration, and dashboard implemented later",
                                          "actual":  "not implemented yet",
-                                         "action":  "planned TASK-06 through TASK-12; do not claim complete"
+                                         "action":  "planned TASK-07 through TASK-12; do not claim complete"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-04 completed one same-audio Expert A -> Expert B abnormal smoke; continuing to TASK-05 qualitative evidence protocol.",
+    "last_state_update_reason":  "TASK-05 documented the qualitative Expert B evidence protocol; continuing to TASK-06 structured context schema and translator.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -316,8 +326,8 @@
     "plan_version":  "master_execution_plan_v3_2026-07-07",
     "approved_plan_version":  "master_execution_plan_v3_2026-07-07",
     "current_task":  null,
-    "last_completed_task":  "TASK-04",
-    "next_task":  "TASK-05",
+    "last_completed_task":  "TASK-05",
+    "next_task":  "TASK-06",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -367,11 +377,14 @@
                                         "notes":  "Saved and validated one same-audio Expert A -> Expert B smoke JSON for abnormal 00000002.wav; selected 30/40 references; rank scores finite and directions null."
                                     },
                         "TASK-05":  {
-                                        "status":  "ready",
-                                        "verdict":  null
+                                        "status":  "done",
+                                        "verdict":  "DONE",
+                                        "completed_utc":  "2026-07-07",
+                                        "primary_skill":  "$project-architect",
+                                        "notes":  "Created docs/expert_b_qualitative_protocol.md and applied it to the TASK-04 smoke output without adding quantitative accuracy, diagnosis, confidence, RUL, or exact-reproduction claims."
                                     },
                         "TASK-06":  {
-                                        "status":  "planned",
+                                        "status":  "ready",
                                         "verdict":  null
                                     },
                         "TASK-07":  {
