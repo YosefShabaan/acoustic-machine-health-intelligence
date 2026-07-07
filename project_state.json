@@ -25,11 +25,12 @@
                             "task_execution_log":  "docs/TASK_EXECUTION_LOG.md",
                             "historical_expert_a_snr_report":  "REPORT_PHASE1_2.md",
                             "local_artifact_reconciliation":  "docs/LOCAL_ARTIFACT_RECONCILIATION.md",
-                            "task_02_performance_forensics":  "docs/TASK_02_PERFORMANCE_FORENSICS.md"
+                            "task_02_performance_forensics":  "docs/TASK_02_PERFORMANCE_FORENSICS.md",
+                            "task_03_reference_index_validation":  "docs/TASK_03_REFERENCE_INDEX_VALIDATION.md"
                         },
-    "current_phase":  "task_03_expert_b_reference_index_completion",
-    "last_completed_phase":  "phase_1_expert_b_performance_forensics",
-    "next_executable_phase":  "task_03_expert_b_reference_index_completion",
+    "current_phase":  "task_04_expert_a_to_expert_b_same_audio_integration",
+    "last_completed_phase":  "task_03_expert_b_reference_index_completion",
+    "next_executable_phase":  "task_04_expert_a_to_expert_b_same_audio_integration",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -42,8 +43,9 @@
                                                                             "notes":  "TASK-02 measured dependency API drift, added compatibility shims, defaulted to array+fs timbre input, and completed a 40-file benchmark in 172.222937s."
                                                                         },
                              "phase_2_expert_b_integration_mvp":  {
-                                                                      "status":  "blocked_by_phase_1",
-                                                                      "primary_skill":  "$scientific-implementer"
+                                                                      "status":  "ready_for_task_04",
+                                                                      "primary_skill":  "$scientific-implementer",
+                                                                      "notes":  "TASK-03 produced a loadable 40-reference Fan id_00 minus6dB reference index; next step is same-audio abnormal integration."
                                                                   },
                              "phase_3_expert_b_qualitative_protocol":  {
                                                                            "status":  "planned",
@@ -82,9 +84,14 @@
                                                                                        "primary_skill":  "$paper-forensics"
                                                                                    },
                              "task_03_expert_b_reference_index_completion":  {
-                                                                                 "status":  "next_executable",
+                                                                                 "status":  "complete",
                                                                                  "primary_skill":  "$scientific-implementer",
-                                                                                 "notes":  "Build a usable Fan id_00 minus6dB normal reference index after TASK-02 bounded runtime evidence."
+                                                                                 "notes":  "Built and validated D:\\PDM_Data\\MIMII\\processed\\timbre_reference_index_fan_id_00_minus6dB.json with 40 normal references, k=30 metadata, and kNN validation."
+                                                                             },
+                             "task_04_expert_a_to_expert_b_same_audio_integration":  {
+                                                                                       "status":  "next_executable",
+                                                                                       "primary_skill":  "$scientific-implementer",
+                                                                                       "notes":  "Run one abnormal same-audio Fan id_00 event through Expert A and Expert B and inspect the resulting JSON."
                                                                              }
                          },
     "verified_expert_a_snr_auc_results":  {
@@ -117,7 +124,7 @@
                                                           }
                                           },
     "current_expert_b_state":  {
-                                   "status":  "partial_runtime_bounded_reference_index_pending",
+                                   "status":  "bounded_reference_index_complete_same_audio_pending",
                                    "implementation_files_present":  [
                                                                         "src/models/timbre_difference.py",
                                                                         "src/utils/audio_reference_index.py",
@@ -133,8 +140,11 @@
                                    "rank_threshold":  null,
                                    "direction_output_without_threshold":  null,
                                    "level_2_scientific_evaluation_available":  false,
-                                   "runtime_status":  "TASK-02 bounded 40-file reference-index build completed in 172.222937s using array+fs timbre input.",
-                                   "reference_index_status":  "pending_TASK-03_final_index",
+                                   "runtime_status":  "TASK-03 final bounded 40-reference index completed in 162.762365s using array+fs timbre input; mean total/file 4.067785s.",
+                                   "reference_index_status":  "ready_for_TASK-04_same_audio_smoke",
+                                   "reference_index_path":  "D:\\PDM_Data\\MIMII\\processed\\timbre_reference_index_fan_id_00_minus6dB.json",
+                                   "reference_index_count":  40,
+                                   "reference_index_validated_k":  30,
                                    "timbral_models_compatibility":  "legacy NumPy/librosa API drift patched in src/models/timbre_difference.py without changing metric formulas."
                                },
     "known_performance_blocker":  {
@@ -247,19 +257,19 @@
                        },
     "repository_disagreements":  [
                                      {
-                                         "item":  "Expert B reference index artifact",
-                                         "expected":  "usable same-machine normal reference index for fan/id_00/minus6dB",
-                                         "actual":  "performance path is bounded, but final MVP reference index has not been produced yet",
-                                         "action":  "TASK-03 reference index completion"
+                                         "item":  "Expert A -> Expert B same-audio JSON",
+                                         "expected":  "one abnormal Fan id_00 event scored by Expert A and characterized by Expert B using the same audio path",
+                                         "actual":  "reference index is now ready, but same-audio abnormal integration has not been run yet",
+                                         "action":  "TASK-04 same-audio integration"
                                      },
                                      {
                                          "item":  "future explanation stack",
                                          "expected":  "structured context, LLM/RAG, orchestration, and dashboard implemented later",
                                          "actual":  "not implemented yet",
-                                         "action":  "planned TASK-04 through TASK-12; do not claim complete"
+                                         "action":  "planned TASK-06 through TASK-12; do not claim complete"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-02 completed Expert B performance forensics; reference-index build is bounded for 40 files; continuing to TASK-03 reference index completion.",
+    "last_state_update_reason":  "TASK-03 completed the bounded Fan id_00 minus6dB Expert B reference index; continuing to TASK-04 same-audio integration.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -285,8 +295,8 @@
     "plan_version":  "master_execution_plan_v3_2026-07-07",
     "approved_plan_version":  "master_execution_plan_v3_2026-07-07",
     "current_task":  null,
-    "last_completed_task":  "TASK-02",
-    "next_task":  "TASK-03",
+    "last_completed_task":  "TASK-03",
+    "next_task":  "TASK-04",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -322,11 +332,14 @@
                                         "notes":  "Performance root cause measured and fixed; 40-file array-mode reference-index benchmark completed in 172.222937s; no scientific semantics changed."
                                     },
                         "TASK-03":  {
-                                        "status":  "ready",
-                                        "verdict":  null
+                                        "status":  "done",
+                                        "verdict":  "DONE",
+                                        "completed_utc":  "2026-07-07",
+                                        "primary_skill":  "$scientific-implementer",
+                                        "notes":  "Built and validated D:\\PDM_Data\\MIMII\\processed\\timbre_reference_index_fan_id_00_minus6dB.json with 40 normal references, k=30 metadata, timing summary, and same-machine kNN validation."
                                     },
                         "TASK-04":  {
-                                        "status":  "planned",
+                                        "status":  "ready",
                                         "verdict":  null
                                     },
                         "TASK-05":  {

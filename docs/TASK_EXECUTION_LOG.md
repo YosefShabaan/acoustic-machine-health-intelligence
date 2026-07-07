@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: TASK-00B complete; awaiting approval before TASK-02.
+Status: TASK-03 complete; continuing implementation at TASK-04.
 
-Latest completed task: `TASK-00B`.
+Latest completed task: `TASK-03`.
 
 Use this template after every task:
 
@@ -29,6 +29,65 @@ Rules:
 - Do not mark `DONE` based only on code creation.
 - Use `FAILED` when bounded diagnosis was attempted and the task still fails.
 - Use `BLOCKED` when Yosef input, data, credentials, or architecture approval is required.
+
+```text
+TASK:
+TASK-03 - Expert B Reference Index Completion
+
+STARTED:
+2026-07-07
+
+IMPLEMENTED:
+- Inspected reference-index builder, timbre difference implementation, reference-index utilities, and config.
+- Added output filename scope guardrails so generated reference-index filenames must include machine type, machine ID, and SNR tag.
+- Added saved reference-index metadata for embedding model, timbre model, method status, k, distance, reference count, default-k usability, source normal directory, output path, build limit, per-file timings, and timing summary.
+- Built the final bounded Fan id_00 minus6dB normal reference index externally at D:\PDM_Data\MIMII\processed\timbre_reference_index_fan_id_00_minus6dB.json.
+- Added docs/TASK_03_REFERENCE_INDEX_VALIDATION.md.
+- Updated REPORT.md, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, and project_state.json.
+
+TESTS:
+- python tests/test_timbre_difference.py
+- python -m compileall -q src scripts tests
+- python src/config.py
+- python scripts/build_timbre_reference_index.py --machine-type fan --machine-id id_00 --snr-tag minus6dB --limit 1 --output D:\PDM_Data\MIMII\processed\task03_benchmarks\timbre_reference_index_fan_id_00_minus6dB_limit1_task03.json
+- python scripts/build_timbre_reference_index.py --machine-type fan --machine-id id_00 --snr-tag minus6dB --limit 3 --output D:\PDM_Data\MIMII\processed\task03_benchmarks\timbre_reference_index_fan_id_00_minus6dB_limit3_task03.json
+- python scripts/build_timbre_reference_index.py --machine-type fan --machine-id id_00 --snr-tag minus6dB --limit 40
+- Reference-index validation script: load/filter/kNN/metadata/path/finite-value checks.
+- Expert B import readiness smoke.
+- python -m json.tool project_state.json
+
+ACTUAL OUTPUT:
+- Unit tests: Ran 6 tests, OK.
+- One-sample smoke: TOTAL=11.351220s, REFERENCES=1.
+- Three-sample timing: TOTAL=21.175939s, REFERENCES=3.
+- Final 40-reference build: TOTAL=162.762365s, mean total/file=4.067785s, REFERENCES=40.
+- Validation: REFERENCES=40, FILTERED=40, KNN_SELECTED=30, METADATA_K=30, TIMBRE_MODEL=AudioCommons timbral_models, VALIDATION=OK.
+- Import readiness: IMPORT_READY=OK, REFERENCE_COUNT=40, EXPERT_K=30, EMBEDDING_MODEL=expert_a_bottleneck_adaptation.
+
+IMPLEMENTATION REVIEW:
+- The final index has at least k=30 references and is loadable by Expert B.
+- Output filenames now include scope tokens to reduce cross-machine/SNR overwrite risk.
+- Metadata now records the method adaptation status and timing summary inside the saved artifact.
+- The final artifact is external to Git under D:\PDM_Data\MIMII\processed.
+
+SCIENTIFIC REVIEW:
+- All reference items are normal WAVs under D:\PDM_Data\MIMII\fan_minus6dB\id_00\normal.
+- No abnormal clips were included.
+- All items match fan/id_00/minus6dB.
+- Expert A bottleneck remains labeled as project_mvp_adaptation_not_paper_encoder.
+- No exact Nishida reproduction, timbre-direction accuracy, root-cause, or confidence claim was added.
+
+DIFF REVIEW:
+- Changed files: scripts/build_timbre_reference_index.py, docs/TASK_03_REFERENCE_INDEX_VALIDATION.md, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, REPORT.md, project_state.json.
+- No repo-local data/model artifacts were added.
+- Generated JSON artifacts are external under D:\PDM_Data\MIMII\processed.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-04 - Expert A To Expert B Same-Audio Integration.
+```
 
 ```text
 TASK:

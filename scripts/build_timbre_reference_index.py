@@ -14,8 +14,12 @@ if str(SRC_DIR) not in sys.path:
 
 import config as cfg  # noqa: E402
 from models.timbre_difference import (  # noqa: E402
+    DEFAULT_DISTANCE,
     DEFAULT_K,
+    EMBEDDING_MODEL_NAME,
     ExpertABottleneckEmbedder,
+    METHOD_STATUS,
+    TIMBRE_ATTRIBUTES,
     compute_timbre_values_timed,
 )
 from utils.audio_reference_index import ReferenceIndex, ReferenceItem, save_reference_index  # noqa: E402
@@ -27,6 +31,53 @@ def _default_output(machine_type: str, machine_id: str, snr_tag: str) -> Path:
         cfg.PROCESSED_DIR
         / f"timbre_reference_index_{machine_type}_{machine_id}_{snr_tag}.json"
     )
+
+
+def _assert_output_path_matches_scope(
+    output_path: Path,
+    *,
+    machine_type: str,
+    machine_id: str,
+    snr_tag: str,
+) -> None:
+    """Reject ambiguous artifact names that could overwrite another scope."""
+    filename = output_path.name.lower()
+    required_tokens = (machine_type.lower(), machine_id.lower(), snr_tag.lower())
+    missing = [token for token in required_tokens if token not in filename]
+    if missing:
+        raise ValueError(
+            "Reference-index output filename must include machine type, machine ID, "
+            f"and SNR tag. Missing tokens {missing!r} in {output_path}"
+        )
+
+
+def _summarize_timings(
+    per_file_timings: list[dict[str, float]],
+    *,
+    serialization_seconds: float | None,
+    total_seconds: float,
+) -> dict[str, float | int | None]:
+    """Return stable timing metadata for the saved artifact."""
+    if not per_file_timings:
+        return {
+            "reference_count": 0,
+            "mean_audio_load_seconds": None,
+            "mean_embedding_seconds": None,
+            "mean_timbre_total_seconds": None,
+            "mean_total_per_file_seconds": None,
+            "serialization_seconds": serialization_seconds,
+            "total_seconds": total_seconds,
+        }
+    count = len(per_file_timings)
+    return {
+        "reference_count": count,
+        "mean_audio_load_seconds": sum(row["audio_load"] for row in per_file_timings) / count,
+        "mean_embedding_seconds": sum(row["embedding"] for row in per_file_timings) / count,
+        "mean_timbre_total_seconds": sum(row["timbre_total"] for row in per_file_timings) / count,
+        "mean_total_per_file_seconds": sum(row["total"] for row in per_file_timings) / count,
+        "serialization_seconds": serialization_seconds,
+        "total_seconds": total_seconds,
+    }
 
 
 def parse_args() -> argparse.Namespace:
@@ -66,6 +117,12 @@ def main() -> None:
         args.machine_type,
         args.machine_id,
         args.snr_tag,
+    )
+    _assert_output_path_matches_scope(
+        output_path,
+        machine_type=args.machine_type,
+        machine_id=args.machine_id,
+        snr_tag=args.snr_tag,
     )
     paths = sorted(normal_dir.glob("*.wav"), key=lambda path: path.name)
     if args.limit > 0:
@@ -144,28 +201,47 @@ def main() -> None:
             "machine_type": args.machine_type,
             "machine_id": args.machine_id,
             "snr_tag": args.snr_tag,
-            "embedding_model": "expert_a_bottleneck_adaptation",
+            "embedding_model": EMBEDDING_MODEL_NAME,
+            "embedding_metadata": embedder.metadata,
+            "timbre_model": "AudioCommons timbral_models",
+            "timbre_attributes": list(TIMBRE_ATTRIBUTES),
+            "method_status": METHOD_STATUS,
+            "k": DEFAULT_K,
+            "distance": DEFAULT_DISTANCE,
+            "reference_count": len(items),
+            "usable_for_default_k": len(items) >= DEFAULT_K,
             "normal_reference_only": True,
+            "source_normal_dir": str(normal_dir),
+            "output_path": str(output_path),
+            "build_limit": args.limit,
             "timbre_input": args.timbre_input,
             "timings": per_file_timings,
+            "timing_summary": _summarize_timings(
+                per_file_timings,
+                serialization_seconds=None,
+                total_seconds=time.perf_counter() - total_start,
+            ),
         },
     )
     save_start = time.perf_counter()
     save_reference_index(reference_index, output_path)
     serialization_seconds = time.perf_counter() - save_start
     total_seconds = time.perf_counter() - total_start
+    reference_index.metadata["timing_summary"] = _summarize_timings(
+        per_file_timings,
+        serialization_seconds=serialization_seconds,
+        total_seconds=total_seconds,
+    )
+    save_reference_index(reference_index, output_path)
     if per_file_timings:
-        mean_embedding = sum(row["embedding"] for row in per_file_timings) / len(per_file_timings)
-        mean_audio_load = sum(row["audio_load"] for row in per_file_timings) / len(per_file_timings)
-        mean_timbre = sum(row["timbre_total"] for row in per_file_timings) / len(per_file_timings)
-        mean_total = sum(row["total"] for row in per_file_timings) / len(per_file_timings)
+        timing_summary = reference_index.metadata["timing_summary"]
         print("TIMING SUMMARY")
-        print(f"AUDIO LOAD: mean={mean_audio_load:.6f}s")
+        print(f"AUDIO LOAD: mean={timing_summary['mean_audio_load_seconds']:.6f}s")
         print("PREPROCESSING: included in AudioCommons metric/model stages")
-        print(f"EMBEDDING: mean={mean_embedding:.6f}s")
-        print(f"METRIC/MODEL STAGES: mean={mean_timbre:.6f}s")
+        print(f"EMBEDDING: mean={timing_summary['mean_embedding_seconds']:.6f}s")
+        print(f"METRIC/MODEL STAGES: mean={timing_summary['mean_timbre_total_seconds']:.6f}s")
         print(f"SERIALIZATION: {serialization_seconds:.6f}s")
-        print(f"TOTAL PER FILE: mean={mean_total:.6f}s")
+        print(f"TOTAL PER FILE: mean={timing_summary['mean_total_per_file_seconds']:.6f}s")
     print(f"REFERENCE_INDEX={output_path}")
     print(f"REFERENCES={len(reference_index.items)}")
     print("EMBEDDING_MODEL=expert_a_bottleneck_adaptation")

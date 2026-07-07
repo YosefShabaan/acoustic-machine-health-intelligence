@@ -500,7 +500,7 @@ TASK ID: `TASK-03`
 
 TITLE: Expert B Reference Index Completion
 
-STATUS: `READY`
+STATUS: `DONE`
 
 GOAL:
 
@@ -575,13 +575,23 @@ BLOCKER CONDITIONS:
 - Acceptable runtime cannot be achieved.
 - Required normal WAVs or Expert A artifacts are unavailable.
 
+TASK-03 RESULT:
+
+- Added output filename scope guardrails for machine type, machine ID, and SNR tag.
+- Stored required reference-index metadata: machine type, machine ID, SNR tag, embedding model, timbre model, method status, `k`, distance, reference count, and timing summary.
+- Built the bounded Fan `id_00` minus6dB normal reference index with 40 references.
+- Artifact: `D:\PDM_Data\MIMII\processed\timbre_reference_index_fan_id_00_minus6dB.json`.
+- Validation loaded the artifact, filtered 40 same-machine references, and selected 30 kNN references.
+- 40-reference runtime: `162.762365s`, mean `4.067785s/file`.
+- Evidence: `docs/TASK_03_REFERENCE_INDEX_VALIDATION.md`.
+
 ### TASK 04
 
 TASK ID: `TASK-04`
 
 TITLE: Expert A To Expert B Same-Audio Integration
 
-STATUS: `PLANNED`
+STATUS: `READY`
 
 GOAL:
 
