@@ -591,7 +591,7 @@ TASK ID: `TASK-04`
 
 TITLE: Expert A To Expert B Same-Audio Integration
 
-STATUS: `READY`
+STATUS: `DONE`
 
 GOAL:
 
@@ -665,13 +665,23 @@ BLOCKER CONDITIONS:
 - Expert A does not flag any bounded abnormal candidate.
 - Expert B output contains unsupported directions or diagnosis.
 
+TASK-04 RESULT:
+
+- Ran a bounded `max_scan=10` abnormal same-audio smoke.
+- Expert A flagged `D:\PDM_Data\MIMII\fan_minus6dB\id_00\abnormal\00000002.wav`.
+- Expert A score: `0.622095`; threshold: `0.593284`; `is_anomaly=True`.
+- Expert B characterized that same audio path using the Fan `id_00` minus6dB reference index.
+- Output artifact: `D:\PDM_Data\MIMII\processed\expert_b_smoke_fan_id_00_minus6dB_task04.json`.
+- Validation confirmed five finite rank scores in `[0, 1]`, selected `30/40` references, null directions with `rank_threshold=None`, and no diagnosis/confidence/root-cause fields.
+- Evidence: `docs/TASK_04_SAME_AUDIO_SMOKE.md`.
+
 ### TASK 05
 
 TASK ID: `TASK-05`
 
 TITLE: Expert B Qualitative Evidence Protocol
 
-STATUS: `PLANNED`
+STATUS: `READY`
 
 GOAL:
 

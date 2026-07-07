@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: TASK-03 complete; continuing implementation at TASK-04.
+Status: TASK-04 complete; continuing implementation at TASK-05.
 
-Latest completed task: `TASK-03`.
+Latest completed task: `TASK-04`.
 
 Use this template after every task:
 
@@ -29,6 +29,59 @@ Rules:
 - Do not mark `DONE` based only on code creation.
 - Use `FAILED` when bounded diagnosis was attempted and the task still fails.
 - Use `BLOCKED` when Yosef input, data, credentials, or architecture approval is required.
+
+```text
+TASK:
+TASK-04 - Expert A To Expert B Same-Audio Integration
+
+STARTED:
+2026-07-07
+
+IMPLEMENTED:
+- Inspected scripts/run_expert_b_smoke.py, Expert A scoring helpers, Expert B reference-index loading, and existing tests.
+- Added a same-audio identity unit test confirming Expert B output records the exact characterized input path and machine/SNR metadata.
+- Ran bounded max_scan=10 abnormal Expert A scan and Expert B same-audio characterization.
+- Saved the smoke output externally at D:\PDM_Data\MIMII\processed\expert_b_smoke_fan_id_00_minus6dB_task04.json.
+- Added docs/TASK_04_SAME_AUDIO_SMOKE.md.
+- Updated REPORT.md, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, and project_state.json.
+
+TESTS:
+- python tests/test_timbre_difference.py
+- python -m compileall -q src scripts tests
+- python scripts/run_expert_b_smoke.py --machine-type fan --machine-id id_00 --snr-tag minus6dB --max-scan 10 --output D:\PDM_Data\MIMII\processed\expert_b_smoke_fan_id_00_minus6dB_task04.json
+- Expert B smoke JSON validation script: same input path, Expert A anomaly, reference scope/counts, rank-score bounds, null directions, and forbidden-key checks.
+
+ACTUAL OUTPUT:
+- Unit tests: Ran 7 tests, OK.
+- Smoke input audio: D:\PDM_Data\MIMII\fan_minus6dB\id_00\abnormal\00000002.wav.
+- Expert A: score=0.622095, threshold=0.593284, is_anomaly=True.
+- Expert B references: selected 30 of pool 40.
+- Rank scores: boominess=0.000000, brightness=0.933333, depth=0.666667, roughness=0.933333, sharpness=0.933333.
+- Validation: SMOKE_JSON_VALIDATION=OK.
+
+IMPLEMENTATION REVIEW:
+- Existing smoke script already preserved the same audio path through Expert A and Expert B.
+- The new unit test makes same-audio identity explicit at JSON-output level.
+- No full abnormal scan was needed; a bounded max_scan=10 found a flagged abnormal clip.
+- Output JSON is external to Git under D:\PDM_Data\MIMII\processed.
+
+SCIENTIFIC REVIEW:
+- Expert B ran only after Expert A marked the same audio anomalous.
+- The result keeps rank_threshold=null and all direction/direction_code values null.
+- No confidence percentage, root cause, or diagnosis field was present.
+- This is one bounded integration smoke, not a quantitative Expert B accuracy claim.
+
+DIFF REVIEW:
+- Changed files: tests/test_timbre_difference.py, docs/TASK_04_SAME_AUDIO_SMOKE.md, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, REPORT.md, project_state.json.
+- No repo-local data/model artifacts were added.
+- Generated JSON smoke artifact is external under D:\PDM_Data\MIMII\processed.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-05 - Expert B Qualitative Evidence Protocol.
+```
 
 ```text
 TASK:

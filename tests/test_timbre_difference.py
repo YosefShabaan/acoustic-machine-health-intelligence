@@ -194,6 +194,43 @@ class TimbreDifferenceTests(unittest.TestCase):
             self.assertIsNone(values["direction_code"])
         self.assertFalse(_contains_key(output, {"confidence_pct", "root_cause", "diagnosis"}))
 
+    def test_same_audio_identity_is_preserved_in_output(self) -> None:
+        """Expert B output records the exact audio path it characterized."""
+        references = [
+            _item(f"ref_{idx}.wav", embedding=(float(idx + 1), 0.0), base=float(idx))
+            for idx in range(3)
+        ]
+        index = ReferenceIndex(metadata={}, items=references)
+        expert = AcousticTimbreDifferenceExpert(
+            reference_index=index,
+            embedder=FakeEmbedder(),
+            k=3,
+            distance="euclidean",
+            rank_threshold=None,
+        )
+        output = expert.characterize(
+            audio_path=Path("same_event_abnormal.wav"),
+            machine_type="fan",
+            machine_id="id_00",
+            snr_tag="minus6dB",
+            expert_a={
+                "anomaly_score": 1.0,
+                "threshold": 0.5,
+                "is_anomaly": True,
+            },
+            test_timbre_values=TimbreValues(
+                sharpness=10.0,
+                roughness=10.0,
+                boominess=10.0,
+                brightness=10.0,
+                depth=10.0,
+            ),
+        )
+        self.assertEqual(output["input_audio"]["path"], str(Path("same_event_abnormal.wav")))
+        self.assertEqual(output["input_audio"]["machine_type"], "fan")
+        self.assertEqual(output["input_audio"]["machine_id"], "id_00")
+        self.assertEqual(output["input_audio"]["snr_tag"], "minus6dB")
+
 
 if __name__ == "__main__":
     unittest.main()

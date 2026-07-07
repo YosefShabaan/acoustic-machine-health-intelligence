@@ -8,11 +8,11 @@ This repository implements the foundation of an explainable acoustic machine hea
 
 VERIFIED RESULT: Expert A and the controlled SNR experiment are complete for Fan `id_00`. AUC improves from `0.6142` at `-6 dB` to `0.8306` at `0 dB` and `0.9980` at `+6 dB`.
 
-IMPLEMENTED BUT NOT YET END-TO-END VERIFIED: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, and TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index. Same-audio abnormal Expert A -> Expert B integration is still TASK-04.
+IMPLEMENTED AND SMOKE-VERIFIED FOR THE FAN MVP PATH: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index, and TASK-04 saved one reviewed same-audio Expert A -> Expert B abnormal JSON.
 
 PLANNED: Structured Health Context, LLM explanation, RAG maintenance grounding, orchestration, dashboard, multi-machine generalization, and domain robustness.
 
-NEXT TECHNICAL STEP: Run one abnormal same-audio Fan `id_00` event through Expert A and Expert B. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
+NEXT TECHNICAL STEP: Define the Expert B qualitative evidence protocol. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
 
 # 3. Problem Statement
 
@@ -364,16 +364,16 @@ Based on repository evidence after cleanup:
 
 | Path | Purpose | Implemented | Tested | Verified | Missing |
 |---|---|---|---|---|---|
-| `src/models/timbre_difference.py` | Expert B timbre values, rank score, Expert A bottleneck embedder, characterization JSON | Yes | Unit-level | Partially | End-to-end smoke |
-| `src/utils/audio_reference_index.py` | Reference item/index, metadata filtering, deterministic kNN, JSON save/load | Yes | Unit-level through Expert B tests | Yes for final bounded index | Same-audio smoke |
+| `src/models/timbre_difference.py` | Expert B timbre values, rank score, Expert A bottleneck embedder, characterization JSON | Yes | Unit-level + smoke | Yes for one same-audio smoke | Qualitative evidence protocol |
+| `src/utils/audio_reference_index.py` | Reference item/index, metadata filtering, deterministic kNN, JSON save/load | Yes | Unit-level through Expert B tests | Yes for final bounded index and smoke | Broader evidence protocol |
 | `scripts/build_timbre_reference_index.py` | Build normal-reference index with timing/progress | Yes | Bounded timing | Yes for final 40-reference MVP index | Full 1011-reference offline build remains optional/expensive |
-| `scripts/run_expert_b_smoke.py` | Expert A -> Expert B smoke runner | Yes | Not fully | No | TASK-04 same-audio abnormal smoke |
-| `tests/test_timbre_difference.py` | Unit tests for guardrails | Yes | Yes | 6 tests OK | Does not validate scientific accuracy |
+| `scripts/run_expert_b_smoke.py` | Expert A -> Expert B smoke runner | Yes | Bounded smoke | Yes for one abnormal Fan id_00 event | Broader evidence protocol |
+| `tests/test_timbre_difference.py` | Unit tests for guardrails | Yes | Yes | 7 tests OK | Does not validate scientific accuracy |
 
 Current tests:
 
 ```text
-Ran 6 tests in 5.245s
+Ran 7 tests in 4.083s
 OK
 ```
 
@@ -385,6 +385,7 @@ What the tests prove:
 - same-machine/SNR filtering rejects mismatches.
 - JSON guardrails exclude confidence, root cause, and diagnosis keys.
 - AudioCommons `timbral_models` compatibility with current NumPy/librosa APIs.
+- same-audio identity is preserved in Expert B output metadata.
 
 What they do not prove:
 
@@ -473,6 +474,28 @@ Evidence:
 
 ```text
 docs/TASK_03_REFERENCE_INDEX_VALIDATION.md
+```
+
+TASK-04 SAME-AUDIO SMOKE RESULT:
+
+```text
+input audio: D:\PDM_Data\MIMII\fan_minus6dB\id_00\abnormal\00000002.wav
+Expert A score: 0.622095
+Expert A threshold: 0.593284
+Expert A is_anomaly: True
+Expert B references: 30 selected from 40 same-machine references
+rank scores:
+  boominess: 0.000000
+  brightness: 0.933333
+  depth: 0.666667
+  roughness: 0.933333
+  sharpness: 0.933333
+```
+
+Evidence:
+
+```text
+docs/TASK_04_SAME_AUDIO_SMOKE.md
 ```
 
 REMAINING LIMIT:
@@ -700,10 +723,10 @@ The unique legacy unsuffixed model was preserved externally at
 | Preprocessing | DONE | `src/data_loader.py` | Log-Mel arrays | no context preprocessing | none |
 | Expert A | DONE | `src/models/anomaly_detector.py` | training/eval/scoring | multi-machine models | later |
 | SNR experiment | DONE | `snr_ad_summary.json/csv` | three-SNR comparison | DG robustness | later |
-| Expert B code | PARTIAL | Expert B source files | unit-level logic, bounded runtime path, and loadable reference index | same-audio abnormal integration | TASK-04 |
-| Expert B tests | DONE for guardrails | 6 tests OK | rank/filter/schema/API-compat checks | scientific accuracy | later labels |
+| Expert B code | FAN MVP SMOKE DONE | Expert B source files and TASK-04 smoke JSON | unit-level logic, bounded runtime path, loadable reference index, and one same-audio abnormal smoke | qualitative evidence protocol | TASK-05 |
+| Expert B tests | DONE for guardrails | 7 tests OK | rank/filter/schema/API-compat/same-audio identity checks | scientific accuracy | later labels |
 | Expert B reference index | DONE for bounded Fan MVP | `D:\PDM_Data\MIMII\processed\timbre_reference_index_fan_id_00_minus6dB.json` | 40 references, k=30, load/filter/kNN validated | optional full 1011-reference offline index | later optional |
-| Expert A -> Expert B integration | TODO | smoke script exists | not verified | same-audio abnormal smoke | TASK-04 |
+| Expert A -> Expert B integration | DONE for one bounded smoke | `D:\PDM_Data\MIMII\processed\expert_b_smoke_fan_id_00_minus6dB_task04.json` | same abnormal audio path scored by Expert A and characterized by Expert B | qualitative protocol and broader review | TASK-05 |
 | Context layer | TODO | no `src/context` | none | schema/translator | TASK-06 |
 | LLM | TODO | no agent implementation | none | guardrails/output | TASK-07 |
 | RAG | TODO | no `src/rag` | none | approved docs/retriever | TASK-08 |
@@ -728,7 +751,7 @@ complete
 Expert B integration:
 
 ```text
-partial; bounded reference index complete, same-audio abnormal smoke pending
+one bounded Fan same-audio smoke complete; qualitative evidence protocol pending
 ```
 
 Explanation/RAG/application layers:
@@ -745,7 +768,7 @@ future work
 
 Core MVP implementation progress:
 
-Approximately one third of the engineering foundation is complete: data staging, preprocessing, Expert A, SNR evaluation, Expert B guardrail code, bounded Expert B runtime, and a loadable bounded Expert B reference index now exist. The user-facing system is not complete because same-audio Expert A -> Expert B integration, context, LLM, RAG, orchestration, and dashboard remain.
+Approximately one third of the engineering foundation is complete: data staging, preprocessing, Expert A, SNR evaluation, Expert B guardrail code, bounded Expert B runtime, a loadable bounded Expert B reference index, and one same-audio Expert A -> Expert B smoke now exist. The user-facing system is not complete because the qualitative protocol, context, LLM, RAG, orchestration, and dashboard remain.
 
 Research validation progress:
 
@@ -753,11 +776,11 @@ Expert A validation is strong for Fan `id_00` SNR sensitivity. Expert B scientif
 
 WHERE ARE WE NOW?
 
-We have a verified acoustic anomaly detector and a loadable bounded timbre-difference reference index for Fan `id_00` minus6dB. The immediate next step is one reviewed same-audio abnormal Expert A -> Expert B JSON.
+We have a verified acoustic anomaly detector, a loadable bounded timbre-difference reference index for Fan `id_00` minus6dB, and one reviewed same-audio abnormal Expert A -> Expert B JSON. The immediate next step is the Expert B qualitative evidence protocol.
 
 WHAT REMAINS?
 
-One same-audio Expert A -> Expert B smoke, structured context, LLM/RAG, orchestrator, dashboard, and later machine/domain generalization.
+Expert B qualitative protocol, structured context, LLM/RAG, orchestrator, dashboard, and later machine/domain generalization.
 
 # 27. Remaining Work
 
@@ -765,7 +788,7 @@ One same-audio Expert A -> Expert B smoke, structured context, LLM/RAG, orchestr
 |---|---|---|---|---|
 | TASK-02 | Expert B Reference-Index Performance Root Cause And Optimization | DONE | TASK-00B complete | root cause fixed; 40-file bounded runtime measured |
 | TASK-03 | Expert B Reference Index Completion | DONE | TASK-02 complete | usable 40-reference index validated |
-| TASK-04 | Expert A To Expert B Same-Audio Integration | prove same-event characterization | TASK-03 | reviewed Expert B JSON |
+| TASK-04 | Expert A To Expert B Same-Audio Integration | DONE | TASK-03 | reviewed Expert B JSON |
 | TASK-05 | Expert B Qualitative Evidence Protocol | define honest review without labels | TASK-04 | qualitative protocol |
 | TASK-06 | Structured Health Context Schema And Translator | give LLM/RAG deterministic evidence | TASK-04 | schema/tests/sample context |
 | TASK-07 | Guardrailed LLM Explanation Agent | explain evidence cautiously | TASK-06 | guardrailed explanation |
@@ -790,9 +813,9 @@ TASK-01 was superseded by TASK-00 because repository normalization and active-sc
 | Expert A detects anomalous Fan `id_00` sounds | Yes | Expert A code, artifacts, SNR metrics | Fan `id_00` only |
 | Expert A performance is SNR-sensitive | Yes | AUC 0.6142/0.8306/0.9980 | only evaluated on current Fan data |
 | Low SNR is strongly indicated as primary limitation at -6 dB | Yes | controlled SNR-only comparison | not the only possible limitation |
-| Expert B code implements rank/filter/API guardrails | Yes | 6 unit tests OK | code-level only |
+| Expert B code implements rank/filter/API guardrails | Yes | 7 unit tests OK | code-level only |
 | Expert B reference indexing is operationally bounded | Yes | TASK-02 timings and TASK-03 final artifact | full 1011-reference offline index not run |
-| Expert B technically works end-to-end | Not yet | smoke not completed | same-audio abnormal integration pending |
+| Expert B technically works end-to-end | Yes for one bounded Fan smoke | TASK-04 smoke JSON | not a broad accuracy evaluation |
 | Expert B accurately predicts timbre direction | No | labels unavailable | requires labels/protocol |
 | Expert B diagnoses root cause | No | forbidden by architecture | no labels/model |
 | LLM explanation is grounded | No | no LLM/context/RAG | planned |
@@ -845,7 +868,7 @@ The final system should still avoid RUL, exact time-to-failure, and unsupported 
 
 # 32. Conclusion
 
-The project now has a coherent active architecture and a normalized report around same-machine acoustic health monitoring. Expert A and the SNR experiment are verified. Expert B is implemented at the code/guardrail level and has a loadable bounded Fan `id_00` minus6dB reference index. The next technical blocker is the reviewed same-audio Expert A -> Expert B abnormal smoke.
+The project now has a coherent active architecture and a normalized report around same-machine acoustic health monitoring. Expert A and the SNR experiment are verified. Expert B is implemented at the code/guardrail level, has a loadable bounded Fan `id_00` minus6dB reference index, and has one reviewed same-audio abnormal smoke JSON. The next technical blocker is the Expert B qualitative evidence protocol.
 
 # 33. References
 

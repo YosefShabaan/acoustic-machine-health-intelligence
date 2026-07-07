@@ -26,11 +26,12 @@
                             "historical_expert_a_snr_report":  "REPORT_PHASE1_2.md",
                             "local_artifact_reconciliation":  "docs/LOCAL_ARTIFACT_RECONCILIATION.md",
                             "task_02_performance_forensics":  "docs/TASK_02_PERFORMANCE_FORENSICS.md",
-                            "task_03_reference_index_validation":  "docs/TASK_03_REFERENCE_INDEX_VALIDATION.md"
+                            "task_03_reference_index_validation":  "docs/TASK_03_REFERENCE_INDEX_VALIDATION.md",
+                            "task_04_same_audio_smoke":  "docs/TASK_04_SAME_AUDIO_SMOKE.md"
                         },
-    "current_phase":  "task_04_expert_a_to_expert_b_same_audio_integration",
-    "last_completed_phase":  "task_03_expert_b_reference_index_completion",
-    "next_executable_phase":  "task_04_expert_a_to_expert_b_same_audio_integration",
+    "current_phase":  "task_05_expert_b_qualitative_evidence_protocol",
+    "last_completed_phase":  "task_04_expert_a_to_expert_b_same_audio_integration",
+    "next_executable_phase":  "task_05_expert_b_qualitative_evidence_protocol",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -43,13 +44,14 @@
                                                                             "notes":  "TASK-02 measured dependency API drift, added compatibility shims, defaulted to array+fs timbre input, and completed a 40-file benchmark in 172.222937s."
                                                                         },
                              "phase_2_expert_b_integration_mvp":  {
-                                                                      "status":  "ready_for_task_04",
+                                                                      "status":  "complete_task_04",
                                                                       "primary_skill":  "$scientific-implementer",
-                                                                      "notes":  "TASK-03 produced a loadable 40-reference Fan id_00 minus6dB reference index; next step is same-audio abnormal integration."
+                                                                      "notes":  "TASK-04 produced one reviewed same-audio Expert A -> Expert B abnormal smoke JSON."
                                                                   },
                              "phase_3_expert_b_qualitative_protocol":  {
-                                                                           "status":  "planned",
-                                                                           "primary_skill":  "$project-architect"
+                                                                           "status":  "next_executable",
+                                                                           "primary_skill":  "$project-architect",
+                                                                           "notes":  "Define the qualitative Expert B evidence protocol without quantitative timbre-accuracy claims."
                                                                        },
                              "phase_4_structured_health_context":  {
                                                                        "status":  "planned",
@@ -89,9 +91,14 @@
                                                                                  "notes":  "Built and validated D:\\PDM_Data\\MIMII\\processed\\timbre_reference_index_fan_id_00_minus6dB.json with 40 normal references, k=30 metadata, and kNN validation."
                                                                              },
                              "task_04_expert_a_to_expert_b_same_audio_integration":  {
-                                                                                       "status":  "next_executable",
+                                                                                       "status":  "complete",
                                                                                        "primary_skill":  "$scientific-implementer",
-                                                                                       "notes":  "Run one abnormal same-audio Fan id_00 event through Expert A and Expert B and inspect the resulting JSON."
+                                                                                       "notes":  "Saved and validated D:\\PDM_Data\\MIMII\\processed\\expert_b_smoke_fan_id_00_minus6dB_task04.json for abnormal 00000002.wav."
+                                                                             },
+                             "task_05_expert_b_qualitative_evidence_protocol":  {
+                                                                                  "status":  "next_executable",
+                                                                                  "primary_skill":  "$project-architect",
+                                                                                  "notes":  "Define and run/inspect a small qualitative evidence protocol for Expert B without accuracy or diagnosis claims."
                                                                              }
                          },
     "verified_expert_a_snr_auc_results":  {
@@ -124,7 +131,7 @@
                                                           }
                                           },
     "current_expert_b_state":  {
-                                   "status":  "bounded_reference_index_complete_same_audio_pending",
+                                   "status":  "same_audio_smoke_complete_qualitative_protocol_pending",
                                    "implementation_files_present":  [
                                                                         "src/models/timbre_difference.py",
                                                                         "src/utils/audio_reference_index.py",
@@ -141,10 +148,24 @@
                                    "direction_output_without_threshold":  null,
                                    "level_2_scientific_evaluation_available":  false,
                                    "runtime_status":  "TASK-03 final bounded 40-reference index completed in 162.762365s using array+fs timbre input; mean total/file 4.067785s.",
-                                   "reference_index_status":  "ready_for_TASK-04_same_audio_smoke",
+                                   "reference_index_status":  "ready_and_used_by_TASK-04_same_audio_smoke",
                                    "reference_index_path":  "D:\\PDM_Data\\MIMII\\processed\\timbre_reference_index_fan_id_00_minus6dB.json",
                                    "reference_index_count":  40,
                                    "reference_index_validated_k":  30,
+                                   "same_audio_smoke_status":  "done",
+                                   "same_audio_smoke_output":  "D:\\PDM_Data\\MIMII\\processed\\expert_b_smoke_fan_id_00_minus6dB_task04.json",
+                                   "same_audio_smoke_input":  "D:\\PDM_Data\\MIMII\\fan_minus6dB\\id_00\\abnormal\\00000002.wav",
+                                   "same_audio_smoke_expert_a_score":  0.622095,
+                                   "same_audio_smoke_expert_a_threshold":  0.593284,
+                                   "same_audio_smoke_reference_pool":  40,
+                                   "same_audio_smoke_selected_references":  30,
+                                   "same_audio_smoke_rank_scores":  {
+                                                                        "boominess":  0.0,
+                                                                        "brightness":  0.933333,
+                                                                        "depth":  0.666667,
+                                                                        "roughness":  0.933333,
+                                                                        "sharpness":  0.933333
+                                                                    },
                                    "timbral_models_compatibility":  "legacy NumPy/librosa API drift patched in src/models/timbre_difference.py without changing metric formulas."
                                },
     "known_performance_blocker":  {
@@ -257,10 +278,10 @@
                        },
     "repository_disagreements":  [
                                      {
-                                         "item":  "Expert A -> Expert B same-audio JSON",
-                                         "expected":  "one abnormal Fan id_00 event scored by Expert A and characterized by Expert B using the same audio path",
-                                         "actual":  "reference index is now ready, but same-audio abnormal integration has not been run yet",
-                                         "action":  "TASK-04 same-audio integration"
+                                         "item":  "Expert B qualitative evidence protocol",
+                                         "expected":  "honest qualitative review protocol for Expert B outputs without quantitative timbre-accuracy claims",
+                                         "actual":  "one same-audio smoke exists, but the qualitative evidence protocol has not been defined yet",
+                                         "action":  "TASK-05 qualitative protocol"
                                      },
                                      {
                                          "item":  "future explanation stack",
@@ -269,7 +290,7 @@
                                          "action":  "planned TASK-06 through TASK-12; do not claim complete"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-03 completed the bounded Fan id_00 minus6dB Expert B reference index; continuing to TASK-04 same-audio integration.",
+    "last_state_update_reason":  "TASK-04 completed one same-audio Expert A -> Expert B abnormal smoke; continuing to TASK-05 qualitative evidence protocol.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -295,8 +316,8 @@
     "plan_version":  "master_execution_plan_v3_2026-07-07",
     "approved_plan_version":  "master_execution_plan_v3_2026-07-07",
     "current_task":  null,
-    "last_completed_task":  "TASK-03",
-    "next_task":  "TASK-04",
+    "last_completed_task":  "TASK-04",
+    "next_task":  "TASK-05",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -339,11 +360,14 @@
                                         "notes":  "Built and validated D:\\PDM_Data\\MIMII\\processed\\timbre_reference_index_fan_id_00_minus6dB.json with 40 normal references, k=30 metadata, timing summary, and same-machine kNN validation."
                                     },
                         "TASK-04":  {
-                                        "status":  "ready",
-                                        "verdict":  null
+                                        "status":  "done",
+                                        "verdict":  "DONE",
+                                        "completed_utc":  "2026-07-07",
+                                        "primary_skill":  "$scientific-implementer",
+                                        "notes":  "Saved and validated one same-audio Expert A -> Expert B smoke JSON for abnormal 00000002.wav; selected 30/40 references; rank scores finite and directions null."
                                     },
                         "TASK-05":  {
-                                        "status":  "planned",
+                                        "status":  "ready",
                                         "verdict":  null
                                     },
                         "TASK-06":  {
