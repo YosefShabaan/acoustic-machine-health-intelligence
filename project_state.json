@@ -30,11 +30,12 @@
                             "task_04_same_audio_smoke":  "docs/TASK_04_SAME_AUDIO_SMOKE.md",
                             "expert_b_qualitative_protocol":  "docs/expert_b_qualitative_protocol.md",
                             "structured_context_schema":  "src/context/schemas.py",
-                            "structured_context_translator":  "src/context/translator.py"
+                            "structured_context_translator":  "src/context/translator.py",
+                            "guardrailed_llm_agent":  "src/agents/diagnostic_agent.py"
                         },
-    "current_phase":  "task_07_guardrailed_llm_explanation_agent",
-    "last_completed_phase":  "task_06_structured_health_context_schema_and_translator",
-    "next_executable_phase":  "task_07_guardrailed_llm_explanation_agent",
+    "current_phase":  "task_08_maintenance_knowledge_base_and_retriever",
+    "last_completed_phase":  "task_07_guardrailed_llm_explanation_agent",
+    "next_executable_phase":  "task_08_maintenance_knowledge_base_and_retriever",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -62,13 +63,14 @@
                                                                        "notes":  "TASK-06 implemented src/context schema/translator and saved one validated sample context JSON."
                                                                    },
                              "phase_5_llm_explanation_agent":  {
-                                                                   "status":  "next_executable",
+                                                                   "status":  "complete_task_07",
                                                                    "primary_skill":  "$scientific-implementer",
-                                                                   "notes":  "Generate cautious technician-facing explanation from Structured Health Context."
+                                                                   "notes":  "TASK-07 implemented deterministic guarded explanation output and optional mockable generator interface over Structured Health Context."
                                                                },
                              "phase_6_maintenance_rag":  {
-                                                             "status":  "planned",
-                                                             "primary_skill":  "$scientific-implementer"
+                                                             "status":  "next_executable",
+                                                             "primary_skill":  "$scientific-implementer",
+                                                             "notes":  "Create approved local maintenance knowledge base and retrieval layer."
                                                          },
                              "phase_7_end_to_end_orchestration":  {
                                                                       "status":  "planned",
@@ -111,9 +113,14 @@
                                                                                            "notes":  "Implemented schema version 0.1.0, translator, tests, and sample context D:\\PDM_Data\\MIMII\\processed\\structured_context_fan_id_00_minus6dB_task06.json."
                                                                              },
                              "task_07_guardrailed_llm_explanation_agent":  {
-                                                                              "status":  "next_executable",
+                                                                              "status":  "complete",
                                                                               "primary_skill":  "$scientific-implementer",
-                                                                              "notes":  "Implement deterministic/mocked LLM explanation layer over Structured Health Context with guardrails."
+                                                                              "notes":  "Implemented src/agents/diagnostic_agent.py, tests/test_llm_guardrails.py, and D:\\PDM_Data\\MIMII\\processed\\guarded_explanation_fan_id_00_minus6dB_task07.json."
+                                                                             },
+                             "task_08_maintenance_knowledge_base_and_retriever":  {
+                                                                                     "status":  "next_executable",
+                                                                                     "primary_skill":  "$scientific-implementer",
+                                                                                     "notes":  "Implement local approved-source retrieval with source IDs and safe unavailable behavior."
                                                                              }
                          },
     "verified_expert_a_snr_auc_results":  {
@@ -205,7 +212,33 @@
                                                                           "rul_prediction",
                                                                           "pronostia"
                                                                       ],
-                                  "next_use":  "TASK-07 guardrailed LLM explanation agent"
+                                  "next_use":  "TASK-08 maintenance knowledge base and retriever"
+                              },
+    "current_llm_state":  {
+                              "status":  "guardrailed_explanation_agent_complete",
+                              "implementation_files_present":  [
+                                                                   "src/agents/__init__.py",
+                                                                   "src/agents/diagnostic_agent.py",
+                                                                   "tests/test_llm_guardrails.py"
+                                                               ],
+                              "mode":  "deterministic_offline_with_optional_mockable_generator",
+                              "sample_explanation_output":  "D:\\PDM_Data\\MIMII\\processed\\guarded_explanation_fan_id_00_minus6dB_task07.json",
+                              "sample_event_id":  "fan_id_00_minus6dB_00000002",
+                              "sample_observations_count":  7,
+                              "sample_limitations_count":  5,
+                              "sample_hypotheses_count":  2,
+                              "sample_inspection_notes_count":  2,
+                              "raw_audio_path_excluded_from_prompt":  true,
+                              "live_llm_used":  false,
+                              "retrieval_grounded":  false,
+                              "guardrails":  [
+                                                 "no RUL or time-to-failure wording",
+                                                 "no exact component diagnosis wording",
+                                                 "no confidence or percentage invention",
+                                                 "no root-cause claim",
+                                                 "rank scores remain qualitative local ranks"
+                                             ],
+                              "next_use":  "TASK-09 grounded maintenance agent after TASK-08 retriever"
                               },
     "known_performance_blocker":  {
                                       "phase":  "phase_1_expert_b_performance_forensics",
@@ -244,8 +277,8 @@
                                     "affects":  "Paper-like Expert B evaluation and domain robustness."
                                 },
                                 {
-                                    "blocker":  "No LLM, RAG, or dashboard implementation exists.",
-                                    "affects":  "End-to-end explanation and maintenance recommendation claims."
+                                    "blocker":  "No maintenance knowledge base, retriever, grounded maintenance agent, orchestrator, or dashboard implementation exists.",
+                                    "affects":  "Retrieval-grounded maintenance recommendation and full end-to-end user-facing claims."
                                 },
                                 {
                                     "blocker":  "RUL/PRONOSTIA are legacy-only and unsupported in active architecture.",
@@ -317,19 +350,19 @@
                        },
     "repository_disagreements":  [
                                      {
-                                         "item":  "Guardrailed LLM explanation agent",
-                                         "expected":  "cautious technician-facing explanation generated from Structured Health Context with limitations preserved",
-                                         "actual":  "Structured Health Context exists, but no explanation agent is implemented yet",
-                                         "action":  "TASK-07 guardrailed LLM explanation agent"
+                                         "item":  "Maintenance knowledge base and retriever",
+                                         "expected":  "approved-source retrieval with visible source IDs before maintenance recommendations",
+                                         "actual":  "Guardrailed explanation exists, but no retrieval layer or approved maintenance source citation exists yet",
+                                         "action":  "TASK-08 maintenance knowledge base and retriever"
                                      },
                                      {
                                          "item":  "future explanation stack",
-                                         "expected":  "LLM/RAG, orchestration, and dashboard implemented later",
-                                         "actual":  "structured context is implemented, but LLM/RAG/orchestration/dashboard are not implemented yet",
-                                         "action":  "planned TASK-07 through TASK-12; do not claim complete"
+                                         "expected":  "RAG, grounded maintenance agent, orchestration, and dashboard implemented later",
+                                         "actual":  "structured context and guarded explanation are implemented, but RAG/orchestration/dashboard are not implemented yet",
+                                         "action":  "planned TASK-08 through TASK-12; do not claim complete"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-06 implemented Structured Health Context schema and translator; continuing to TASK-07 guardrailed LLM explanation agent.",
+    "last_state_update_reason":  "TASK-07 implemented a deterministic guardrailed explanation agent over Structured Health Context; continuing to TASK-08 maintenance knowledge base and retriever.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -355,8 +388,8 @@
     "plan_version":  "master_execution_plan_v3_2026-07-07",
     "approved_plan_version":  "master_execution_plan_v3_2026-07-07",
     "current_task":  null,
-    "last_completed_task":  "TASK-06",
-    "next_task":  "TASK-07",
+    "last_completed_task":  "TASK-07",
+    "next_task":  "TASK-08",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -420,12 +453,17 @@
                                         "notes":  "Implemented Structured Health Context schema version 0.1.0, translator, 5 context tests, and sample context JSON for the TASK-04 Expert B output."
                                     },
                         "TASK-07":  {
-                                        "status":  "ready",
-                                        "verdict":  null
+                                        "status":  "done",
+                                        "verdict":  "DONE",
+                                        "completed_utc":  "2026-07-07",
+                                        "primary_skill":  "$scientific-implementer",
+                                        "notes":  "Implemented deterministic guarded explanation over Structured Health Context with optional mockable generator interface, 4 guardrail tests, and sample output D:\\PDM_Data\\MIMII\\processed\\guarded_explanation_fan_id_00_minus6dB_task07.json."
                                     },
                         "TASK-08":  {
-                                        "status":  "planned",
-                                        "verdict":  null
+                                        "status":  "ready",
+                                        "verdict":  null,
+                                        "primary_skill":  "$scientific-implementer",
+                                        "notes":  "Next executable task: implement approved-source maintenance knowledge base and retrieval layer."
                                     },
                         "TASK-09":  {
                                         "status":  "planned",

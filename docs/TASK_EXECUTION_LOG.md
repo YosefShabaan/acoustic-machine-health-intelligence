@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: TASK-06 complete; continuing implementation at TASK-07.
+Status: TASK-07 complete; continuing implementation at TASK-08.
 
-Latest completed task: `TASK-06`.
+Latest completed task: `TASK-07`.
 
 Use this template after every task:
 
@@ -29,6 +29,65 @@ Rules:
 - Do not mark `DONE` based only on code creation.
 - Use `FAILED` when bounded diagnosis was attempted and the task still fails.
 - Use `BLOCKED` when Yosef input, data, credentials, or architecture approval is required.
+
+```text
+TASK:
+TASK-07 - Guardrailed LLM Explanation Agent
+
+STARTED:
+2026-07-07
+
+IMPLEMENTED:
+- Inspected src/context schema/translator, CLAUDE LLM guidance, project_state.json, and the TASK-06 sample Structured Health Context.
+- Created src/agents/diagnostic_agent.py.
+- Updated src/agents/__init__.py.
+- Created tests/test_llm_guardrails.py.
+- Implemented deterministic offline explanation generation plus an optional mockable generator interface.
+- Built guarded prompt construction from Structured Health Context without passing raw audio paths.
+- Separated summary, observations, limitations, hypotheses, and inspection notes.
+- Saved one guarded explanation externally at D:\PDM_Data\MIMII\processed\guarded_explanation_fan_id_00_minus6dB_task07.json.
+- Updated REPORT.md, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, and project_state.json.
+
+TESTS:
+- python tests/test_llm_guardrails.py
+- python tests/test_context_schema.py
+- python tests/test_timbre_difference.py
+- python -m compileall -q src scripts tests
+- Static context smoke converting D:\PDM_Data\MIMII\processed\structured_context_fan_id_00_minus6dB_task06.json to D:\PDM_Data\MIMII\processed\guarded_explanation_fan_id_00_minus6dB_task07.json.
+- python -m json.tool D:\PDM_Data\MIMII\processed\guarded_explanation_fan_id_00_minus6dB_task07.json
+- python -m json.tool project_state.json
+
+ACTUAL OUTPUT:
+- LLM guardrail tests: Ran 4 tests, OK.
+- Context tests: Ran 5 tests, OK.
+- Expert B tests: Ran 7 tests, OK.
+- Guarded explanation smoke: mode=deterministic_offline, observations=7, limitations=5, hypotheses=2, inspection_notes=2, forbidden_hits=[].
+- Sample guarded explanation JSON size: 3094 bytes.
+- No live LLM call was used.
+
+IMPLEMENTATION REVIEW:
+- The agent is deterministic and can run without credentials.
+- The optional generator interface is mockable and rejects forbidden output before downstream use.
+- The prompt includes event identity, Expert A evidence, Expert B method/reference evidence, and timbre-rank observations, but excludes raw audio paths.
+- The explanation output preserves limitation sections instead of presenting conclusions as component-level findings.
+
+SCIENTIFIC REVIEW:
+- Rank scores are described as qualitative local ranks, not probabilities.
+- No RUL, time-to-failure, physical root cause, diagnosis, confidence percentage, or confirmed component failure wording is emitted.
+- No retrieval-grounded maintenance recommendation is claimed yet.
+- This is a guarded explanation wrapper, not a grounded maintenance agent.
+
+DIFF REVIEW:
+- Changed files: src/agents/__init__.py, src/agents/diagnostic_agent.py, tests/test_llm_guardrails.py, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, REPORT.md, project_state.json.
+- Generated explanation artifact is external under D:\PDM_Data\MIMII\processed.
+- No repo-local data/model artifacts were added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-08 - Maintenance Knowledge Base And Retriever.
+```
 
 ```text
 TASK:
