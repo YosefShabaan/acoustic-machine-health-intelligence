@@ -1130,7 +1130,7 @@ TASK ID: `TASK-10`
 
 TITLE: End-To-End Fan MVP Orchestrator
 
-STATUS: `READY`
+STATUS: `DONE`
 
 GOAL:
 
@@ -1207,13 +1207,25 @@ BLOCKER CONDITIONS:
 
 - Any required upstream component is blocked.
 
+TASK-10 RESULT:
+
+- Created `scripts/run_end_to_end_demo.py` and `tests/test_end_to_end_orchestrator.py`.
+- Implemented one bounded Fan MVP command that runs Expert A, conditionally runs Expert B on the same audio event, builds Structured Health Context, runs guarded explanation, retrieves maintenance evidence, and generates grounded technician output.
+- Added end-to-end validation for event identity, Expert A anomaly gating before Expert B, retrieved-source citation grounding, and forbidden wording.
+- Smoke output: `D:\PDM_Data\MIMII\processed\end_to_end_fan_id_00_minus6dB_task10.json`.
+- Smoke input: `D:\PDM_Data\MIMII\fan_minus6dB\id_00\abnormal\00000002.wav`.
+- Smoke result: event_id `fan_id_00_minus6dB_00000002`, Expert A is_anomaly=True, Expert B selected 30 references, maintenance mode `source_grounded`, citation `task10_fixture_fan_inspection`.
+- Component timings were recorded; total one-sample runtime `15.792862s`.
+- The smoke uses an approved local fixture maintenance source, not a production manual, because production approved documents remain absent.
+- Tests: `tests/test_end_to_end_orchestrator.py` ran 4 tests OK; maintenance/RAG/LLM/context/Expert B regression tests all passed.
+
 ### TASK 11
 
 TASK ID: `TASK-11`
 
 TITLE: Dashboard MVP
 
-STATUS: `PLANNED`
+STATUS: `READY`
 
 GOAL:
 

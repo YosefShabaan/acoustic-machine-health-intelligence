@@ -8,11 +8,11 @@ This repository implements the foundation of an explainable acoustic machine hea
 
 VERIFIED RESULT: Expert A and the controlled SNR experiment are complete for Fan `id_00`. AUC improves from `0.6142` at `-6 dB` to `0.8306` at `0 dB` and `0.9980` at `+6 dB`.
 
-IMPLEMENTED THROUGH GROUNDED MAINTENANCE OUTPUT FOR THE FAN MVP PATH: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index, TASK-04 saved one reviewed same-audio Expert A -> Expert B abnormal JSON, TASK-05 defined the qualitative evidence protocol, TASK-06 implemented the Structured Health Context schema and translator, TASK-07 implemented a deterministic guardrailed explanation agent, TASK-08 implemented an approved-source local maintenance retriever, and TASK-09 implemented a grounded maintenance agent with citation guardrails.
+IMPLEMENTED THROUGH END-TO-END FAN MVP OUTPUT: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index, TASK-04 saved one reviewed same-audio Expert A -> Expert B abnormal JSON, TASK-05 defined the qualitative evidence protocol, TASK-06 implemented the Structured Health Context schema and translator, TASK-07 implemented a deterministic guardrailed explanation agent, TASK-08 implemented an approved-source local maintenance retriever, TASK-09 implemented a grounded maintenance agent with citation guardrails, and TASK-10 implemented a bounded end-to-end Fan MVP orchestrator.
 
-PLANNED: end-to-end orchestration, dashboard, multi-machine generalization, and domain robustness.
+PLANNED: dashboard, final Fan MVP report, multi-machine generalization, and domain robustness.
 
-NEXT TECHNICAL STEP: Implement the end-to-end Fan MVP orchestrator. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
+NEXT TECHNICAL STEP: Implement the dashboard MVP over the end-to-end Fan output. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
 
 # 3. Problem Statement
 
@@ -783,21 +783,54 @@ The successful smoke uses a local approved fixture source to verify grounding be
 
 # 20. End-to-End Orchestration
 
-PLANNED, NOT IMPLEMENTED.
+IMPLEMENTED IN TASK-10.
 
-Planned flow:
+Purpose:
+
+Provide one bounded command/API that preserves same-event identity from audio event to final technician output.
+
+Files:
 
 ```text
-audio event
--> Expert A score
--> conditional Expert B
--> Structured Health Context
--> RAG
--> LLM
--> final JSON
+scripts/run_end_to_end_demo.py
+tests/test_end_to_end_orchestrator.py
 ```
 
-The repository does not currently contain `scripts/run_end_to_end_demo.py`.
+Smoke output:
+
+```text
+D:\PDM_Data\MIMII\processed\end_to_end_fan_id_00_minus6dB_task10.json
+```
+
+Actual smoke summary:
+
+```text
+event_id=fan_id_00_minus6dB_00000002
+audio=D:\PDM_Data\MIMII\fan_minus6dB\id_00\abnormal\00000002.wav
+Expert A score=0.622095
+Expert A threshold=0.593284
+Expert A is_anomaly=True
+Expert B selected references=30
+maintenance mode=source_grounded
+recommendation citation=task10_fixture_fan_inspection
+total runtime=15.792862s
+```
+
+Implemented behavior:
+
+- Loads or selects one abnormal Fan `id_00` audio event.
+- Runs Expert A scoring.
+- Runs Expert B only when Expert A flags the same event anomalous.
+- Builds Structured Health Context from the same Expert B output.
+- Generates a guarded explanation.
+- Retrieves maintenance evidence.
+- Generates grounded technician output.
+- Saves component timings and the final JSON artifact.
+- Validates event identity, Expert B gating, citation grounding, and forbidden wording.
+
+Current limit:
+
+The TASK-10 smoke uses a local approved fixture maintenance source to exercise a cited end-to-end path. Production approved maintenance documents are still absent.
 
 # 21. Dashboard
 
@@ -928,8 +961,8 @@ The unique legacy unsuffixed model was preserved externally at
 | Context layer | DONE for first schema | `src/context`, `tests/test_context_schema.py`, sample context JSON | versioned schema, translator, tests, one smoke context | RAG usage | TASK-08 |
 | LLM | DONE for guarded offline explanation | `src/agents/diagnostic_agent.py`, `tests/test_llm_guardrails.py`, TASK-07 smoke JSON | deterministic explanation, prompt guardrails, optional mockable generator | live model integration optional later | later |
 | RAG | DONE for source-preserving retriever | `src/rag`, `tests/test_rag_grounding.py`, TASK-08 smoke JSON | approved-manifest indexing, source IDs/snippets, safe unavailable result, citation validation | approved production docs | data input |
-| Grounded maintenance agent | DONE for fixture-grounded smoke | `src/agents/maintenance_agent.py`, `tests/test_maintenance_agent.py`, TASK-09 smoke JSON | source-required recommendation, citation validation, safe unavailable mode | production approved docs and end-to-end orchestration | TASK-10 |
-| Orchestrator | TODO | no end-to-end script | none | same-event pipeline | TASK-10 |
+| Grounded maintenance agent | DONE for fixture-grounded smoke | `src/agents/maintenance_agent.py`, `tests/test_maintenance_agent.py`, TASK-09 smoke JSON | source-required recommendation, citation validation, safe unavailable mode | production approved docs | data input |
+| Orchestrator | DONE for one Fan MVP smoke | `scripts/run_end_to_end_demo.py`, `tests/test_end_to_end_orchestrator.py`, TASK-10 output JSON | one bounded same-event path with component timings | dashboard rendering | TASK-11 |
 | Dashboard | TODO | `app/.gitkeep` | none | UI | TASK-11 |
 | Pump | TODO | data missing | none | staging/evaluation | TASK-13 |
 | Valve | TODO | data missing | none | staging/evaluation | TASK-14 |
@@ -956,7 +989,7 @@ one bounded Fan same-audio smoke complete; qualitative evidence protocol documen
 Explanation/RAG/application layers:
 
 ```text
-context, guardrailed explanation, source-preserving retriever, and grounded maintenance agent implemented; orchestration/dashboard not implemented
+context, guardrailed explanation, source-preserving retriever, grounded maintenance agent, and one end-to-end Fan path implemented; dashboard not implemented
 ```
 
 Generalization/robustness:
@@ -967,7 +1000,7 @@ future work
 
 Core MVP implementation progress:
 
-More than one third of the engineering foundation is complete: data staging, preprocessing, Expert A, SNR evaluation, Expert B guardrail code, bounded Expert B runtime, a loadable bounded Expert B reference index, one same-audio Expert A -> Expert B smoke, a qualitative Expert B review protocol, a first Structured Health Context schema/translator, a guardrailed explanation agent, a source-preserving retriever, and a grounded maintenance agent now exist. The user-facing system is not complete because end-to-end orchestration and dashboard remain.
+Most of the Fan MVP engineering path is now present: data staging, preprocessing, Expert A, SNR evaluation, Expert B guardrail code, bounded Expert B runtime, a loadable bounded Expert B reference index, one same-audio Expert A -> Expert B smoke, a qualitative Expert B review protocol, Structured Health Context, a guardrailed explanation agent, a source-preserving retriever, a grounded maintenance agent, and one end-to-end Fan MVP JSON now exist. The user-facing system is not complete because the dashboard and final Fan MVP report remain.
 
 Research validation progress:
 
@@ -975,11 +1008,11 @@ Expert A validation is strong for Fan `id_00` SNR sensitivity. Expert B scientif
 
 WHERE ARE WE NOW?
 
-We have a verified acoustic anomaly detector, a loadable bounded timbre-difference reference index for Fan `id_00` minus6dB, one reviewed same-audio abnormal Expert A -> Expert B JSON, a documented qualitative Expert B evidence protocol, one validated Structured Health Context JSON, one guarded explanation JSON, a source-preserving maintenance retriever, and one fixture-grounded maintenance output JSON. The immediate next step is the end-to-end Fan MVP orchestrator.
+We have a verified acoustic anomaly detector, a loadable bounded timbre-difference reference index for Fan `id_00` minus6dB, one reviewed same-audio abnormal Expert A -> Expert B JSON, a documented qualitative Expert B evidence protocol, one validated Structured Health Context JSON, one guarded explanation JSON, a source-preserving maintenance retriever, one fixture-grounded maintenance output JSON, and one end-to-end Fan MVP JSON. The immediate next step is the dashboard MVP.
 
 WHAT REMAINS?
 
-End-to-end orchestrator, dashboard, approved production maintenance documents, and later machine/domain generalization.
+Dashboard, final Fan MVP report, approved production maintenance documents, and later machine/domain generalization.
 
 # 28. Remaining Work
 
@@ -993,7 +1026,7 @@ End-to-end orchestrator, dashboard, approved production maintenance documents, a
 | TASK-07 | Guardrailed LLM Explanation Agent | DONE | TASK-06 | deterministic guarded explanation artifact |
 | TASK-08 | Maintenance Knowledge Base And Retriever | DONE | TASK-06 | source-preserving retriever/tests; production KB empty |
 | TASK-09 | Grounded Maintenance Agent | DONE | TASK-07 + TASK-08 | sourced technician output with fixture source |
-| TASK-10 | End-To-End Fan MVP Orchestrator | one bounded system path | TASK-04 + TASK-06 + TASK-09 | final JSON |
+| TASK-10 | End-To-End Fan MVP Orchestrator | DONE | TASK-04 + TASK-06 + TASK-09 | final JSON with component timings |
 | TASK-11 | Dashboard MVP | show evidence and limits | TASK-10 | local dashboard |
 | TASK-12 | Fan MVP Final Evaluation And Academic Report | summarize supported claims | TASK-10 + TASK-11 | Fan MVP evidence package |
 | TASK-13 | Pump Generalization | test architecture transfer | TASK-12 + data | pump report/artifacts |
@@ -1020,6 +1053,7 @@ TASK-01 was superseded by TASK-00 because repository normalization and active-sc
 | Guardrailed LLM explanation wrapper exists | Yes | `src/agents/diagnostic_agent.py`, 4 guardrail tests OK, TASK-07 smoke JSON | deterministic/offline and not retrieval-grounded yet |
 | Source-preserving maintenance retriever exists | Yes | `src/rag`, 4 RAG tests OK, TASK-08 smoke JSON | production approved-source manifest is absent |
 | Grounded maintenance agent exists | Yes for fixture-grounded smoke | `src/agents/maintenance_agent.py`, 5 maintenance tests OK, TASK-09 smoke JSON | production approved-source manifest is absent |
+| End-to-end Fan MVP path exists | Yes for one bounded smoke | `scripts/run_end_to_end_demo.py`, TASK-10 JSON, 4 end-to-end tests OK | uses fixture maintenance source; dashboard absent |
 | Expert B accurately predicts timbre direction | No | labels unavailable | requires labels/protocol |
 | Expert B diagnoses root cause | No | forbidden by architecture | no labels/model |
 | Technician maintenance output is retrieval-grounded | Yes for TASK-09 fixture output | grounded maintenance output includes retrieved fixture citation | production docs absent |
@@ -1073,7 +1107,7 @@ The final system should still avoid RUL, exact time-to-failure, and unsupported 
 
 # 33. Conclusion
 
-The project now has a coherent active architecture and a normalized report around same-machine acoustic health monitoring. Expert A and the SNR experiment are verified. Expert B is implemented at the code/guardrail level, has a loadable bounded Fan `id_00` minus6dB reference index, has one reviewed same-audio abnormal smoke JSON, has a qualitative review protocol, translates into a versioned Structured Health Context, has a guarded deterministic explanation layer, has a source-preserving maintenance retriever, and now has a grounded maintenance agent validated with a local approved fixture source. The next technical blocker is the end-to-end Fan MVP orchestrator, with production maintenance recommendations still limited by the absence of approved production maintenance documents.
+The project now has a coherent active architecture and a normalized report around same-machine acoustic health monitoring. Expert A and the SNR experiment are verified. Expert B is implemented at the code/guardrail level, has a loadable bounded Fan `id_00` minus6dB reference index, has one reviewed same-audio abnormal smoke JSON, has a qualitative review protocol, translates into a versioned Structured Health Context, has a guarded deterministic explanation layer, has a source-preserving maintenance retriever, has a grounded maintenance agent validated with a local approved fixture source, and now has one bounded end-to-end Fan MVP JSON. The next technical blocker is the dashboard MVP, with production maintenance recommendations still limited by the absence of approved production maintenance documents.
 
 # 34. References
 
