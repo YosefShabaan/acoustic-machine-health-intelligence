@@ -15,6 +15,8 @@ if str(SRC_DIR) not in sys.path:
 from agents import (  # noqa: E402
     DiagnosticExplanationAgent,
     ExplanationGuardrailError,
+    GeminiProviderConfig,
+    GeminiTextGenerator,
     build_guarded_prompt,
     explain_context,
 )
@@ -114,6 +116,78 @@ class BadGenerator:
         return "The bearing is 93% damaged and will fail soon."
 
 
+class GoodStructuredGenerator:
+    """Mock generator that returns valid structured explanation JSON."""
+
+    def metadata(self) -> dict:
+        """Return mock provider metadata."""
+        return {
+            "provider": "gemini",
+            "model": "gemini-test",
+            "generation_mode": "live_gemini",
+        }
+
+    def generate(self, prompt: str) -> dict:
+        """Return a valid structured explanation."""
+        return {
+            "summary": "The event was flagged as acoustically anomalous.",
+            "observations": ["Expert A exceeded the threshold."],
+            "hypotheses": ["The sound pattern may differ from local normal references."],
+            "limitations": ["This is evidence only, not a component finding."],
+        }
+
+
+class MalformedGenerator:
+    """Mock generator that returns malformed output."""
+
+    def generate(self, prompt: str) -> dict:
+        """Return missing schema keys."""
+        return {"summary": "Incomplete structured response."}
+
+
+class ExceptionGenerator:
+    """Mock generator that simulates provider failure."""
+
+    def metadata(self) -> dict:
+        """Return mock provider metadata."""
+        return {"provider": "gemini", "model": "gemini-test"}
+
+    def generate(self, prompt: str) -> dict:
+        """Raise a provider-like exception."""
+        raise RuntimeError("provider unavailable")
+
+
+class FakeGeminiResponse:
+    """Fake Google GenAI response object."""
+
+    parsed = {
+        "summary": "The fan event was flagged as anomalous.",
+        "observations": ["Expert A score exceeded threshold."],
+        "hypotheses": ["The acoustic pattern may be different from local normal."],
+        "limitations": ["No physical cause is confirmed."],
+    }
+    text = ""
+
+
+class FakeGeminiModels:
+    """Fake models namespace for the Google GenAI client."""
+
+    def __init__(self) -> None:
+        self.calls = []
+
+    def generate_content(self, **kwargs):
+        """Record the request and return a fake structured response."""
+        self.calls.append(kwargs)
+        return FakeGeminiResponse()
+
+
+class FakeGeminiClient:
+    """Fake Google GenAI client."""
+
+    def __init__(self) -> None:
+        self.models = FakeGeminiModels()
+
+
 class LLMGuardrailTests(unittest.TestCase):
     """Guardrailed explanation tests."""
 
@@ -151,11 +225,63 @@ class LLMGuardrailTests(unittest.TestCase):
         self.assertNotIn("%", text)
         self.assertNotIn("bearing", text)
 
-    def test_external_generator_output_is_guarded(self) -> None:
-        """Bad generator output is rejected before downstream use."""
+    def test_structured_external_generator_success_has_metadata(self) -> None:
+        """Valid structured output is accepted with provider metadata."""
+        agent = DiagnosticExplanationAgent(generator=GoodStructuredGenerator())
+        result = agent.explain(_context())
+        self.assertEqual(result["mode"], "live_gemini")
+        self.assertFalse(result["metadata"]["fallback_used"])
+        self.assertEqual(result["metadata"]["provider"], "gemini")
+        self.assertEqual(result["metadata"]["model"], "gemini-test")
+        self.assertTrue(result["explanation"]["summary"])
+
+    def test_external_generator_forbidden_output_uses_fallback(self) -> None:
+        """Bad generator output is rejected and replaced by deterministic fallback."""
         agent = DiagnosticExplanationAgent(generator=BadGenerator())
-        with self.assertRaises(ExplanationGuardrailError):
-            agent.explain(_context())
+        result = agent.explain(_context())
+        self.assertEqual(result["mode"], "deterministic_fallback")
+        self.assertTrue(result["metadata"]["fallback_used"])
+        self.assertEqual(result["metadata"]["fallback_reason"], "ExplanationGuardrailError")
+        text = json.dumps(result)
+        self.assertNotIn("93%", text)
+        self.assertNotIn("bearing", text.lower())
+
+    def test_external_generator_malformed_output_uses_fallback(self) -> None:
+        """Malformed structured output uses deterministic fallback."""
+        agent = DiagnosticExplanationAgent(generator=MalformedGenerator())
+        result = agent.explain(_context())
+        self.assertEqual(result["mode"], "deterministic_fallback")
+        self.assertTrue(result["metadata"]["fallback_used"])
+
+    def test_external_generator_exception_uses_fallback(self) -> None:
+        """Provider exceptions use deterministic fallback with non-secret metadata."""
+        agent = DiagnosticExplanationAgent(generator=ExceptionGenerator())
+        result = agent.explain(_context())
+        self.assertEqual(result["mode"], "deterministic_fallback")
+        self.assertTrue(result["metadata"]["fallback_used"])
+        self.assertEqual(result["metadata"]["fallback_reason"], "RuntimeError")
+        self.assertNotIn("provider unavailable", json.dumps(result))
+
+    def test_gemini_text_generator_uses_structured_request(self) -> None:
+        """Gemini adapter calls the SDK client with JSON response configuration."""
+        fake_client = FakeGeminiClient()
+        generator = GeminiTextGenerator(
+            config=GeminiProviderConfig(model="gemini-test"),
+            client=fake_client,
+        )
+        payload = generator.generate("Return structured JSON.")
+        self.assertEqual(payload["summary"], "The fan event was flagged as anomalous.")
+        self.assertEqual(len(fake_client.models.calls), 1)
+        call = fake_client.models.calls[0]
+        self.assertEqual(call["model"], "gemini-test")
+        self.assertEqual(call["contents"], "Return structured JSON.")
+
+    def test_no_secret_in_generator_output(self) -> None:
+        """Provider output metadata does not expose environment secret values."""
+        secret = "-".join(("redacted", "gemini", "value"))
+        generator = GeminiTextGenerator(config=GeminiProviderConfig(model="gemini-test"))
+        metadata_text = json.dumps(generator.metadata())
+        self.assertNotIn(secret, metadata_text)
 
 
 if __name__ == "__main__":

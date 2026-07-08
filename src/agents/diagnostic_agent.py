@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
+import json
 import re
 from typing import Any, Protocol
 
@@ -16,8 +18,23 @@ class ExplanationGuardrailError(ValueError):
 class TextGenerator(Protocol):
     """Optional external text generator interface."""
 
-    def generate(self, prompt: str) -> str:
-        """Return generated text for a guarded prompt."""
+    def generate(self, prompt: str) -> Any:
+        """Return generated text or a structured payload for a guarded prompt."""
+
+
+DIAGNOSTIC_PROMPT_VERSION = "diagnostic_explanation_v2_gemini_json_2026-07-09"
+
+REQUIRED_EXPLANATION_KEYS = ("summary", "observations", "hypotheses", "limitations")
+
+FORBIDDEN_EXPLANATION_KEYS = {
+    "action",
+    "actions",
+    "maintenance_action",
+    "maintenance_actions",
+    "recommended_action",
+    "recommended_actions",
+    "recommended_next_actions",
+}
 
 
 FORBIDDEN_TEXT_PATTERNS = (
@@ -70,6 +87,60 @@ def validate_explanation_text(text: str) -> None:
             )
 
 
+def _strip_json_fence(text: str) -> str:
+    """Remove a simple markdown JSON fence when a model ignores JSON-only instructions."""
+    stripped = text.strip()
+    if stripped.startswith("```"):
+        stripped = stripped.strip("`").strip()
+        if stripped.lower().startswith("json"):
+            stripped = stripped[4:].strip()
+    return stripped
+
+
+def coerce_explanation_payload(generated: Any) -> dict[str, Any]:
+    """Coerce a generator response into the target explanation schema."""
+    if isinstance(generated, Mapping):
+        payload = dict(generated)
+    elif isinstance(generated, str):
+        stripped = _strip_json_fence(generated)
+        try:
+            loaded = json.loads(stripped)
+        except json.JSONDecodeError:
+            loaded = {
+                "summary": generated,
+                "observations": [],
+                "hypotheses": [],
+                "limitations": [],
+            }
+        if not isinstance(loaded, dict):
+            raise ExplanationGuardrailError("Explanation JSON must be an object")
+        payload = loaded
+    else:
+        raise ExplanationGuardrailError("Explanation generator returned unsupported type")
+    validate_explanation_payload(payload)
+    return payload
+
+
+def validate_explanation_payload(payload: Mapping[str, Any]) -> None:
+    """Validate the structured explanation schema and claim guardrails."""
+    normalized_keys = {str(key).lower() for key in payload}
+    forbidden = sorted(normalized_keys.intersection(FORBIDDEN_EXPLANATION_KEYS))
+    if forbidden:
+        raise ExplanationGuardrailError(
+            f"Explanation payload contains maintenance/action keys: {forbidden}"
+        )
+    for key in REQUIRED_EXPLANATION_KEYS:
+        if key not in payload:
+            raise ExplanationGuardrailError(f"Explanation missing required key: {key}")
+    if not isinstance(payload["summary"], str) or not payload["summary"].strip():
+        raise ExplanationGuardrailError("Explanation summary must be a nonempty string")
+    for key in ("observations", "hypotheses", "limitations"):
+        value = payload[key]
+        if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+            raise ExplanationGuardrailError(f"Explanation {key} must be a list of strings")
+    validate_explanation_text(" ".join(_flatten_text(dict(payload))))
+
+
 def build_guarded_prompt(context: dict[str, Any]) -> str:
     """Build a bounded prompt from Structured Health Context without raw audio."""
     validate_structured_context(context)
@@ -99,8 +170,20 @@ def build_guarded_prompt(context: dict[str, Any]) -> str:
             "Timbre rank observations:",
             observations,
             "Required limits: qualitative ranks only; no component-level finding; no remaining-life estimate.",
+            "Return only JSON with keys: summary, observations, hypotheses, limitations.",
+            "Do not include maintenance actions; maintenance recommendations are handled by a separate agent.",
         ]
     )
+
+
+def _generator_metadata(generator: TextGenerator) -> dict[str, Any]:
+    """Read optional non-secret generator metadata."""
+    metadata_fn = getattr(generator, "metadata", None)
+    if callable(metadata_fn):
+        metadata = metadata_fn()
+        if isinstance(metadata, dict):
+            return dict(metadata)
+    return {}
 
 
 @dataclass
@@ -113,21 +196,64 @@ class DiagnosticExplanationAgent:
         """Return a JSON-serializable guarded explanation result."""
         prompt = build_guarded_prompt(context)
         if self.generator is not None:
-            text = self.generator.generate(prompt)
-            validate_explanation_text(text)
+            metadata = _generator_metadata(self.generator)
+            try:
+                generated = self.generator.generate(prompt)
+                explanation = coerce_explanation_payload(generated)
+            except Exception as exc:
+                return self._deterministic_result(
+                    context,
+                    prompt,
+                    mode="deterministic_fallback",
+                    metadata={
+                        "provider": metadata.get("provider", "external_generator"),
+                        "model": metadata.get("model"),
+                        "generation_mode": "deterministic_fallback",
+                        "fallback_used": True,
+                        "fallback_reason": exc.__class__.__name__,
+                        "prompt_version": DIAGNOSTIC_PROMPT_VERSION,
+                    },
+                )
+            provider = metadata.get("provider", "external_generator")
+            generation_mode = metadata.get("generation_mode", "external_generator")
             return {
                 "agent": "DiagnosticExplanationAgent",
-                "mode": "external_generator",
+                "mode": generation_mode,
                 "prompt": prompt,
-                "explanation": {
-                    "summary": text,
-                    "observations": [],
-                    "limitations": [],
-                    "hypotheses": [],
-                    "inspection_notes": [],
+                "explanation": explanation,
+                "metadata": {
+                    "provider": provider,
+                    "model": metadata.get("model"),
+                    "generation_mode": generation_mode,
+                    "fallback_used": False,
+                    "fallback_reason": None,
+                    "prompt_version": DIAGNOSTIC_PROMPT_VERSION,
                 },
             }
 
+        return self._deterministic_result(
+            context,
+            prompt,
+            mode="deterministic_offline",
+            metadata={
+                "provider": "deterministic",
+                "model": None,
+                "generation_mode": "deterministic_offline",
+                "fallback_used": False,
+                "fallback_reason": None,
+                "prompt_version": DIAGNOSTIC_PROMPT_VERSION,
+            },
+        )
+
+    def _deterministic_result(
+        self,
+        context: dict[str, Any],
+        prompt: str,
+        *,
+        mode: str,
+        metadata: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Return the deterministic guarded explanation result."""
         expert_a = context["expert_a"]
         expert_b = context["expert_b"]
         event = context["event"]
@@ -172,7 +298,7 @@ class DiagnosticExplanationAgent:
         )
         result = {
             "agent": "DiagnosticExplanationAgent",
-            "mode": "deterministic_offline",
+            "mode": mode,
             "prompt": prompt,
             "explanation": {
                 "summary": summary,
@@ -181,6 +307,7 @@ class DiagnosticExplanationAgent:
                 "hypotheses": hypotheses,
                 "inspection_notes": inspection_notes,
             },
+            "metadata": metadata,
         }
         validate_explanation_text(" ".join(_flatten_text(result["explanation"])))
         return result

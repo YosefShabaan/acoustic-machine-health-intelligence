@@ -32,6 +32,73 @@ Rules:
 
 ```text
 TASK:
+TASK-AI-02 - Live Gemini Text Generator
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $scientific-implementer for the approved live Gemini integration task.
+- Inspected src/agents/diagnostic_agent.py, src/agents/gemini_provider.py, src/context, tests/test_llm_guardrails.py, and src/config.py.
+- Installed and inspected the official google-genai SDK signatures locally.
+- Added GeminiTextGenerator using google.genai Client, configured model, JSON response schema, and bounded request timeout.
+- Updated DiagnosticExplanationAgent to validate structured generator output.
+- Added deterministic fallback when Gemini output is malformed, unsafe, or the provider raises an exception.
+- Added provider/model/generation_mode/fallback/prompt_version metadata.
+- Preserved deterministic offline explanation mode.
+- Saved one real Gemini explanation smoke externally at D:\PDM_Data\MIMII\processed\gemini_explanation_fan_id_00_minus6dB_task_ai_02.json.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_llm_guardrails.py"
+- python -m unittest discover -s tests -p "test_gemini_config.py"
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+- One real Gemini API call over D:\PDM_Data\MIMII\processed\structured_context_fan_id_00_minus6dB_task06.json
+- python -m json.tool D:\PDM_Data\MIMII\processed\gemini_explanation_fan_id_00_minus6dB_task_ai_02.json
+- Secret/forbidden-pattern scan over repository text.
+- Local large-artifact guard over tracked files.
+- git diff --check
+
+ACTUAL OUTPUT:
+- LLM/Gemini tests: Ran 9 tests, OK.
+- Gemini config tests: Ran 4 tests, OK.
+- Full unit suite: Ran 41 tests, OK.
+- Real Gemini smoke: REAL_GEMINI_EXPLANATION_SMOKE=OK.
+- Real Gemini smoke mode: live_gemini.
+- Provider/model: gemini / gemini-2.5-flash.
+- Fallback used: False.
+- Explanation sections: observations=6, hypotheses=4, limitations=6.
+- Runtime: 14.135s.
+- Forbidden hits in generated artifact: [].
+- Generated artifact size: 3148 bytes.
+
+IMPLEMENTATION REVIEW:
+- GeminiTextGenerator is injectable for mocked tests.
+- The live provider receives a guarded prompt built from Structured Health Context, not raw audio.
+- The prompt excludes .wav paths and audio_path.
+- Structured output is required and validated before downstream use.
+- Provider failures or unsafe output use deterministic fallback with explicit metadata.
+
+SCIENTIFIC REVIEW:
+- Explanation remains evidence-only and does not produce maintenance actions.
+- No RUL, time-to-failure, root-cause, diagnosis, confidence, probability, or component-failure claim was added.
+- Expert A architecture/training and Expert B rank semantics remain unchanged.
+- Live text generation is not presented as scientific model improvement.
+
+DIFF REVIEW:
+- Changed files: src/agents/__init__.py, src/agents/diagnostic_agent.py, src/agents/gemini_provider.py, tests/test_llm_guardrails.py, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- Real Gemini output artifact is external under D:\PDM_Data\MIMII\processed and is not tracked.
+- No API key, raw dataset, model weight, NumPy array, generated index, generated JSON, or dashboard artifact was staged.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-RAG-01 - Authoritative Public Fan Maintenance Corpus V1.
+```
+
+```text
+TASK:
 TASK-AI-01 - Gemini Secret And Provider Preflight
 
 STARTED:
