@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Real Intelligence Completion in progress; TASK-RAG-02 complete.
+Status: Real Intelligence Completion in progress; TASK-RAG-03 complete.
 
-Latest completed task: `TASK-RAG-02`.
+Latest completed task: `TASK-RAG-03`.
 
 Use this template after every task:
 
@@ -29,6 +29,74 @@ Rules:
 - Do not mark `DONE` based only on code creation.
 - Use `FAILED` when bounded diagnosis was attempted and the task still fails.
 - Use `BLOCKED` when Yosef input, data, credentials, or architecture approval is required.
+
+```text
+TASK:
+TASK-RAG-03 - Semantic Retriever Baseline
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $scientific-implementer for the approved semantic retrieval baseline task.
+- Inspected official Google AI Gemini embedding documentation before selecting the model.
+- Selected gemini-embedding-2 with 768 output dimensions for the current semantic baseline.
+- Added GEMINI_EMBEDDING_MODEL and GEMINI_EMBEDDING_DIMENSION configuration.
+- Added src/rag/semantic_retriever.py with GeminiEmbeddingProvider, cached semantic index, cosine retrieval, JSON load/write helpers, and source-preserving RetrievalResult output.
+- Kept LocalRetriever as the lexical baseline.
+- Added scripts/build_rag_semantic_index.py to generate the external embedding artifact.
+- Added tests/test_semantic_retriever.py with mocked deterministic embeddings.
+- Created docs/RAG_SEMANTIC_RETRIEVER_BASELINE.md with model basis, artifact metadata, smoke results, and limits.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_semantic_retriever.py"
+- python -m unittest discover -s tests -p "test_rag_grounding.py"
+- python -m compileall -q src scripts tests app
+- python scripts\build_rag_semantic_index.py
+- One real semantic retrieval query over the generated artifact.
+- python -m json.tool D:\PDM_Data\MIMII\processed\rag_semantic_embeddings_amhi_fan_maint_kb_v1_gemini_embedding_2_768.json
+- Secret-pattern scan over the generated embedding artifact.
+
+ACTUAL OUTPUT:
+- Semantic tests: Ran 2 tests, OK.
+- RAG grounding tests: Ran 6 tests, OK.
+- Semantic index build: RAG_SEMANTIC_INDEX_BUILD=OK.
+- Corpus version: AMHI-FAN-MAINT-KB-v1.
+- Embedding provider/model: gemini / gemini-embedding-2.
+- Embedding dimension: 768.
+- Source count: 2.
+- Chunk count: 15.
+- Build seconds: 31.496806.
+- Output artifact: D:\PDM_Data\MIMII\processed\rag_semantic_embeddings_amhi_fan_maint_kb_v1_gemini_embedding_2_768.json.
+- Artifact size: 278680 bytes.
+- Semantic smoke query returned 3 results.
+- Semantic smoke top chunks:
+  - doe_fan_sourcebook_2003#DOE-FAN-2003-COMMON-FAN-PROBLEMS, score=0.844667.
+  - doe_om_best_practices_release_3_fans#DOE-OM-R3-MAINTENANCE-PROGRAMS, score=0.827783.
+  - doe_fan_sourcebook_2003#DOE-FAN-2003-BASIC-MAINTENANCE, score=0.826278.
+- Secret-pattern scan over artifact: no matches.
+
+IMPLEMENTATION REVIEW:
+- Semantic retrieval is additive and does not remove lexical retrieval.
+- Generated vectors are stored externally under D:\PDM_Data\MIMII\processed.
+- Retrieval results preserve source_id, title, version, publisher, corpus_version, chunk_id, section_id, section_heading, source_url, snippet, score, and path.
+- No vector database or extra persistence service was added.
+
+SCIENTIFIC REVIEW:
+- This task does not claim semantic retrieval is better than lexical retrieval.
+- Retriever selection is deferred to TASK-RAG-05 after a bounded evaluation set exists.
+- No RUL, root-cause, confidence, probability, production validation, Expert B direction accuracy, or multi-machine claim was added.
+
+DIFF REVIEW:
+- Changed files: src/config.py, src/rag/__init__.py, src/rag/semantic_retriever.py, scripts/build_rag_semantic_index.py, tests/test_semantic_retriever.py, docs/RAG_SEMANTIC_RETRIEVER_BASELINE.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- Generated semantic embedding artifact is external and not tracked.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-RAG-04 - Retrieval Evaluation Set.
+```
 
 ```text
 TASK:

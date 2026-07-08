@@ -122,7 +122,7 @@ Current local evidence:
 
 ```text
 python -m unittest discover -s tests -p "test_*.py"
-Ran 43 tests
+Ran 45 tests
 OK
 ```
 
@@ -157,7 +157,7 @@ Not supported:
 Backlog and blocked work:
 
 - RAG parsing/chunking review for `AMHI-FAN-MAINT-KB-v1`.
-- Semantic retrieval baseline and retrieval evaluation.
+- Retrieval evaluation set and lexical/semantic/hybrid comparison.
 - Gemini-backed grounded maintenance actions.
 - Pump data staging.
 - Pump Expert A evaluation.

@@ -159,6 +159,15 @@ GEMINI_REQUEST_TIMEOUT_SECONDS = float(
     os.environ.get("GEMINI_REQUEST_TIMEOUT_SECONDS", "30")
 )
 
+# Default selected from Google AI Gemini embedding documentation inspected on
+# 2026-07-09: `gemini-embedding-2` is the stable latest embedding model, and
+# 768 dimensions are in the recommended range for retrieval-oriented use.
+GEMINI_EMBEDDING_MODEL = os.environ.get(
+    "GEMINI_EMBEDDING_MODEL",
+    "gemini-embedding-2",
+)
+GEMINI_EMBEDDING_DIMENSION = int(os.environ.get("GEMINI_EMBEDDING_DIMENSION", "768"))
+
 # Backward-compatible alias for legacy call sites that refer to a generic LLM.
 LLM_MODEL = GEMINI_MODEL
 CHROMA_DIR = PROJECT_ROOT / "chroma_store"

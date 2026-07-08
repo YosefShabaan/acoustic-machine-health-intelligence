@@ -2,7 +2,7 @@
 
 Date: 2026-07-09
 
-Scope: claims supported by the current repository after `TASK-RAG-01`.
+Scope: claims supported by the current repository after `TASK-RAG-03`.
 
 ## Claim Classification Rules
 
@@ -36,6 +36,7 @@ Scope: claims supported by the current repository after `TASK-RAG-01`.
 | Guardrailed explanation output exists for the Fan event. | VERIFIED REPOSITORY FACT | TASK-07 JSON, `tests/test_llm_guardrails.py` |
 | Approved public Fan maintenance corpus `AMHI-FAN-MAINT-KB-v1` exists with two DOE-source entries. | VERIFIED REPOSITORY FACT | `data/manuals/approved_sources.json`, `docs/RAG_SOURCE_REGISTER.md` |
 | The current approved Fan corpus loads into the local RAG knowledge base and returns retrieved source chunks in a bounded smoke. | VERIFIED REPOSITORY FACT | `tests/test_rag_grounding.py`, TASK-RAG-01 smoke |
+| A Gemini semantic retrieval baseline exists with an external 15-chunk embedding artifact. | VERIFIED REPOSITORY FACT | `docs/RAG_SEMANTIC_RETRIEVER_BASELINE.md`, external TASK-RAG-03 artifact |
 | Grounded maintenance output exists using an approved fixture source. | VERIFIED REPOSITORY FACT | TASK-09 JSON |
 | One end-to-end Fan MVP JSON exists. | VERIFIED REPOSITORY FACT | TASK-10 JSON |
 | One static dashboard HTML artifact exists. | VERIFIED REPOSITORY FACT | TASK-11 HTML |
@@ -70,6 +71,7 @@ Scope: claims supported by the current repository after `TASK-RAG-01`.
 | The system predicts remaining useful life. | OUT OF SCOPE | RUL/PRONOSTIA removed from active architecture |
 | The system predicts exact time to failure. | OUT OF SCOPE | no run-to-failure target in active MIMII runtime |
 | Maintenance recommendations are evaluated production guidance. | UNSUPPORTED | chunking review, retrieval evaluation, and Gemini maintenance-action validation are not complete |
+| Semantic retrieval is the selected Fan MVP retriever. | UNSUPPORTED | lexical, semantic, and hybrid retrieval have not yet been compared on an evaluation set |
 | The architecture generalizes to Pump, Valve, or Slide Rail. | UNSUPPORTED | those machine datasets are not staged/evaluated |
 | The system is robust to domain shift. | UNSUPPORTED | MIMII DG phase not executed |
 | The current Expert B exactly reproduces Nishida et al. | UNSUPPORTED | MVP uses Expert A bottleneck adapter and lacks paper-equivalent labels/assets |
@@ -88,8 +90,8 @@ For one Expert A-flagged Fan event, Expert B compares the same audio with
 same-machine normal references and reports five qualitative timbre rank scores.
 Those outputs are translated into structured evidence, explained cautiously,
 combined with source-preserving retrieval, and rendered in a static dashboard.
-An approved public Fan maintenance corpus now exists for the next retrieval
-evaluation phase.
+An approved public Fan maintenance corpus and Gemini semantic retrieval baseline
+now exist for the next retrieval evaluation phase.
 ```
 
 Must include limitation:
@@ -105,7 +107,7 @@ does not yet provide evaluated production maintenance recommendations.
 | Stronger future claim | Required evidence |
 |---|---|
 | Expert B direction accuracy | five-attribute timbre labels or approved equivalent protocol |
-| Evaluated maintenance recommendations | chunking review, retrieval evaluation, selected retriever, and Maintenance Agent v2 validation |
+| Evaluated maintenance recommendations | retrieval evaluation, selected retriever, and Maintenance Agent v2 validation |
 | Pump/Valve/Slide Rail generalization | staged data, machine-specific artifacts, bounded per-machine evaluation |
 | Domain robustness | MIMII DG data/assets and approved protocol |
 | Production readiness | broader validation, operations requirements, monitoring, and reviewed maintenance content |
