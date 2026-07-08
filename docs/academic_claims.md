@@ -2,7 +2,7 @@
 
 Date: 2026-07-09
 
-Scope: claims supported by the current repository after `TASK-RAG-03`.
+Scope: claims supported by the current repository after `TASK-RAG-04`.
 
 ## Claim Classification Rules
 
@@ -37,6 +37,7 @@ Scope: claims supported by the current repository after `TASK-RAG-03`.
 | Approved public Fan maintenance corpus `AMHI-FAN-MAINT-KB-v1` exists with two DOE-source entries. | VERIFIED REPOSITORY FACT | `data/manuals/approved_sources.json`, `docs/RAG_SOURCE_REGISTER.md` |
 | The current approved Fan corpus loads into the local RAG knowledge base and returns retrieved source chunks in a bounded smoke. | VERIFIED REPOSITORY FACT | `tests/test_rag_grounding.py`, TASK-RAG-01 smoke |
 | A Gemini semantic retrieval baseline exists with an external 15-chunk embedding artifact. | VERIFIED REPOSITORY FACT | `docs/RAG_SEMANTIC_RETRIEVER_BASELINE.md`, external TASK-RAG-03 artifact |
+| A 24-query Fan maintenance retrieval evaluation set exists as a project annotation artifact. | VERIFIED REPOSITORY FACT | `data/manuals/fan_maintenance_retrieval_eval_v1.json`, `docs/RAG_RETRIEVAL_EVALUATION_SET.md` |
 | Grounded maintenance output exists using an approved fixture source. | VERIFIED REPOSITORY FACT | TASK-09 JSON |
 | One end-to-end Fan MVP JSON exists. | VERIFIED REPOSITORY FACT | TASK-10 JSON |
 | One static dashboard HTML artifact exists. | VERIFIED REPOSITORY FACT | TASK-11 HTML |
@@ -90,8 +91,8 @@ For one Expert A-flagged Fan event, Expert B compares the same audio with
 same-machine normal references and reports five qualitative timbre rank scores.
 Those outputs are translated into structured evidence, explained cautiously,
 combined with source-preserving retrieval, and rendered in a static dashboard.
-An approved public Fan maintenance corpus and Gemini semantic retrieval baseline
-now exist for the next retrieval evaluation phase.
+An approved public Fan maintenance corpus, Gemini semantic retrieval baseline,
+and bounded retrieval evaluation set now exist for the next comparison phase.
 ```
 
 Must include limitation:

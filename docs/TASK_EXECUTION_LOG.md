@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Real Intelligence Completion in progress; TASK-RAG-03 complete.
+Status: Real Intelligence Completion in progress; TASK-RAG-04 complete.
 
-Latest completed task: `TASK-RAG-03`.
+Latest completed task: `TASK-RAG-04`.
 
 Use this template after every task:
 
@@ -29,6 +29,58 @@ Rules:
 - Do not mark `DONE` based only on code creation.
 - Use `FAILED` when bounded diagnosis was attempted and the task still fails.
 - Use `BLOCKED` when Yosef input, data, credentials, or architecture approval is required.
+
+```text
+TASK:
+TASK-RAG-04 - Retrieval Evaluation Set
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $paper-forensics and $scientific-implementer for the approved retrieval evaluation-set task.
+- Inspected the approved corpus, section-aware chunk inventory, and current RAG metadata.
+- Created data/manuals/fan_maintenance_retrieval_eval_v1.json.
+- Created docs/RAG_RETRIEVAL_EVALUATION_SET.md.
+- Added tests/test_rag_evaluation_set.py to validate the evaluation set against the approved corpus.
+- Kept the evaluation set explicitly marked as project_annotation_not_paper_ground_truth.
+
+TESTS:
+- python -m json.tool data\manuals\fan_maintenance_retrieval_eval_v1.json
+- python -m unittest discover -s tests -p "test_rag_evaluation_set.py"
+- Evaluation-set summary inspection script.
+
+ACTUAL OUTPUT:
+- Evaluation set ID: AMHI-FAN-MAINT-RETRIEVAL-EVAL-v1.
+- Corpus version: AMHI-FAN-MAINT-KB-v1.
+- Query count: 24.
+- Status: project_annotation_not_paper_ground_truth.
+- Source coverage: doe_fan_sourcebook_2003=11 query references; doe_om_best_practices_release_3_fans=15 query references.
+- First query: fan_eval_001.
+- Last query: fan_eval_024.
+- Evaluation-set tests: Ran 4 tests, OK.
+
+IMPLEMENTATION REVIEW:
+- Every expected_source_id and expected_chunk_id is validated against the approved corpus.
+- Queries are grounded only in topics present in the approved Fan corpus.
+- Required fields include query_id, query, expected_source_ids, expected_chunk_ids, and rationale.
+- No retrieval scoring or retriever selection is performed in this task.
+
+SCIENTIFIC REVIEW:
+- The set is a transparent project annotation artifact, not paper ground truth.
+- It does not claim maintenance correctness, root-cause diagnosis, RUL, probability, confidence, or production validation.
+- It prepares the evidence base for TASK-RAG-05 retrieval comparison.
+
+DIFF REVIEW:
+- Changed files: README.md, data/manuals/fan_maintenance_retrieval_eval_v1.json, docs/RAG_RETRIEVAL_EVALUATION_SET.md, docs/academic_claims.md, tests/test_rag_evaluation_set.py, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No generated embeddings, vector stores, model weights, raw data, or generated scientific artifacts were added to Git.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-RAG-05 - Lexical vs Semantic vs Hybrid Evaluation.
+```
 
 ```text
 TASK:

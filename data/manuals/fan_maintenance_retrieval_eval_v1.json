@@ -1,0 +1,196 @@
+{
+  "schema_version": "1.0.0",
+  "evaluation_set_id": "AMHI-FAN-MAINT-RETRIEVAL-EVAL-v1",
+  "corpus_version": "AMHI-FAN-MAINT-KB-v1",
+  "created_utc": "2026-07-09",
+  "status": "project_annotation_not_paper_ground_truth",
+  "scope": "Bounded Fan maintenance retrieval evaluation queries grounded only in the approved corpus.",
+  "queries": [
+    {
+      "query_id": "fan_eval_001",
+      "query": "Fan has abnormal acoustic noise and vibration; what maintenance context should be inspected first?",
+      "expected_source_ids": ["doe_fan_sourcebook_2003"],
+      "expected_chunk_ids": [
+        "doe_fan_sourcebook_2003#DOE-FAN-2003-BASIC-MAINTENANCE",
+        "doe_fan_sourcebook_2003#DOE-FAN-2003-COMMON-FAN-PROBLEMS"
+      ],
+      "rationale": "The approved source notes discuss audible mechanical noise, poor performance, vibration, and broad fan/motor assembly inspection context."
+    },
+    {
+      "query_id": "fan_eval_002",
+      "query": "How should fan vibration observations be compared with normal baseline records?",
+      "expected_source_ids": ["doe_fan_sourcebook_2003"],
+      "expected_chunk_ids": ["doe_fan_sourcebook_2003#DOE-FAN-2003-VIBRATION-MONITORING"],
+      "rationale": "The vibration monitoring section discusses comparing measured vibration with baseline data over the fan operating life."
+    },
+    {
+      "query_id": "fan_eval_003",
+      "query": "What should be recorded after a fan acoustic anomaly inspection?",
+      "expected_source_ids": ["doe_fan_sourcebook_2003"],
+      "expected_chunk_ids": ["doe_fan_sourcebook_2003#DOE-FAN-2003-RECORDS"],
+      "rationale": "The records section covers logs for observations, inspection results, repairs, adjustments, and operating conditions."
+    },
+    {
+      "query_id": "fan_eval_004",
+      "query": "Fan belt slippage or belt slap may be creating noise; what inspection area is source-supported?",
+      "expected_source_ids": ["doe_fan_sourcebook_2003"],
+      "expected_chunk_ids": ["doe_fan_sourcebook_2003#DOE-FAN-2003-BELT-DRIVES"],
+      "rationale": "The belt-drives section covers belt wear, slippage, insufficient tension, noise, vibration, and reliability."
+    },
+    {
+      "query_id": "fan_eval_005",
+      "query": "Fan belt tension may be too high or uneven across multiple belts; what source section applies?",
+      "expected_source_ids": ["doe_fan_sourcebook_2003"],
+      "expected_chunk_ids": ["doe_fan_sourcebook_2003#DOE-FAN-2003-BELT-DRIVES"],
+      "rationale": "The belt-drives section covers excessive tension, uneven loading, wear, and downtime risk."
+    },
+    {
+      "query_id": "fan_eval_006",
+      "query": "Pulsing airflow noise and vibrating duct supports were observed near a fan system.",
+      "expected_source_ids": ["doe_fan_sourcebook_2003"],
+      "expected_chunk_ids": ["doe_fan_sourcebook_2003#DOE-FAN-2003-NOISE-VIBRATION-INDICATORS"],
+      "rationale": "The noise/vibration indicators section covers stall-related pulsing airflow noise, duct movement, and vibrating supports."
+    },
+    {
+      "query_id": "fan_eval_007",
+      "query": "High airflow noise may indicate inefficient or oversized fan operation.",
+      "expected_source_ids": ["doe_fan_sourcebook_2003"],
+      "expected_chunk_ids": ["doe_fan_sourcebook_2003#DOE-FAN-2003-NOISE-VIBRATION-INDICATORS"],
+      "rationale": "The noise/vibration indicators section covers high airborne noise and system-level indicators."
+    },
+    {
+      "query_id": "fan_eval_008",
+      "query": "Should fan acoustic evidence be interpreted with system operating conditions and load duty?",
+      "expected_source_ids": ["doe_fan_sourcebook_2003"],
+      "expected_chunk_ids": ["doe_fan_sourcebook_2003#DOE-FAN-2003-SYSTEM-APPROACH"],
+      "rationale": "The systems approach section covers operating conditions, load duty, process needs, and system context."
+    },
+    {
+      "query_id": "fan_eval_009",
+      "query": "Fan cleaning need may be related to poor performance or vibration.",
+      "expected_source_ids": ["doe_fan_sourcebook_2003", "doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": [
+        "doe_fan_sourcebook_2003#DOE-FAN-2003-BASIC-MAINTENANCE",
+        "doe_om_best_practices_release_3_fans#DOE-OM-R3-FAN-CHECKLIST-MECHANICAL"
+      ],
+      "rationale": "The Fan Sourcebook notes cleaning in response to poor performance or vibration; the O&M checklist includes fan blade cleaning needs."
+    },
+    {
+      "query_id": "fan_eval_010",
+      "query": "What visual inspection should be performed to verify fan equipment and safety systems?",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": ["doe_om_best_practices_release_3_fans#DOE-OM-R3-FAN-CHECKLIST-VISUAL"],
+      "rationale": "The fan visual checklist covers visual inspection for equipment operation and safety systems."
+    },
+    {
+      "query_id": "fan_eval_011",
+      "query": "Check whether unnecessary fan equipment is running or sequenced incorrectly.",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": ["doe_om_best_practices_release_3_fans#DOE-OM-R3-FAN-CHECKLIST-VISUAL"],
+      "rationale": "The visual checklist includes system use and sequencing checks."
+    },
+    {
+      "query_id": "fan_eval_012",
+      "query": "Inspect fan belts for proper tension and alignment.",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": ["doe_om_best_practices_release_3_fans#DOE-OM-R3-FAN-CHECKLIST-MECHANICAL"],
+      "rationale": "The O&M fan mechanical checklist includes belt tension and alignment inspection."
+    },
+    {
+      "query_id": "fan_eval_013",
+      "query": "Inspect pulley wheels and clean or lubricate where required.",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": ["doe_om_best_practices_release_3_fans#DOE-OM-R3-FAN-CHECKLIST-MECHANICAL"],
+      "rationale": "The mechanical checklist includes pulley wheels and cleaning or lubrication where required."
+    },
+    {
+      "query_id": "fan_eval_014",
+      "query": "Inspect dampers, actuator linkage, and control operation in a fan system.",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": [
+        "doe_om_best_practices_release_3_fans#DOE-OM-R3-FAN-CHECKLIST-MECHANICAL",
+        "doe_om_best_practices_release_3_fans#DOE-OM-R3-AIR-HANDLING-CHECKLIST"
+      ],
+      "rationale": "The fan mechanical checklist covers dampers and actuator/linkage operation; air-handling checklist covers damper operation context."
+    },
+    {
+      "query_id": "fan_eval_015",
+      "query": "Check fan blade rotation and clean fan blades when necessary.",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": ["doe_om_best_practices_release_3_fans#DOE-OM-R3-FAN-CHECKLIST-MECHANICAL"],
+      "rationale": "The mechanical checklist covers verifying fan blade rotation and cleaning needs."
+    },
+    {
+      "query_id": "fan_eval_016",
+      "query": "Verify fan wiring and electrical connections are tight.",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": ["doe_om_best_practices_release_3_fans#DOE-OM-R3-FAN-CHECKLIST-DUCT-ELECTRICAL"],
+      "rationale": "The duct/electrical checklist covers checking wiring and electrical connections."
+    },
+    {
+      "query_id": "fan_eval_017",
+      "query": "Inspect fan ductwork for loose connections and leaks.",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": ["doe_om_best_practices_release_3_fans#DOE-OM-R3-FAN-CHECKLIST-DUCT-ELECTRICAL"],
+      "rationale": "The duct/electrical checklist covers ductwork, loose connections, and leaks."
+    },
+    {
+      "query_id": "fan_eval_018",
+      "query": "Filter condition or filter gaps may affect fan and air-handling inspection context.",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": [
+        "doe_om_best_practices_release_3_fans#DOE-OM-R3-AIR-HANDLING-CHECKLIST",
+        "doe_om_best_practices_release_3_fans#DOE-OM-R3-FAN-CHECKLIST-DUCT-ELECTRICAL"
+      ],
+      "rationale": "The air-handling checklist covers filter condition; the fan checklist notes filters in the duct/electrical context."
+    },
+    {
+      "query_id": "fan_eval_019",
+      "query": "Inspect system integrity, access doors, and leakage in an air-handling fan context.",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": ["doe_om_best_practices_release_3_fans#DOE-OM-R3-AIR-HANDLING-CHECKLIST"],
+      "rationale": "The air-handling checklist covers system integrity, leakage, and access-door closure context."
+    },
+    {
+      "query_id": "fan_eval_020",
+      "query": "Use quantified condition information to guide fan maintenance inspection planning.",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": ["doe_om_best_practices_release_3_fans#DOE-OM-R3-PREDICTIVE-MAINTENANCE"],
+      "rationale": "The predictive maintenance section describes using quantified equipment condition to guide maintenance tasks."
+    },
+    {
+      "query_id": "fan_eval_021",
+      "query": "Acoustic evidence should be treated as condition review input, not proof of a fan fault.",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": [
+        "doe_om_best_practices_release_3_fans#DOE-OM-R3-PREDICTIVE-MAINTENANCE",
+        "doe_om_best_practices_release_3_fans#DOE-OM-R3-MAINTENANCE-PROGRAMS"
+      ],
+      "rationale": "The approved O&M notes distinguish condition review and maintenance programs from AMHI fault confirmation."
+    },
+    {
+      "query_id": "fan_eval_022",
+      "query": "What source supports using maintenance logs to trend fan acoustic and inspection changes?",
+      "expected_source_ids": ["doe_fan_sourcebook_2003"],
+      "expected_chunk_ids": ["doe_fan_sourcebook_2003#DOE-FAN-2003-RECORDS"],
+      "rationale": "The records section supports logging observations, inspection findings, operating conditions, and follow-up actions."
+    },
+    {
+      "query_id": "fan_eval_023",
+      "query": "Inspect compromised duct insulation and repair or replace it where needed.",
+      "expected_source_ids": ["doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": ["doe_om_best_practices_release_3_fans#DOE-OM-R3-FAN-CHECKLIST-DUCT-ELECTRICAL"],
+      "rationale": "The duct/electrical checklist covers duct insulation inspection and repair/replacement context."
+    },
+    {
+      "query_id": "fan_eval_024",
+      "query": "Before recommending a fan inspection, what AMHI use limits prevent overclaiming?",
+      "expected_source_ids": ["doe_fan_sourcebook_2003", "doe_om_best_practices_release_3_fans"],
+      "expected_chunk_ids": [
+        "doe_fan_sourcebook_2003#limits-for-amhi-use",
+        "doe_om_best_practices_release_3_fans#limits-for-amhi-use"
+      ],
+      "rationale": "The corpus limitation chunks define the AMHI use limits for inspection guidance and unsupported overclaiming."
+    }
+  ]
+}
