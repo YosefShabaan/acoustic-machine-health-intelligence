@@ -1,129 +1,167 @@
-# Explainable Acoustic Machine Health Monitoring
+# Acoustic Machine Health Intelligence
 
-## One-Paragraph Overview
+[![CI](https://github.com/YosefShabaan/acoustic-machine-health-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/YosefShabaan/acoustic-machine-health-intelligence/actions/workflows/ci.yml)
 
-This project builds an explainable acoustic condition-monitoring system for industrial machine audio. Expert A detects whether a machine sound departs from learned normal acoustic behavior. Expert B then characterizes how the same audio event differs from comparable normal sounds using timbre attributes. Later layers translate those outputs into structured evidence for cautious LLM explanation, RAG-grounded maintenance recommendations, and a dashboard.
+Explainable acoustic condition monitoring for industrial machine audio.
 
-## Problem
+The current bounded MVP uses MIMII Fan `id_00`. Expert A detects anomalous machine
+audio with a normal-only reconstruction-error model. Expert B characterizes how
+the same Expert A-flagged audio differs from same-machine normal references using
+five timbre rank scores. The evidence is translated into a structured context,
+explained cautiously, combined with source-preserving retrieval, and rendered in
+a dashboard.
 
-Anomalous sound detection can tell a technician that a clip is abnormal, but a raw anomaly score does not explain what changed in the sound or what evidence should guide inspection. This project closes that gap by combining detection, timbre-difference characterization, structured evidence, and grounded maintenance communication.
-
-## Final Architecture
+## Architecture
 
 ```text
-Machine Audio
--> Expert A
--> Expert B
+machine audio event
+-> Expert A anomaly detection
+-> Expert B same-audio timbre characterization
 -> Structured Health Context
--> LLM + RAG
--> Dashboard
+-> guarded explanation
+-> maintenance RAG
+-> grounded technician output
+-> dashboard
 ```
 
-The active rule is same machine, same audio event: Expert B characterizes the audio event that Expert A evaluated.
+The core invariant is same machine, same audio event. Expert B characterizes the
+audio event that Expert A evaluated; it is not an independent diagnosis system.
 
-## Expert A
+## Fan MVP Status
 
-Expert A is a normal-only convolutional autoencoder trained on MIMII fan audio. It uses Log-Mel spectrograms and reconstruction error to score acoustic departures from normal operation. A controlled three-SNR experiment is complete for Fan `id_00`.
+The Fan MVP is complete through `TASK-12` for one bounded same-audio Fan `id_00`
+path.
 
-## Expert B
+Done:
 
-Expert B is a Nishida-inspired acoustic timbre-difference expert. It compares an Expert A-flagged audio event with same-machine normal references and reports five continuous timbre rank scores: sharpness, roughness, boominess, brightness, and depth. It is an adaptation, not an exact Nishida reproduction.
+- Expert A preprocessing, training, scoring, thresholding, and controlled SNR evaluation.
+- Expert B bounded reference indexing, same-audio smoke, and qualitative evidence protocol.
+- Structured Health Context schema and translator.
+- Guardrailed explanation agent.
+- Manifest-gated local maintenance retriever.
+- Grounded maintenance agent with citation guardrails.
+- End-to-end Fan MVP orchestrator.
+- Static dashboard MVP.
+- Final Fan MVP evidence report and academic claims register.
 
-## Research Papers
+Current blocker:
 
-- MIMII Dataset: source of industrial normal/anomalous machine audio and Expert A motivation.
-- Nishida et al. 2024 Timbre Difference Capturing: main basis for Expert B's normal-reference timbre comparison.
-- MIMII DG: future domain-shift robustness evaluation.
-- MIMII-Agent: optional future synthetic-anomaly robustness branch.
+- `TASK-13` Pump generalization is blocked because `D:\PDM_Data\MIMII\pump\id_00`
+  is not staged.
 
-AudioCommons timbral models provide the five timbre metrics used by Expert B.
+## Verified Results
 
-## Current Status
+Expert A controlled SNR evaluation for Fan `id_00`:
 
-DONE:
+| SNR | AUC | Threshold | Recall | FPR | Specificity |
+|---|---:|---:|---:|---:|---:|
+| `minus6dB` | 0.6142 | 0.593284 | 0.14 | 0.135 | 0.865 |
+| `0dB` | 0.8306 | 0.680019 | 0.52 | 0.130 | 0.870 |
+| `plus6dB` | 0.9980 | 1.133451 | 1.00 | 0.050 | 0.950 |
 
-- Fan `id_00` MIMII SNR data staged externally under `D:\PDM_Data\MIMII`.
-- Expert A preprocessing, training, scoring, thresholding, and three-SNR evaluation.
-- Expert B method forensics and initial code-level implementation.
-- Expert B unit tests for rank scoring, metadata filtering, null direction policy, and JSON guardrails.
+The controlled result strongly indicates low SNR as the primary limitation of
+the weak `minus6dB` separation. It does not prove the model is perfect, and it
+does not prove the same performance for other machines.
 
-PARTIAL:
+Bounded Fan MVP evidence:
 
-- Expert B reference indexing and same-audio smoke pipeline.
-- Repository/report normalization completed as `TASK-00`.
+- Expert B reference index: 40 normal references, default `k=30`.
+- Same abnormal event: `fan_id_00_minus6dB_00000002`.
+- Expert A event score: `0.622095`; threshold: `0.593284`; anomalous: `true`.
+- Expert B rank scores: boominess `0.000000`, brightness `0.933333`, depth `0.666667`, roughness `0.933333`, sharpness `0.933333`.
+- End-to-end smoke runtime: `15.792862s`.
+- Dashboard artifact size: `7561` bytes.
 
-TODO:
+## Workflow
 
-- Structured Health Context.
-- LLM explanation agent.
-- Maintenance RAG.
-- End-to-end orchestrator.
-- Dashboard.
-- Pump, valve, and slide rail generalization.
+Use the task plan and project state as the execution source of truth:
 
-BLOCKED:
+- `docs/MASTER_EXECUTION_PLAN.md`
+- `docs/TASK_EXECUTION_LOG.md`
+- `project_state.json`
+- `docs/fan_mvp_final_report.md`
+- `docs/academic_claims.md`
 
-- Expert B reference-index performance must be profiled before larger runs.
-- Quantitative Expert B timbre-direction accuracy needs labels not present in the current Fan data.
-
-## Repository Structure
-
-```text
-IOT/
-|-- AGENTS.md
-|-- CLAUDE.md
-|-- README.md
-|-- REPORT.md
-|-- REPORT_PHASE1_2.md
-|-- project_state.json
-|-- requirements.txt
-|-- .agents/skills/
-|-- src/
-|-- scripts/
-|-- tests/
-|-- docs/
-|-- app/
-|-- notebooks/
-```
-
-`src/` contains active Python modules. `scripts/` contains executable workflows. `tests/` contains checks. `docs/` contains method, roadmap, audit, and execution documentation. Repo-local large data and model artifact directories were removed in `TASK-00B`.
-
-## Data Storage
-
-Repository code lives under `D:\IOT`.
-
-Large active data and model artifacts live under:
+Large scientific data and generated model artifacts live outside Git under:
 
 ```text
 D:\PDM_Data\MIMII
 ```
 
-Do not commit large WAV files, `.npy` arrays, `.npz` generated stats, model weights, reference indexes, or smoke outputs.
+Do not commit WAV files, generated `.npy/.npz` arrays, model weights, reference
+indexes, smoke outputs, benchmark outputs, or other generated scientific artifacts.
 
-The unique legacy repo-local model was preserved externally at:
+## Quick Start
 
-```text
-D:\PDM_Data\MIMII\models_store\anomaly_detector_legacy_repo_2026-06-29.pt
+These commands are safe for repository validation. They do not train models,
+build reference indexes, or process the full dataset.
+
+```powershell
+python -m pip install -r requirements.txt
+python -m unittest discover -s tests -p "test_*.py"
+python -m compileall -q src scripts tests app
 ```
 
-## Quick Development Notes
+Do not run training, SNR experiments, Expert B indexing, or end-to-end data
+scripts as quick-start commands. Those workflows require external artifacts and
+the bounded runtime ladder documented in the execution plan.
 
-Fan `id_00` is the current MVP/reference machine. Interfaces must stay machine-aware so later Pump, Valve, and Slide Rail work can reuse the same architecture without mixing artifacts.
+## Tests
 
-Do not run the slow Expert B 40-file reference-index job before one-file and three-file performance timing.
+The local unit suite currently covers:
 
-## Scientific Limitations
+- Expert B rank, filtering, null-direction, and JSON guardrails.
+- Structured Health Context schema validation.
+- Guardrailed explanation output.
+- RAG source preservation and citation validation.
+- Grounded maintenance output.
+- End-to-end Fan MVP orchestration behavior.
+- Static dashboard rendering.
 
-- No Remaining Useful Life prediction.
-- No exact time-to-failure prediction.
-- No confirmed physical root-cause diagnosis.
-- Expert B quantitative direction accuracy is not validated on current Fan data.
-- Current Expert B embedding is an Expert A bottleneck adaptation, not a paper encoder.
+Current local evidence:
 
-## Where To Read More
+```text
+python -m unittest discover -s tests -p "test_*.py"
+Ran 32 tests
+OK
+```
 
-- `CLAUDE.md`
-- `REPORT.md`
-- `REPORT_PHASE1_2.md`
-- `docs/MASTER_EXECUTION_PLAN.md`
-- `docs/REPOSITORY_AUDIT.md`
+GitHub Actions `CI` runs:
+
+- `compile`
+- `unit tests`
+- `large-artifact guard`
+
+## Scientific Limits
+
+Supported:
+
+- Expert A detects anomalous Fan `id_00` sounds under the evaluated split.
+- Expert A performance is SNR-sensitive in the controlled Fan experiment.
+- A bounded Expert B Fan reference index exists.
+- Expert B can qualitatively characterize one Expert A-flagged Fan event using same-machine normal references.
+- Structured context, guarded explanation, retrieval, maintenance output, end-to-end orchestration, and dashboard artifacts exist for the bounded Fan MVP.
+
+Not supported:
+
+- Expert B timbre-direction accuracy.
+- Physical root-cause diagnosis.
+- Rank score as confidence, probability, or severity percentage.
+- Remaining Useful Life or exact time-to-failure prediction.
+- Production-manual-grounded maintenance recommendations.
+- Pump, Valve, Slide Rail, or MIMII DG generalization.
+- Exact reproduction of Nishida et al.
+
+## Roadmap
+
+Backlog and blocked work:
+
+- Production maintenance documents and `approved_sources.json`.
+- Pump data staging.
+- Pump Expert A evaluation.
+- Pump Expert B reference indexing and smoke.
+- Valve generalization.
+- Slide Rail generalization.
+- Cross-machine comparison.
+- MIMII DG robustness.
+- Expert B label or threshold protocol for stronger timbre-direction claims.
