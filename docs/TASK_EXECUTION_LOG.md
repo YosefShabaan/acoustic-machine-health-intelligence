@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Real Intelligence Completion in progress; TASK-RAG-01 complete.
+Status: Real Intelligence Completion in progress; TASK-RAG-02 complete.
 
-Latest completed task: `TASK-RAG-01`.
+Latest completed task: `TASK-RAG-02`.
 
 Use this template after every task:
 
@@ -29,6 +29,61 @@ Rules:
 - Do not mark `DONE` based only on code creation.
 - Use `FAILED` when bounded diagnosis was attempted and the task still fails.
 - Use `BLOCKED` when Yosef input, data, credentials, or architecture approval is required.
+
+```text
+TASK:
+TASK-RAG-02 - Maintenance Document Parsing And Chunking Review
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $scientific-implementer for the approved bounded RAG chunking task.
+- Inspected src/rag/knowledge_base.py, src/rag/retriever.py, tests/test_rag_grounding.py, data/manuals sources, and approved_sources.json.
+- Replaced arbitrary character-first chunking with section-aware markdown chunking over approved-source `##` sections.
+- Preserved source metadata on ApprovedSource, KnowledgeChunk, RetrievalResult, and serialized dictionaries.
+- Added chunk metadata: publisher, corpus_version, source_url, section_id, and section_heading.
+- Kept LocalRetriever as the lexical baseline.
+- Added tests for section-aware chunk metadata and repository corpus retrieval metadata.
+- Created docs/RAG_CORPUS_CHUNKING_REVIEW.md with corpus statistics, chunk inventory, manual retrieval inspection, and claim limits.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_rag_grounding.py"
+- Section-aware corpus smoke over data/manuals.
+- Visual-inspection retrieval smoke over data/manuals.
+
+ACTUAL OUTPUT:
+- RAG tests: Ran 6 tests, OK.
+- Corpus smoke: source_count=2.
+- Corpus smoke: chunk_count=15.
+- Corpus smoke warnings: [].
+- Chunk sizes: min=324 chars, max=491 chars, mean=402.2 chars.
+- DOE Fan Sourcebook chunks: 8.
+- DOE/FEMP O&M Release 3.0 Fan chunks: 7.
+- Visual-inspection query top result: doe_om_best_practices_release_3_fans#DOE-OM-R3-FAN-CHECKLIST-MECHANICAL.
+- Inspected chunk inventory and retrieval snippets for heading/body association and source/section traceability.
+
+IMPLEMENTATION REVIEW:
+- Chunk IDs now use stable source and section identifiers instead of generic sequential chunk numbers.
+- Retrieval results now expose corpus_version and section metadata needed by later citation validation.
+- Oversized sections would split by paragraph with heading preserved, but the current corpus did not require splitting.
+- Existing lexical retrieval behavior and citation validation by source ID are preserved.
+
+SCIENTIFIC REVIEW:
+- Chunking improves provenance and traceability only.
+- It does not claim semantic retrieval quality, production maintenance correctness, root-cause diagnosis, RUL, confidence, or probability.
+- The corpus remains inspection-oriented and source-grounded.
+
+DIFF REVIEW:
+- Changed files: src/rag/knowledge_base.py, src/rag/retriever.py, tests/test_rag_grounding.py, docs/RAG_CORPUS_CHUNKING_REVIEW.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No raw PDFs, generated indexes, embeddings, model weights, WAVs, NumPy arrays, or generated scientific artifacts were added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-RAG-03 - Semantic Retriever Baseline.
+```
 
 ```text
 TASK:

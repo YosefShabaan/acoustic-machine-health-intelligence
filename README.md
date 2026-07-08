@@ -122,7 +122,7 @@ Current local evidence:
 
 ```text
 python -m unittest discover -s tests -p "test_*.py"
-Ran 42 tests
+Ran 43 tests
 OK
 ```
 

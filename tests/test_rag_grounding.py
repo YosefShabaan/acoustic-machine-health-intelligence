@@ -76,6 +76,48 @@ class RAGGroundingTests(unittest.TestCase):
         self.assertIn("abnormal mechanical noise", response.results[0].snippet)
         self.assertGreater(response.results[0].score, 0.0)
 
+    def test_section_aware_chunks_preserve_metadata(self) -> None:
+        """Markdown sections keep source, corpus, and section identity."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "fan_manual.md").write_text(
+                "# Fan Manual\n\n"
+                "source metadata preface\n\n"
+                "## FAN-SECTION-ONE\n\n"
+                "Inspect belts and pulleys for fan acoustic noise.\n\n"
+                "## FAN-SECTION-TWO\n\n"
+                "Record vibration observations and inspection results.",
+                encoding="utf-8",
+            )
+            (root / "approved_sources.json").write_text(
+                json.dumps(
+                    {
+                        "corpus_version": "test-corpus-v1",
+                        "sources": [
+                            {
+                                "source_id": "fan_manual_v1",
+                                "title": "Fan Manual",
+                                "publisher": "Approved Publisher",
+                                "version": "v1",
+                                "path": "fan_manual.md",
+                                "approved": True,
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            kb = build_knowledge_base(root)
+
+        self.assertEqual(len(kb.chunks), 2)
+        self.assertEqual(kb.chunks[0].chunk_id, "fan_manual_v1#FAN-SECTION-ONE")
+        self.assertEqual(kb.chunks[0].section_id, "FAN-SECTION-ONE")
+        self.assertEqual(kb.chunks[0].section_heading, "FAN-SECTION-ONE")
+        self.assertEqual(kb.chunks[0].publisher, "Approved Publisher")
+        self.assertEqual(kb.chunks[0].corpus_version, "test-corpus-v1")
+        self.assertIn("FAN-SECTION-ONE", kb.chunks[0].text)
+
     def test_recommendation_cannot_cite_missing_source(self) -> None:
         """Downstream recommendations must cite only retrieved sources."""
         with tempfile.TemporaryDirectory() as tmp:
@@ -123,6 +165,9 @@ class RAGGroundingTests(unittest.TestCase):
         self.assertTrue(response.available)
         self.assertGreaterEqual(len(response.results), 1)
         self.assertIn(response.results[0].source_id, source_ids)
+        self.assertEqual(response.results[0].corpus_version, "AMHI-FAN-MAINT-KB-v1")
+        self.assertTrue(response.results[0].section_id)
+        self.assertTrue(response.results[0].section_heading)
 
 
 if __name__ == "__main__":

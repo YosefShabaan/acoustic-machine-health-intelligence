@@ -34,6 +34,11 @@ class RetrievalResult:
     snippet: str
     score: float
     path: Path
+    publisher: str = ""
+    corpus_version: str = ""
+    section_id: str = ""
+    section_heading: str = ""
+    source_url: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable representation."""
@@ -41,10 +46,15 @@ class RetrievalResult:
             "source_id": self.source_id,
             "title": self.title,
             "version": self.version,
+            "publisher": self.publisher,
+            "corpus_version": self.corpus_version,
             "chunk_id": self.chunk_id,
+            "section_id": self.section_id,
+            "section_heading": self.section_heading,
             "snippet": self.snippet,
             "score": self.score,
             "path": str(self.path),
+            "source_url": self.source_url,
         }
 
 
@@ -111,9 +121,14 @@ class LocalRetriever:
                 title=chunk.title,
                 version=chunk.version,
                 chunk_id=chunk.chunk_id,
+                publisher=chunk.publisher,
+                corpus_version=chunk.corpus_version,
+                section_id=chunk.section_id,
+                section_heading=chunk.section_heading,
                 snippet=_make_snippet(chunk.text, query_terms.keys(), snippet_chars),
                 score=round(score, 6),
                 path=chunk.path,
+                source_url=chunk.source_url,
             )
             for score, chunk in scored[:top_k]
         )

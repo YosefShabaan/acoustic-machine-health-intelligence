@@ -23,6 +23,9 @@ class ApprovedSource:
     title: str
     version: str
     path: Path
+    publisher: str = ""
+    corpus_version: str = "unversioned"
+    source_url: str | None = None
 
     def to_dict(self) -> dict[str, str]:
         """Return a JSON-serializable representation."""
@@ -31,6 +34,9 @@ class ApprovedSource:
             "title": self.title,
             "version": self.version,
             "path": str(self.path),
+            "publisher": self.publisher,
+            "corpus_version": self.corpus_version,
+            "source_url": self.source_url or "",
         }
 
 
@@ -41,9 +47,14 @@ class KnowledgeChunk:
     source_id: str
     title: str
     version: str
+    publisher: str
+    corpus_version: str
     path: Path
     chunk_id: str
+    section_id: str
+    section_heading: str
     text: str
+    source_url: str | None = None
 
     def to_dict(self) -> dict[str, str]:
         """Return a JSON-serializable representation."""
@@ -51,9 +62,14 @@ class KnowledgeChunk:
             "source_id": self.source_id,
             "title": self.title,
             "version": self.version,
+            "publisher": self.publisher,
+            "corpus_version": self.corpus_version,
             "path": str(self.path),
             "chunk_id": self.chunk_id,
+            "section_id": self.section_id,
+            "section_heading": self.section_heading,
             "text": self.text,
+            "source_url": self.source_url or "",
         }
 
 
@@ -101,6 +117,7 @@ def load_approved_sources(
         return [], [f"approved source manifest not found: {manifest_path}"], manifest_path
 
     payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest_corpus_version = str(payload.get("corpus_version") or "unversioned")
     rows = payload.get("sources", [])
     if not isinstance(rows, list):
         raise ValueError("approved_sources.json must contain a 'sources' list")
@@ -140,6 +157,13 @@ def load_approved_sources(
                 title=str(row.get("title") or source_id),
                 version=str(row.get("version") or "unversioned"),
                 path=source_path,
+                publisher=str(row.get("publisher") or ""),
+                corpus_version=str(row.get("corpus_version") or manifest_corpus_version),
+                source_url=(
+                    str(row["source_url"])
+                    if isinstance(row.get("source_url"), str) and row["source_url"].strip()
+                    else None
+                ),
             )
         )
 
@@ -150,7 +174,7 @@ def build_knowledge_base(
     manuals_dir: Path | str = RAG_MANUALS_DIR,
     *,
     manifest_name: str = MANIFEST_NAME,
-    max_chunk_chars: int = 1200,
+    max_chunk_chars: int = 1800,
 ) -> KnowledgeBase:
     """Build a local knowledge base from approved maintenance documents."""
     sources, warnings, manifest_path = load_approved_sources(
@@ -160,15 +184,20 @@ def build_knowledge_base(
     chunks: list[KnowledgeChunk] = []
     for source in sources:
         text = source.path.read_text(encoding="utf-8")
-        for chunk_index, chunk_text in enumerate(_chunk_text(text, max_chunk_chars)):
+        for section in _section_chunks(text, max_chunk_chars):
             chunks.append(
                 KnowledgeChunk(
                     source_id=source.source_id,
                     title=source.title,
                     version=source.version,
+                    publisher=source.publisher,
+                    corpus_version=source.corpus_version,
                     path=source.path,
-                    chunk_id=f"{source.source_id}#chunk-{chunk_index + 1}",
-                    text=chunk_text,
+                    chunk_id=f"{source.source_id}#{section['section_id']}",
+                    section_id=section["section_id"],
+                    section_heading=section["section_heading"],
+                    text=section["text"],
+                    source_url=source.source_url,
                 )
             )
     return KnowledgeBase(
@@ -186,23 +215,102 @@ def _required_text(row: dict[str, Any], key: str, index: int) -> str:
     return value.strip()
 
 
-def _chunk_text(text: str, max_chunk_chars: int) -> Iterable[str]:
-    compact = _normalize_whitespace(text)
-    if not compact:
+def _section_chunks(text: str, max_chunk_chars: int) -> Iterable[dict[str, str]]:
+    """Yield section-aware chunks from markdown-like approved source text."""
+    sections = _markdown_sections(text)
+    if not sections:
+        compact = _normalize_whitespace(text)
+        if compact:
+            yield {
+                "section_id": "document",
+                "section_heading": "Document",
+                "text": compact[:max_chunk_chars],
+            }
         return
-    paragraphs = [part.strip() for part in re.split(r"\n\s*\n", text) if part.strip()]
-    current = ""
-    for paragraph in paragraphs or [compact]:
-        paragraph = _normalize_whitespace(paragraph)
-        if not current:
-            current = paragraph
+
+    seen: dict[str, int] = {}
+    for heading, body in sections:
+        base_section_id = _section_id_from_heading(heading)
+        seen[base_section_id] = seen.get(base_section_id, 0) + 1
+        section_id = (
+            base_section_id
+            if seen[base_section_id] == 1
+            else f"{base_section_id}-{seen[base_section_id]}"
+        )
+        chunk_text = _normalize_whitespace(f"{heading}\n\n{body}")
+        if not chunk_text:
             continue
-        if len(current) + 1 + len(paragraph) <= max_chunk_chars:
-            current = f"{current} {paragraph}"
-        else:
+        if len(chunk_text) <= max_chunk_chars:
+            yield {
+                "section_id": section_id,
+                "section_heading": heading,
+                "text": chunk_text,
+            }
+            continue
+        for part_index, part_text in enumerate(
+            _split_section_text(heading, body, max_chunk_chars),
+            start=1,
+        ):
+            yield {
+                "section_id": f"{section_id}-part-{part_index}",
+                "section_heading": heading,
+                "text": part_text,
+            }
+
+
+def _markdown_sections(text: str) -> list[tuple[str, str]]:
+    """Return second-level markdown sections with their body text."""
+    sections: list[tuple[str, list[str]]] = []
+    current_heading: str | None = None
+    current_lines: list[str] = []
+    for line in text.splitlines():
+        if line.startswith("## "):
+            if current_heading is not None:
+                sections.append((current_heading, current_lines))
+            current_heading = line[3:].strip()
+            current_lines = []
+        elif current_heading is not None:
+            current_lines.append(line)
+    if current_heading is not None:
+        sections.append((current_heading, current_lines))
+    return [
+        (heading, "\n".join(lines).strip())
+        for heading, lines in sections
+        if _normalize_whitespace("\n".join(lines))
+    ]
+
+
+def _section_id_from_heading(heading: str) -> str:
+    """Derive a stable section identifier from an approved-source heading."""
+    first_token = heading.split(maxsplit=1)[0].strip()
+    if re.fullmatch(r"[A-Z0-9][A-Z0-9-]{3,}", first_token):
+        return first_token
+    slug = re.sub(r"[^a-z0-9]+", "-", heading.lower()).strip("-")
+    return slug or "section"
+
+
+def _split_section_text(
+    heading: str,
+    body: str,
+    max_chunk_chars: int,
+) -> Iterable[str]:
+    """Split an oversized section by paragraph while preserving the heading."""
+    paragraphs = [
+        _normalize_whitespace(paragraph)
+        for paragraph in re.split(r"\n\s*\n", body)
+        if _normalize_whitespace(paragraph)
+    ]
+    prefix = f"{heading} "
+    current = prefix
+    for paragraph in paragraphs:
+        candidate = f"{current} {paragraph}".strip()
+        if len(candidate) <= max_chunk_chars:
+            current = candidate
+            continue
+        if current.strip() != prefix.strip():
             yield current[:max_chunk_chars]
-            current = paragraph
-    if current:
+        current = f"{prefix}{paragraph}"
+    if current.strip() != prefix.strip():
         yield current[:max_chunk_chars]
 
 

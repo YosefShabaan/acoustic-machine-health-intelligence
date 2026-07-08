@@ -42,11 +42,12 @@
                             "gemini_provider_config":  "src/agents/gemini_provider.py",
                             "gemini_explanation_smoke":  "D:\\PDM_Data\\MIMII\\processed\\gemini_explanation_fan_id_00_minus6dB_task_ai_02.json",
                             "rag_source_register":  "docs/RAG_SOURCE_REGISTER.md",
-                            "approved_public_fan_corpus_manifest":  "data/manuals/approved_sources.json"
+                            "approved_public_fan_corpus_manifest":  "data/manuals/approved_sources.json",
+                            "rag_corpus_chunking_review":  "docs/RAG_CORPUS_CHUNKING_REVIEW.md"
                         },
     "current_phase":  "real_intelligence_completion",
-    "last_completed_phase":  "task_rag_01_authoritative_public_fan_maintenance_corpus_v1",
-    "next_executable_phase":  "task_rag_02_maintenance_document_parsing_and_chunking_review",
+    "last_completed_phase":  "task_rag_02_maintenance_document_parsing_and_chunking_review",
+    "next_executable_phase":  "task_rag_03_semantic_retriever_baseline",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -280,7 +281,7 @@
                               "next_use":  "TASK-12 Fan MVP final report"
                               },
     "current_rag_state":  {
-                              "status":  "approved_public_fan_corpus_v1_available_pending_chunking_and_retrieval_evaluation",
+                              "status":  "section_aware_chunking_complete_pending_semantic_retrieval_and_evaluation",
                               "implementation_files_present":  [
                                                                    "src/rag/__init__.py",
                                                                    "src/rag/knowledge_base.py",
@@ -290,7 +291,8 @@
                                                                    "data/manuals/approved_sources.json",
                                                                    "data/manuals/doe_fan_sourcebook_2003_fan_maintenance.md",
                                                                    "data/manuals/doe_om_best_practices_release_3_fans.md",
-                                                                   "docs/RAG_SOURCE_REGISTER.md"
+                                                                   "docs/RAG_SOURCE_REGISTER.md",
+                                                                   "docs/RAG_CORPUS_CHUNKING_REVIEW.md"
                                                                ],
                               "manuals_dir":  "D:\\IOT\\data\\manuals",
                               "approved_manifest":  "D:\\IOT\\data\\manuals\\approved_sources.json",
@@ -302,7 +304,7 @@
                                                       ],
                               "external_original_sources_dir":  "D:\\PDM_Data\\MIMII\\manuals\\sources",
                               "production_source_count":  2,
-                              "production_chunk_count":  7,
+                              "production_chunk_count":  15,
                               "production_retrieval_available":  true,
                               "production_unavailable_message":  null,
                               "smoke_output":  "D:\\PDM_Data\\MIMII\\processed\\rag_retrieval_smoke_task08.json",
@@ -311,7 +313,28 @@
                                                         "result_count":  3,
                                                         "top_source_id":  "doe_fan_sourcebook_2003",
                                                         "warnings":  []
-                                                    },
+                                                      },
+                              "task_rag_02_chunking":  {
+                                                           "strategy":  "section-aware markdown chunking over approved-source ## headings",
+                                                           "source_count":  2,
+                                                           "chunk_count":  15,
+                                                           "min_chunk_chars":  324,
+                                                           "max_chunk_chars":  491,
+                                                           "mean_chunk_chars":  402.2,
+                                                           "metadata_preserved":  [
+                                                                                      "source_id",
+                                                                                      "title",
+                                                                                      "publisher",
+                                                                                      "version",
+                                                                                      "corpus_version",
+                                                                                      "chunk_id",
+                                                                                      "section_id",
+                                                                                      "section_heading",
+                                                                                      "source_url",
+                                                                                      "path"
+                                                                                  ],
+                                                           "review_doc":  "docs/RAG_CORPUS_CHUNKING_REVIEW.md"
+                                                       },
                               "fixture_runtime_gate":  {
                                                            "source_count":  1,
                                                            "chunk_count":  1,
@@ -323,10 +346,11 @@
                                                  "only manifest-listed approved:true .md/.txt files are indexed",
                                                  "loose files under data/manuals are ignored",
                                                  "retrieval preserves source ID, title, version, chunk ID, snippet, score, and path",
+                                                 "section-aware chunks preserve publisher, corpus_version, section_id, section_heading, and source_url",
                                                  "empty production KB returns safe unavailable result when no approved manifest is present",
                                                  "citation validation rejects non-retrieved source IDs"
                                              ],
-                              "next_use":  "TASK-RAG-02 maintenance document parsing and chunking review"
+                              "next_use":  "TASK-RAG-03 semantic retriever baseline"
                               },
     "current_maintenance_agent_state":  {
                                             "status":  "grounded_maintenance_agent_complete_fixture_grounded",
@@ -550,7 +574,7 @@
                                          "action":  "complete TASK-RAG-02 through TASK-MAINT-01 before evaluated production recommendation claims"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-RAG-01 created AMHI-FAN-MAINT-KB-v1 from authoritative public DOE Fan maintenance sources with provenance, manifest, tests, and bounded retrieval smoke.",
+    "last_state_update_reason":  "TASK-RAG-02 implemented section-aware source-preserving chunking for AMHI-FAN-MAINT-KB-v1 with metadata, tests, chunk statistics, and manual retrieval inspection.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -576,8 +600,8 @@
     "plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "approved_plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "current_task":  null,
-    "last_completed_task":  "TASK-RAG-01",
-    "next_task":  "TASK-RAG-02",
+    "last_completed_task":  "TASK-RAG-02",
+    "next_task":  "TASK-RAG-03",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -710,10 +734,17 @@
                                            "notes":  "Created AMHI-FAN-MAINT-KB-v1 with DOE Fan Sourcebook and DOE/FEMP O&M Best Practices Release 3.0 provenance, external original PDFs, approved_sources.json, compact tracked RAG notes, source register, 5 RAG tests, and bounded retrieval smoke."
                                        },
                         "TASK-RAG-02":  {
+                                           "status":  "done",
+                                           "verdict":  "DONE",
+                                           "completed_utc":  "2026-07-09",
+                                           "primary_skill":  "$scientific-implementer",
+                                           "notes":  "Implemented section-aware markdown chunking for AMHI-FAN-MAINT-KB-v1, preserving source/publisher/corpus/section metadata; corpus now has 15 reviewed chunks and docs/RAG_CORPUS_CHUNKING_REVIEW.md."
+                                       },
+                        "TASK-RAG-03":  {
                                            "status":  "next",
                                            "verdict":  null,
                                            "primary_skill":  "$scientific-implementer",
-                                           "notes":  "Next Real Intelligence Completion task: review maintenance document parsing and implement source-preserving chunking suitable for the selected corpus."
+                                           "notes":  "Next Real Intelligence Completion task: add Gemini semantic retrieval baseline while retaining lexical retrieval."
                                        },
                         "TASK-14":  {
                                         "status":  "planned",
