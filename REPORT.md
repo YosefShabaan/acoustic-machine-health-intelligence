@@ -8,11 +8,11 @@ This repository implements the foundation of an explainable acoustic machine hea
 
 VERIFIED RESULT: Expert A and the controlled SNR experiment are complete for Fan `id_00`. AUC improves from `0.6142` at `-6 dB` to `0.8306` at `0 dB` and `0.9980` at `+6 dB`.
 
-IMPLEMENTED THROUGH GUARDED EXPLANATION FOR THE FAN MVP PATH: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index, TASK-04 saved one reviewed same-audio Expert A -> Expert B abnormal JSON, TASK-05 defined the qualitative evidence protocol, TASK-06 implemented the Structured Health Context schema and translator, and TASK-07 implemented a deterministic guardrailed explanation agent.
+IMPLEMENTED THROUGH SOURCE-PRESERVING RETRIEVAL FOR THE FAN MVP PATH: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index, TASK-04 saved one reviewed same-audio Expert A -> Expert B abnormal JSON, TASK-05 defined the qualitative evidence protocol, TASK-06 implemented the Structured Health Context schema and translator, TASK-07 implemented a deterministic guardrailed explanation agent, and TASK-08 implemented an approved-source local maintenance retriever.
 
-PLANNED: RAG maintenance grounding, grounded maintenance agent, orchestration, dashboard, multi-machine generalization, and domain robustness.
+PLANNED: grounded maintenance agent, orchestration, dashboard, multi-machine generalization, and domain robustness.
 
-NEXT TECHNICAL STEP: Implement the maintenance knowledge base and retriever. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
+NEXT TECHNICAL STEP: Implement the grounded maintenance agent that consumes retrieved source evidence. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
 
 # 3. Problem Statement
 
@@ -129,7 +129,7 @@ Component responsibilities:
 | Expert B | Same audio event, Expert A result, normal references | embedding kNN + timbre rank scores | five timbre rank scores and references | Characterize acoustic difference | No direction labels without threshold; no diagnosis |
 | Structured Context | Expert A/B outputs | schema translation | deterministic JSON | Preserve evidence and limits | First schema implemented |
 | LLM | structured context | guarded deterministic or mockable generation | technician-facing explanation | Explain evidence cautiously | Not retrieval-grounded yet |
-| RAG | context query + approved docs | retrieval | source evidence | Ground recommendations | Not implemented yet |
+| RAG | context query + approved docs | manifest-gated local retrieval | source evidence | Ground recommendations | Retriever implemented; production KB empty |
 | Dashboard | end-to-end JSON | UI rendering | evidence view | Display status and limits | Not implemented yet |
 
 # 8. Research Foundation
@@ -666,22 +666,75 @@ The explanation is guardrailed but not retrieval-grounded yet. Maintenance recom
 
 # 18. Maintenance RAG
 
-PLANNED, NOT IMPLEMENTED.
+IMPLEMENTED IN TASK-08.
 
 Purpose:
 
 Ground maintenance recommendations in approved documents or procedures.
 
-Planned output separation:
+Files:
 
-- observed acoustic evidence
-- retrieved source evidence
-- cautious inspection suggestion
-- limitations
+```text
+src/rag/__init__.py
+src/rag/knowledge_base.py
+src/rag/retriever.py
+tests/test_rag_grounding.py
+data/manuals/README.md
+```
+
+Production knowledge-base policy:
+
+- The retriever indexes only `.md` or `.txt` files listed in `data/manuals/approved_sources.json`.
+- Each manifest entry must have `approved: true`.
+- Loose files under `data/manuals` are ignored.
+- Paths must stay inside `data/manuals`.
+- No web crawling or random web snippets are used.
+
+Retrieval output preserves:
+
+- source document ID
+- title
+- version
+- chunk ID
+- retrieved snippet
+- retrieval score
+- local path
+
+Smoke output:
+
+```text
+D:\PDM_Data\MIMII\processed\rag_retrieval_smoke_task08.json
+```
+
+Actual production smoke summary:
+
+```text
+production source_count=0
+production chunk_count=0
+production available=False
+warning=approved source manifest not found at D:\IOT\data\manuals\approved_sources.json
+```
+
+Actual fixture runtime gate:
+
+```text
+fixture source_count=1
+fixture chunk_count=1
+retrieval queries=3
+max retrieval time=0.000941s
+returned source_id=fixture_fan_procedure
+```
+
+Implemented behavior:
+
+- Returns source-preserving retrieval results when approved sources exist.
+- Returns a safe unavailable result when no approved production source is indexed.
+- Validates downstream citation IDs so recommendations cannot cite missing sources.
+- Does not produce maintenance advice by itself.
 
 Current status:
 
-No knowledge base, retriever, approved manuals, source IDs, or retrieval tests exist yet.
+The retriever exists and is tested. The production knowledge base is currently empty because no approved production `approved_sources.json` manifest exists yet. Production maintenance recommendations remain unavailable until approved documents are supplied and TASK-09 consumes retrieved evidence.
 
 # 19. End-to-End Orchestration
 
@@ -828,8 +881,8 @@ The unique legacy unsuffixed model was preserved externally at
 | Expert B reference index | DONE for bounded Fan MVP | `D:\PDM_Data\MIMII\processed\timbre_reference_index_fan_id_00_minus6dB.json` | 40 references, k=30, load/filter/kNN validated | optional full 1011-reference offline index | later optional |
 | Expert A -> Expert B integration | DONE for one bounded smoke | `D:\PDM_Data\MIMII\processed\expert_b_smoke_fan_id_00_minus6dB_task04.json` | same abnormal audio path scored by Expert A and characterized by Expert B | broader review | later |
 | Context layer | DONE for first schema | `src/context`, `tests/test_context_schema.py`, sample context JSON | versioned schema, translator, tests, one smoke context | RAG usage | TASK-08 |
-| LLM | DONE for guarded offline explanation | `src/agents/diagnostic_agent.py`, `tests/test_llm_guardrails.py`, TASK-07 smoke JSON | deterministic explanation, prompt guardrails, optional mockable generator | retrieval grounding | TASK-09 after RAG |
-| RAG | TODO | no `src/rag` | none | approved docs/retriever | TASK-08 |
+| LLM | DONE for guarded offline explanation | `src/agents/diagnostic_agent.py`, `tests/test_llm_guardrails.py`, TASK-07 smoke JSON | deterministic explanation, prompt guardrails, optional mockable generator | maintenance-source integration | TASK-09 |
+| RAG | DONE for source-preserving retriever | `src/rag`, `tests/test_rag_grounding.py`, TASK-08 smoke JSON | approved-manifest indexing, source IDs/snippets, safe unavailable result, citation validation | approved production docs and maintenance-agent consumption | TASK-09 |
 | Orchestrator | TODO | no end-to-end script | none | same-event pipeline | TASK-10 |
 | Dashboard | TODO | `app/.gitkeep` | none | UI | TASK-11 |
 | Pump | TODO | data missing | none | staging/evaluation | TASK-13 |
@@ -857,7 +910,7 @@ one bounded Fan same-audio smoke complete; qualitative evidence protocol documen
 Explanation/RAG/application layers:
 
 ```text
-context and guardrailed explanation implemented; RAG/orchestration/dashboard not implemented
+context, guardrailed explanation, and source-preserving retriever implemented; maintenance agent/orchestration/dashboard not implemented
 ```
 
 Generalization/robustness:
@@ -868,7 +921,7 @@ future work
 
 Core MVP implementation progress:
 
-More than one third of the engineering foundation is complete: data staging, preprocessing, Expert A, SNR evaluation, Expert B guardrail code, bounded Expert B runtime, a loadable bounded Expert B reference index, one same-audio Expert A -> Expert B smoke, a qualitative Expert B review protocol, a first Structured Health Context schema/translator, and a guardrailed explanation agent now exist. The user-facing system is not complete because RAG, grounded maintenance output, orchestration, and dashboard remain.
+More than one third of the engineering foundation is complete: data staging, preprocessing, Expert A, SNR evaluation, Expert B guardrail code, bounded Expert B runtime, a loadable bounded Expert B reference index, one same-audio Expert A -> Expert B smoke, a qualitative Expert B review protocol, a first Structured Health Context schema/translator, a guardrailed explanation agent, and a source-preserving retriever now exist. The user-facing system is not complete because grounded maintenance output, orchestration, and dashboard remain.
 
 Research validation progress:
 
@@ -876,11 +929,11 @@ Expert A validation is strong for Fan `id_00` SNR sensitivity. Expert B scientif
 
 WHERE ARE WE NOW?
 
-We have a verified acoustic anomaly detector, a loadable bounded timbre-difference reference index for Fan `id_00` minus6dB, one reviewed same-audio abnormal Expert A -> Expert B JSON, a documented qualitative Expert B evidence protocol, one validated Structured Health Context JSON, and one guarded explanation JSON. The immediate next step is the maintenance knowledge base and retriever.
+We have a verified acoustic anomaly detector, a loadable bounded timbre-difference reference index for Fan `id_00` minus6dB, one reviewed same-audio abnormal Expert A -> Expert B JSON, a documented qualitative Expert B evidence protocol, one validated Structured Health Context JSON, one guarded explanation JSON, and a source-preserving maintenance retriever. The immediate next step is the grounded maintenance agent.
 
 WHAT REMAINS?
 
-RAG, grounded maintenance agent, orchestrator, dashboard, and later machine/domain generalization.
+Grounded maintenance agent, orchestrator, dashboard, approved production maintenance documents, and later machine/domain generalization.
 
 # 27. Remaining Work
 
@@ -892,7 +945,7 @@ RAG, grounded maintenance agent, orchestrator, dashboard, and later machine/doma
 | TASK-05 | Expert B Qualitative Evidence Protocol | DONE | TASK-04 | qualitative protocol |
 | TASK-06 | Structured Health Context Schema And Translator | DONE | TASK-04 | schema/tests/sample context |
 | TASK-07 | Guardrailed LLM Explanation Agent | DONE | TASK-06 | deterministic guarded explanation artifact |
-| TASK-08 | Maintenance Knowledge Base And Retriever | source-ground recommendations | TASK-06 | retriever/tests |
+| TASK-08 | Maintenance Knowledge Base And Retriever | DONE | TASK-06 | source-preserving retriever/tests; production KB empty |
 | TASK-09 | Grounded Maintenance Agent | combine explanation and retrieval | TASK-07 + TASK-08 | sourced technician output |
 | TASK-10 | End-To-End Fan MVP Orchestrator | one bounded system path | TASK-04 + TASK-06 + TASK-09 | final JSON |
 | TASK-11 | Dashboard MVP | show evidence and limits | TASK-10 | local dashboard |
@@ -917,12 +970,13 @@ TASK-01 was superseded by TASK-00 because repository normalization and active-sc
 | Expert B reference indexing is operationally bounded | Yes | TASK-02 timings and TASK-03 final artifact | full 1011-reference offline index not run |
 | Expert B technically works end-to-end | Yes for one bounded Fan smoke | TASK-04 smoke JSON | not a broad accuracy evaluation |
 | Expert B qualitative review protocol exists | Yes | `docs/expert_b_qualitative_protocol.md` | does not replace labels |
-| Structured Health Context exists | Yes | `src/context`, 5 context tests OK, sample context JSON | RAG not implemented |
+| Structured Health Context exists | Yes | `src/context`, 5 context tests OK, sample context JSON | maintenance-agent integration not implemented |
 | Guardrailed LLM explanation wrapper exists | Yes | `src/agents/diagnostic_agent.py`, 4 guardrail tests OK, TASK-07 smoke JSON | deterministic/offline and not retrieval-grounded yet |
+| Source-preserving maintenance retriever exists | Yes | `src/rag`, 4 RAG tests OK, TASK-08 smoke JSON | production approved-source manifest is absent |
 | Expert B accurately predicts timbre direction | No | labels unavailable | requires labels/protocol |
 | Expert B diagnoses root cause | No | forbidden by architecture | no labels/model |
-| LLM explanation is retrieval-grounded | No | no retriever or approved-source citation layer yet | planned TASK-08/TASK-09 |
-| Maintenance recommendations are grounded | No | no retrieval layer | planned |
+| LLM explanation is retrieval-grounded | No | explanation and retriever are separate so far | planned TASK-09 |
+| Production maintenance recommendations are grounded | No | production KB empty and maintenance agent not implemented | requires approved docs plus TASK-09 |
 | Architecture generalizes to Pump/Valve/Slide Rail | No | data not staged/evaluated | future |
 | System is robust to domain shift | No | MIMII DG not staged/evaluated | future |
 | System predicts RUL | No | outside active scope | not planned |
@@ -938,6 +992,7 @@ TASK-01 was superseded by TASK-00 because repository normalization and active-sc
 - Machine-specific behavior cannot be assumed universal.
 - LLM hallucination must be controlled with schema and tests.
 - RAG quality depends on approved knowledge sources.
+- Production maintenance knowledge base is empty until approved documents are supplied.
 - No root-cause labels are available.
 - No RUL target exists in active data.
 
@@ -971,7 +1026,7 @@ The final system should still avoid RUL, exact time-to-failure, and unsupported 
 
 # 32. Conclusion
 
-The project now has a coherent active architecture and a normalized report around same-machine acoustic health monitoring. Expert A and the SNR experiment are verified. Expert B is implemented at the code/guardrail level, has a loadable bounded Fan `id_00` minus6dB reference index, has one reviewed same-audio abnormal smoke JSON, has a qualitative review protocol, translates into a versioned Structured Health Context, and now has a guarded deterministic explanation layer. The next technical blocker is the maintenance knowledge base and retriever.
+The project now has a coherent active architecture and a normalized report around same-machine acoustic health monitoring. Expert A and the SNR experiment are verified. Expert B is implemented at the code/guardrail level, has a loadable bounded Fan `id_00` minus6dB reference index, has one reviewed same-audio abnormal smoke JSON, has a qualitative review protocol, translates into a versioned Structured Health Context, has a guarded deterministic explanation layer, and now has a source-preserving maintenance retriever. The next technical blocker is the grounded maintenance agent, with production maintenance recommendations still limited by the absence of approved production maintenance documents.
 
 # 33. References
 

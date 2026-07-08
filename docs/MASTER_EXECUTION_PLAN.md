@@ -948,7 +948,7 @@ TASK ID: `TASK-08`
 
 TITLE: Maintenance Knowledge Base And Retriever
 
-STATUS: `READY`
+STATUS: `DONE`
 
 GOAL:
 
@@ -1019,13 +1019,28 @@ BLOCKER CONDITIONS:
 
 - No approved maintenance documents are available and Yosef does not approve a placeholder document.
 
+TASK-08 RESULT:
+
+- Created `src/rag/__init__.py`, `src/rag/knowledge_base.py`, `src/rag/retriever.py`, and `tests/test_rag_grounding.py`.
+- Created `data/manuals/README.md` documenting the approved-source manifest policy.
+- Implemented local retrieval over explicitly approved `.md`/`.txt` documents only.
+- Production indexing requires `data/manuals/approved_sources.json` with `approved: true`; loose files are ignored.
+- Retrieval responses preserve source ID, title, version, chunk ID, snippet, score, and path.
+- Empty or missing approved knowledge base returns a safe unavailable result rather than invented guidance.
+- Citation guardrail rejects downstream recommendations that cite source IDs not returned by retrieval.
+- Production smoke output: `D:\PDM_Data\MIMII\processed\rag_retrieval_smoke_task08.json`.
+- Production smoke result: source_count=0, chunk_count=0, retrieval available=False, because no approved production manifest exists yet.
+- Fixture runtime gate: one approved fixture source, one chunk, three retrieval queries, all returned `fixture_fan_procedure`, max retrieval time `0.000941s`.
+- Tests: `tests/test_rag_grounding.py` ran 4 tests OK; `tests/test_llm_guardrails.py` ran 4 tests OK; `tests/test_context_schema.py` ran 5 tests OK; `tests/test_timbre_difference.py` ran 7 tests OK.
+- No web ingestion, large crawl, diagnosis, or unsupported maintenance recommendation was added.
+
 ### TASK 09
 
 TASK ID: `TASK-09`
 
 TITLE: Grounded Maintenance Agent
 
-STATUS: `PLANNED`
+STATUS: `READY`
 
 GOAL:
 
