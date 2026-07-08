@@ -35,11 +35,12 @@
                             "maintenance_rag_knowledge_base":  "src/rag/knowledge_base.py",
                             "maintenance_rag_retriever":  "src/rag/retriever.py",
                             "grounded_maintenance_agent":  "src/agents/maintenance_agent.py",
-                            "end_to_end_orchestrator":  "scripts/run_end_to_end_demo.py"
+                            "end_to_end_orchestrator":  "scripts/run_end_to_end_demo.py",
+                            "dashboard_mvp":  "app/dashboard.py"
                         },
-    "current_phase":  "task_11_dashboard_mvp",
-    "last_completed_phase":  "task_10_end_to_end_fan_mvp_orchestrator",
-    "next_executable_phase":  "task_11_dashboard_mvp",
+    "current_phase":  "task_12_fan_mvp_final_evaluation_and_academic_report",
+    "last_completed_phase":  "task_11_dashboard_mvp",
+    "next_executable_phase":  "task_12_fan_mvp_final_evaluation_and_academic_report",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -82,9 +83,9 @@
                                                                       "notes":  "TASK-10 implemented scripts/run_end_to_end_demo.py and saved one bounded Fan MVP JSON with component timings."
                                                                   },
                              "phase_8_dashboard":  {
-                                                       "status":  "next_executable",
+                                                       "status":  "complete_task_11",
                                                        "primary_skill":  "$scientific-implementer",
-                                                       "notes":  "Build a minimal dashboard over the TASK-10 end-to-end JSON artifact."
+                                                       "notes":  "TASK-11 implemented app/dashboard.py and rendered one static HTML dashboard artifact."
                                                    },
                              "phase_9_multi_machine_generalization":  {
                                                                           "status":  "planned",
@@ -139,9 +140,14 @@
                                                                              "notes":  "Implemented scripts/run_end_to_end_demo.py, tests/test_end_to_end_orchestrator.py, and D:\\PDM_Data\\MIMII\\processed\\end_to_end_fan_id_00_minus6dB_task10.json."
                                                                          },
                              "task_11_dashboard_mvp":  {
-                                                           "status":  "next_executable",
+                                                           "status":  "complete",
                                                            "primary_skill":  "$scientific-implementer",
-                                                           "notes":  "Display one Fan MVP output with evidence and limitations."
+                                                           "notes":  "Implemented app/dashboard.py, tests/test_dashboard.py, and D:\\PDM_Data\\MIMII\\processed\\dashboard_fan_id_00_minus6dB_task11.html."
+                                                       },
+                             "task_12_fan_mvp_final_evaluation_and_academic_report":  {
+                                                                                          "status":  "next_executable",
+                                                                                          "primary_skill":  "$project-architect",
+                                                                                          "notes":  "Produce final Fan MVP evidence package and academic claims report."
                                                                              }
                          },
     "verified_expert_a_snr_auc_results":  {
@@ -233,7 +239,7 @@
                                                                           "rul_prediction",
                                                                           "pronostia"
                                                                       ],
-                                  "next_use":  "TASK-11 dashboard MVP"
+                                  "next_use":  "TASK-12 Fan MVP final report"
                               },
     "current_llm_state":  {
                               "status":  "guardrailed_explanation_agent_complete",
@@ -259,7 +265,7 @@
                                                  "no root-cause claim",
                                                  "rank scores remain qualitative local ranks"
                                              ],
-                              "next_use":  "TASK-11 dashboard MVP"
+                              "next_use":  "TASK-12 Fan MVP final report"
                               },
     "current_rag_state":  {
                               "status":  "source_preserving_retriever_complete_production_kb_empty",
@@ -292,7 +298,7 @@
                                                  "empty production KB returns safe unavailable result",
                                                  "citation validation rejects non-retrieved source IDs"
                                              ],
-                              "next_use":  "TASK-11 dashboard MVP"
+                              "next_use":  "TASK-12 Fan MVP final report"
                               },
     "current_maintenance_agent_state":  {
                                             "status":  "grounded_maintenance_agent_complete_fixture_grounded",
@@ -316,7 +322,7 @@
                                                                "safe_unavailable mode is used when retrieval is unavailable",
                                                                "no RUL, time-to-failure, confidence percentage, root-cause certainty, or confirmed component failure wording"
                                                            ],
-                                            "next_use":  "TASK-11 dashboard MVP"
+                                            "next_use":  "TASK-12 Fan MVP final report"
                               },
     "current_end_to_end_state":  {
                                     "status":  "fan_mvp_orchestrator_complete_fixture_grounded",
@@ -344,7 +350,30 @@
                                                        "technician output citations must be retrieved",
                                                        "no RUL, time-to-failure, confidence percentage, root-cause certainty, or confirmed component failure wording"
                                                    ],
-                                    "next_use":  "TASK-11 dashboard MVP"
+                                    "next_use":  "TASK-12 Fan MVP final report"
+                              },
+    "current_dashboard_state":  {
+                                    "status":  "dashboard_mvp_complete_static_html",
+                                    "implementation_files_present":  [
+                                                                         "app/dashboard.py",
+                                                                         "tests/test_dashboard.py"
+                                                                     ],
+                                    "input_artifact":  "D:\\PDM_Data\\MIMII\\processed\\end_to_end_fan_id_00_minus6dB_task10.json",
+                                    "sample_dashboard_output":  "D:\\PDM_Data\\MIMII\\processed\\dashboard_fan_id_00_minus6dB_task11.html",
+                                    "sample_event_id":  "fan_id_00_minus6dB_00000002",
+                                    "html_size_bytes":  7561,
+                                    "sections_verified":  [
+                                                              "Fan MVP Evidence Dashboard",
+                                                              "Expert A",
+                                                              "Expert B Timbre Ranks",
+                                                              "Retrieved Sources",
+                                                              "Recommendation",
+                                                              "Limitations"
+                                                          ],
+                                    "citation_visible":  "task10_fixture_fan_inspection",
+                                    "forbidden_hits":  [],
+                                    "runtime_side_effects":  "static render only; no training, model scoring, Expert B recomputation, or dataset loops",
+                                    "next_use":  "TASK-12 Fan MVP final report"
                               },
     "known_performance_blocker":  {
                                       "phase":  "phase_1_expert_b_performance_forensics",
@@ -383,8 +412,8 @@
                                     "affects":  "Paper-like Expert B evaluation and domain robustness."
                                 },
                                 {
-                                    "blocker":  "No approved production maintenance documents or dashboard implementation exists.",
-                                    "affects":  "Production maintenance recommendation and dashboard/user-facing presentation claims."
+                                    "blocker":  "No approved production maintenance documents and no final Fan MVP academic report exists.",
+                                    "affects":  "Production maintenance recommendation and final academic claim package."
                                 },
                                 {
                                     "blocker":  "RUL/PRONOSTIA are legacy-only and unsupported in active architecture.",
@@ -456,19 +485,19 @@
                        },
     "repository_disagreements":  [
                                      {
-                                         "item":  "Dashboard MVP",
-                                         "expected":  "minimal dashboard displays one Fan MVP output with evidence and limitations",
-                                         "actual":  "End-to-end JSON exists, but no dashboard implementation exists yet",
-                                         "action":  "TASK-11 dashboard MVP"
+                                         "item":  "Fan MVP final evaluation and academic report",
+                                         "expected":  "final report summarizes verified artifacts and supported/unsupported claims",
+                                         "actual":  "Dashboard and end-to-end output exist, but final Fan MVP report is not written yet",
+                                         "action":  "TASK-12 Fan MVP final evaluation and academic report"
                                      },
                                      {
                                          "item":  "future explanation stack",
-                                         "expected":  "dashboard and final Fan MVP report implemented later",
-                                         "actual":  "structured context, guarded explanation, retrieval, maintenance agent, and end-to-end orchestration are implemented, but dashboard/final report are not implemented yet",
-                                         "action":  "planned TASK-11 through TASK-12; do not claim complete"
+                                         "expected":  "final Fan MVP report implemented before multi-machine work",
+                                         "actual":  "Fan MVP components and dashboard exist, but final evidence package is not implemented yet",
+                                         "action":  "planned TASK-12; do not claim Fan MVP complete"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-10 implemented a bounded end-to-end Fan MVP orchestrator; continuing to TASK-11 dashboard MVP.",
+    "last_state_update_reason":  "TASK-11 implemented a static dashboard MVP over the end-to-end Fan output; continuing to TASK-12 final Fan MVP report.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -494,8 +523,8 @@
     "plan_version":  "master_execution_plan_v3_2026-07-07",
     "approved_plan_version":  "master_execution_plan_v3_2026-07-07",
     "current_task":  null,
-    "last_completed_task":  "TASK-10",
-    "next_task":  "TASK-11",
+    "last_completed_task":  "TASK-11",
+    "next_task":  "TASK-12",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -587,14 +616,17 @@
                                         "notes":  "Implemented scripts/run_end_to_end_demo.py, 4 end-to-end tests, and one Fan MVP smoke JSON D:\\PDM_Data\\MIMII\\processed\\end_to_end_fan_id_00_minus6dB_task10.json with total runtime 15.792862s."
                                     },
                         "TASK-11":  {
-                                        "status":  "ready",
-                                        "verdict":  null,
+                                        "status":  "done",
+                                        "verdict":  "DONE",
+                                        "completed_utc":  "2026-07-08",
                                         "primary_skill":  "$scientific-implementer",
-                                        "notes":  "Next executable task: build minimal dashboard over the TASK-10 end-to-end JSON artifact."
+                                        "notes":  "Implemented app/dashboard.py, 3 dashboard tests, and static HTML artifact D:\\PDM_Data\\MIMII\\processed\\dashboard_fan_id_00_minus6dB_task11.html."
                                     },
                         "TASK-12":  {
-                                        "status":  "planned",
-                                        "verdict":  null
+                                        "status":  "ready",
+                                        "verdict":  null,
+                                        "primary_skill":  "$project-architect",
+                                        "notes":  "Next executable task: produce final Fan MVP evidence package and academic claims report."
                                     },
                         "TASK-13":  {
                                         "status":  "planned",
