@@ -8,11 +8,11 @@ This repository implements the foundation of an explainable acoustic machine hea
 
 VERIFIED RESULT: Expert A and the controlled SNR experiment are complete for Fan `id_00`. AUC improves from `0.6142` at `-6 dB` to `0.8306` at `0 dB` and `0.9980` at `+6 dB`.
 
-IMPLEMENTED THROUGH SOURCE-PRESERVING RETRIEVAL FOR THE FAN MVP PATH: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index, TASK-04 saved one reviewed same-audio Expert A -> Expert B abnormal JSON, TASK-05 defined the qualitative evidence protocol, TASK-06 implemented the Structured Health Context schema and translator, TASK-07 implemented a deterministic guardrailed explanation agent, and TASK-08 implemented an approved-source local maintenance retriever.
+IMPLEMENTED THROUGH GROUNDED MAINTENANCE OUTPUT FOR THE FAN MVP PATH: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index, TASK-04 saved one reviewed same-audio Expert A -> Expert B abnormal JSON, TASK-05 defined the qualitative evidence protocol, TASK-06 implemented the Structured Health Context schema and translator, TASK-07 implemented a deterministic guardrailed explanation agent, TASK-08 implemented an approved-source local maintenance retriever, and TASK-09 implemented a grounded maintenance agent with citation guardrails.
 
-PLANNED: grounded maintenance agent, orchestration, dashboard, multi-machine generalization, and domain robustness.
+PLANNED: end-to-end orchestration, dashboard, multi-machine generalization, and domain robustness.
 
-NEXT TECHNICAL STEP: Implement the grounded maintenance agent that consumes retrieved source evidence. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
+NEXT TECHNICAL STEP: Implement the end-to-end Fan MVP orchestrator. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
 
 # 3. Problem Statement
 
@@ -130,6 +130,7 @@ Component responsibilities:
 | Structured Context | Expert A/B outputs | schema translation | deterministic JSON | Preserve evidence and limits | First schema implemented |
 | LLM | structured context | guarded deterministic or mockable generation | technician-facing explanation | Explain evidence cautiously | Not retrieval-grounded yet |
 | RAG | context query + approved docs | manifest-gated local retrieval | source evidence | Ground recommendations | Retriever implemented; production KB empty |
+| Maintenance Agent | context, explanation, retrieved evidence | citation validation + output assembly | grounded technician output | Combine evidence and sources | Fixture-grounded smoke only; production docs empty |
 | Dashboard | end-to-end JSON | UI rendering | evidence view | Display status and limits | Not implemented yet |
 
 # 8. Research Foundation
@@ -734,9 +735,53 @@ Implemented behavior:
 
 Current status:
 
-The retriever exists and is tested. The production knowledge base is currently empty because no approved production `approved_sources.json` manifest exists yet. Production maintenance recommendations remain unavailable until approved documents are supplied and TASK-09 consumes retrieved evidence.
+The retriever exists and is tested. The production knowledge base is currently empty because no approved production `approved_sources.json` manifest exists yet. TASK-09 can consume retrieved evidence, but production maintenance recommendations remain limited until approved production documents are supplied.
 
-# 19. End-to-End Orchestration
+# 19. Grounded Maintenance Agent
+
+IMPLEMENTED IN TASK-09.
+
+Purpose:
+
+Combine Structured Health Context, guarded explanation, and retrieved maintenance evidence into one technician-facing output.
+
+Files:
+
+```text
+src/agents/maintenance_agent.py
+tests/test_maintenance_agent.py
+```
+
+Smoke output:
+
+```text
+D:\PDM_Data\MIMII\processed\grounded_maintenance_output_fan_id_00_minus6dB_task09.json
+```
+
+Actual smoke summary:
+
+```text
+mode=source_grounded
+event_id=fan_id_00_minus6dB_00000002
+recommendation_available=True
+citations=["task09_fixture_fan_inspection"]
+retrieved guidance count=1
+source type=approved fixture, not production manual
+```
+
+Implemented behavior:
+
+- Separates observed ML evidence, technician explanation, retrieved maintenance guidance, recommendation, and limitations.
+- Requires retrieved source evidence before `recommendation.available=true`.
+- Validates recommendation citations against retrieved source IDs.
+- Returns `safe_unavailable` when no approved source is retrieved.
+- Avoids RUL, time-to-failure, confidence percentage, root-cause certainty, and confirmed component-failure wording.
+
+Current limit:
+
+The successful smoke uses a local approved fixture source to verify grounding behavior. Production maintenance documents are still absent, so production maintenance recommendations remain unavailable until approved documents are supplied.
+
+# 20. End-to-End Orchestration
 
 PLANNED, NOT IMPLEMENTED.
 
@@ -754,7 +799,7 @@ audio event
 
 The repository does not currently contain `scripts/run_end_to_end_demo.py`.
 
-# 20. Dashboard
+# 21. Dashboard
 
 PLANNED, NOT IMPLEMENTED.
 
@@ -771,7 +816,7 @@ Planned dashboard cards:
 - maintenance recommendation
 - method limitations
 
-# 21. Machine-Aware Generalization Strategy
+# 22. Machine-Aware Generalization Strategy
 
 Fan `id_00` is the reference MVP.
 
@@ -795,7 +840,7 @@ Actual staged-data status:
 - Valve: missing.
 - Slide Rail: missing.
 
-# 22. MIMII DG Robustness Plan
+# 23. MIMII DG Robustness Plan
 
 PLANNED, NOT IMPLEMENTED.
 
@@ -807,7 +852,7 @@ Current blocker:
 
 MIMII DG data and any required labels/assets are not staged.
 
-# 23. Optional MIMII-Agent-Inspired Evaluation
+# 24. Optional MIMII-Agent-Inspired Evaluation
 
 OPTIONAL, NOT IMPLEMENTED.
 
@@ -819,7 +864,7 @@ Limit:
 
 This does not become runtime root-cause diagnosis and does not automatically improve model weights.
 
-# 24. Repository Structure
+# 25. Repository Structure
 
 Actual cleaned tree, summarized:
 
@@ -868,7 +913,7 @@ TASK-00B removed repo-local large artifacts from `data/` and `models_store/`.
 The unique legacy unsuffixed model was preserved externally at
 `D:\PDM_Data\MIMII\models_store\anomaly_detector_legacy_repo_2026-06-29.pt`.
 
-# 25. Current Implementation Status
+# 26. Current Implementation Status
 
 | Component | Status | Evidence | What works | What is missing | Next task |
 |---|---|---|---|---|---|
@@ -881,8 +926,9 @@ The unique legacy unsuffixed model was preserved externally at
 | Expert B reference index | DONE for bounded Fan MVP | `D:\PDM_Data\MIMII\processed\timbre_reference_index_fan_id_00_minus6dB.json` | 40 references, k=30, load/filter/kNN validated | optional full 1011-reference offline index | later optional |
 | Expert A -> Expert B integration | DONE for one bounded smoke | `D:\PDM_Data\MIMII\processed\expert_b_smoke_fan_id_00_minus6dB_task04.json` | same abnormal audio path scored by Expert A and characterized by Expert B | broader review | later |
 | Context layer | DONE for first schema | `src/context`, `tests/test_context_schema.py`, sample context JSON | versioned schema, translator, tests, one smoke context | RAG usage | TASK-08 |
-| LLM | DONE for guarded offline explanation | `src/agents/diagnostic_agent.py`, `tests/test_llm_guardrails.py`, TASK-07 smoke JSON | deterministic explanation, prompt guardrails, optional mockable generator | maintenance-source integration | TASK-09 |
-| RAG | DONE for source-preserving retriever | `src/rag`, `tests/test_rag_grounding.py`, TASK-08 smoke JSON | approved-manifest indexing, source IDs/snippets, safe unavailable result, citation validation | approved production docs and maintenance-agent consumption | TASK-09 |
+| LLM | DONE for guarded offline explanation | `src/agents/diagnostic_agent.py`, `tests/test_llm_guardrails.py`, TASK-07 smoke JSON | deterministic explanation, prompt guardrails, optional mockable generator | live model integration optional later | later |
+| RAG | DONE for source-preserving retriever | `src/rag`, `tests/test_rag_grounding.py`, TASK-08 smoke JSON | approved-manifest indexing, source IDs/snippets, safe unavailable result, citation validation | approved production docs | data input |
+| Grounded maintenance agent | DONE for fixture-grounded smoke | `src/agents/maintenance_agent.py`, `tests/test_maintenance_agent.py`, TASK-09 smoke JSON | source-required recommendation, citation validation, safe unavailable mode | production approved docs and end-to-end orchestration | TASK-10 |
 | Orchestrator | TODO | no end-to-end script | none | same-event pipeline | TASK-10 |
 | Dashboard | TODO | `app/.gitkeep` | none | UI | TASK-11 |
 | Pump | TODO | data missing | none | staging/evaluation | TASK-13 |
@@ -891,7 +937,7 @@ The unique legacy unsuffixed model was preserved externally at
 | MIMII DG | TODO | data missing | paper docs only | staging/protocol | TASK-17 |
 | MIMII-Agent extension | OPTIONAL | concept only | none | approval/protocol | TASK-18 |
 
-# 26. Current Overall Project Progress
+# 27. Current Overall Project Progress
 
 This is not a scientific completion percentage. It is an engineering status estimate derived from implemented components.
 
@@ -910,7 +956,7 @@ one bounded Fan same-audio smoke complete; qualitative evidence protocol documen
 Explanation/RAG/application layers:
 
 ```text
-context, guardrailed explanation, and source-preserving retriever implemented; maintenance agent/orchestration/dashboard not implemented
+context, guardrailed explanation, source-preserving retriever, and grounded maintenance agent implemented; orchestration/dashboard not implemented
 ```
 
 Generalization/robustness:
@@ -921,7 +967,7 @@ future work
 
 Core MVP implementation progress:
 
-More than one third of the engineering foundation is complete: data staging, preprocessing, Expert A, SNR evaluation, Expert B guardrail code, bounded Expert B runtime, a loadable bounded Expert B reference index, one same-audio Expert A -> Expert B smoke, a qualitative Expert B review protocol, a first Structured Health Context schema/translator, a guardrailed explanation agent, and a source-preserving retriever now exist. The user-facing system is not complete because grounded maintenance output, orchestration, and dashboard remain.
+More than one third of the engineering foundation is complete: data staging, preprocessing, Expert A, SNR evaluation, Expert B guardrail code, bounded Expert B runtime, a loadable bounded Expert B reference index, one same-audio Expert A -> Expert B smoke, a qualitative Expert B review protocol, a first Structured Health Context schema/translator, a guardrailed explanation agent, a source-preserving retriever, and a grounded maintenance agent now exist. The user-facing system is not complete because end-to-end orchestration and dashboard remain.
 
 Research validation progress:
 
@@ -929,13 +975,13 @@ Expert A validation is strong for Fan `id_00` SNR sensitivity. Expert B scientif
 
 WHERE ARE WE NOW?
 
-We have a verified acoustic anomaly detector, a loadable bounded timbre-difference reference index for Fan `id_00` minus6dB, one reviewed same-audio abnormal Expert A -> Expert B JSON, a documented qualitative Expert B evidence protocol, one validated Structured Health Context JSON, one guarded explanation JSON, and a source-preserving maintenance retriever. The immediate next step is the grounded maintenance agent.
+We have a verified acoustic anomaly detector, a loadable bounded timbre-difference reference index for Fan `id_00` minus6dB, one reviewed same-audio abnormal Expert A -> Expert B JSON, a documented qualitative Expert B evidence protocol, one validated Structured Health Context JSON, one guarded explanation JSON, a source-preserving maintenance retriever, and one fixture-grounded maintenance output JSON. The immediate next step is the end-to-end Fan MVP orchestrator.
 
 WHAT REMAINS?
 
-Grounded maintenance agent, orchestrator, dashboard, approved production maintenance documents, and later machine/domain generalization.
+End-to-end orchestrator, dashboard, approved production maintenance documents, and later machine/domain generalization.
 
-# 27. Remaining Work
+# 28. Remaining Work
 
 | Task ID | Title | Why | Dependency | Expected Result |
 |---|---|---|---|---|
@@ -946,7 +992,7 @@ Grounded maintenance agent, orchestrator, dashboard, approved production mainten
 | TASK-06 | Structured Health Context Schema And Translator | DONE | TASK-04 | schema/tests/sample context |
 | TASK-07 | Guardrailed LLM Explanation Agent | DONE | TASK-06 | deterministic guarded explanation artifact |
 | TASK-08 | Maintenance Knowledge Base And Retriever | DONE | TASK-06 | source-preserving retriever/tests; production KB empty |
-| TASK-09 | Grounded Maintenance Agent | combine explanation and retrieval | TASK-07 + TASK-08 | sourced technician output |
+| TASK-09 | Grounded Maintenance Agent | DONE | TASK-07 + TASK-08 | sourced technician output with fixture source |
 | TASK-10 | End-To-End Fan MVP Orchestrator | one bounded system path | TASK-04 + TASK-06 + TASK-09 | final JSON |
 | TASK-11 | Dashboard MVP | show evidence and limits | TASK-10 | local dashboard |
 | TASK-12 | Fan MVP Final Evaluation And Academic Report | summarize supported claims | TASK-10 + TASK-11 | Fan MVP evidence package |
@@ -959,7 +1005,7 @@ Grounded maintenance agent, orchestrator, dashboard, approved production mainten
 
 TASK-01 was superseded by TASK-00 because repository normalization and active-scope cleanup were completed here.
 
-# 28. Scientific Claim Matrix
+# 29. Scientific Claim Matrix
 
 | Claim | Supported | Evidence | Limitation |
 |---|---|---|---|
@@ -973,15 +1019,16 @@ TASK-01 was superseded by TASK-00 because repository normalization and active-sc
 | Structured Health Context exists | Yes | `src/context`, 5 context tests OK, sample context JSON | maintenance-agent integration not implemented |
 | Guardrailed LLM explanation wrapper exists | Yes | `src/agents/diagnostic_agent.py`, 4 guardrail tests OK, TASK-07 smoke JSON | deterministic/offline and not retrieval-grounded yet |
 | Source-preserving maintenance retriever exists | Yes | `src/rag`, 4 RAG tests OK, TASK-08 smoke JSON | production approved-source manifest is absent |
+| Grounded maintenance agent exists | Yes for fixture-grounded smoke | `src/agents/maintenance_agent.py`, 5 maintenance tests OK, TASK-09 smoke JSON | production approved-source manifest is absent |
 | Expert B accurately predicts timbre direction | No | labels unavailable | requires labels/protocol |
 | Expert B diagnoses root cause | No | forbidden by architecture | no labels/model |
-| LLM explanation is retrieval-grounded | No | explanation and retriever are separate so far | planned TASK-09 |
-| Production maintenance recommendations are grounded | No | production KB empty and maintenance agent not implemented | requires approved docs plus TASK-09 |
+| Technician maintenance output is retrieval-grounded | Yes for TASK-09 fixture output | grounded maintenance output includes retrieved fixture citation | production docs absent |
+| Production maintenance recommendations are grounded | No | production KB empty | requires approved docs |
 | Architecture generalizes to Pump/Valve/Slide Rail | No | data not staged/evaluated | future |
 | System is robust to domain shift | No | MIMII DG not staged/evaluated | future |
 | System predicts RUL | No | outside active scope | not planned |
 
-# 29. Risks and Limitations
+# 30. Risks and Limitations
 
 - Low SNR can hide acoustic fault cues.
 - Expert B lacks five-attribute ground-truth labels in current Fan data.
@@ -996,7 +1043,7 @@ TASK-01 was superseded by TASK-00 because repository normalization and active-sc
 - No root-cause labels are available.
 - No RUL target exists in active data.
 
-# 30. Testing and Validation Strategy
+# 31. Testing and Validation Strategy
 
 Execution ladder:
 
@@ -1018,17 +1065,17 @@ Every implemented task requires:
 
 No full dataset processing, training, or slow indexing should run before small timing evidence.
 
-# 31. Final Expected System
+# 32. Final Expected System
 
 When complete, the system will accept one machine audio event, score it with Expert A, characterize it with Expert B if anomalous, translate evidence into structured context, retrieve approved maintenance guidance, generate a cautious technician-facing explanation, and display the result in a dashboard.
 
 The final system should still avoid RUL, exact time-to-failure, and unsupported root-cause claims.
 
-# 32. Conclusion
+# 33. Conclusion
 
-The project now has a coherent active architecture and a normalized report around same-machine acoustic health monitoring. Expert A and the SNR experiment are verified. Expert B is implemented at the code/guardrail level, has a loadable bounded Fan `id_00` minus6dB reference index, has one reviewed same-audio abnormal smoke JSON, has a qualitative review protocol, translates into a versioned Structured Health Context, has a guarded deterministic explanation layer, and now has a source-preserving maintenance retriever. The next technical blocker is the grounded maintenance agent, with production maintenance recommendations still limited by the absence of approved production maintenance documents.
+The project now has a coherent active architecture and a normalized report around same-machine acoustic health monitoring. Expert A and the SNR experiment are verified. Expert B is implemented at the code/guardrail level, has a loadable bounded Fan `id_00` minus6dB reference index, has one reviewed same-audio abnormal smoke JSON, has a qualitative review protocol, translates into a versioned Structured Health Context, has a guarded deterministic explanation layer, has a source-preserving maintenance retriever, and now has a grounded maintenance agent validated with a local approved fixture source. The next technical blocker is the end-to-end Fan MVP orchestrator, with production maintenance recommendations still limited by the absence of approved production maintenance documents.
 
-# 33. References
+# 34. References
 
 - Purohit et al., "MIMII Dataset: Sound Dataset for Malfunctioning Industrial Machine Investigation and Inspection", 2019, arXiv:1909.09347.
 - Nishida et al., "Timbre Difference Capturing in Anomalous Sound Detection", 2024, arXiv:2410.22033.

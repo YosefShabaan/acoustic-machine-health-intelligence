@@ -1040,7 +1040,7 @@ TASK ID: `TASK-09`
 
 TITLE: Grounded Maintenance Agent
 
-STATUS: `READY`
+STATUS: `DONE`
 
 GOAL:
 
@@ -1110,13 +1110,27 @@ BLOCKER CONDITIONS:
 
 - RAG or LLM layer is blocked.
 
+TASK-09 RESULT:
+
+- Created `src/agents/maintenance_agent.py` and `tests/test_maintenance_agent.py`.
+- Updated `src/agents/__init__.py` to expose the grounded maintenance agent interface.
+- Implemented structured technician output combining Structured Health Context, guarded explanation, and retrieval response.
+- Output separates observed ML evidence, technician explanation, retrieved maintenance guidance, recommendation, and limitations.
+- Recommendation is available only when retrieved source evidence is available.
+- Recommendation citations are validated against retrieved source IDs.
+- Missing retrieval evidence returns `safe_unavailable` instead of invented maintenance advice.
+- Smoke output: `D:\PDM_Data\MIMII\processed\grounded_maintenance_output_fan_id_00_minus6dB_task09.json`.
+- Smoke result: `source_grounded`, one retrieved fixture source, citation `task09_fixture_fan_inspection`, no forbidden text hits, generation time `0.000860s`.
+- Production maintenance documents remain unavailable; the smoke source is an approved local fixture, not a production manual.
+- Tests: `tests/test_maintenance_agent.py` ran 5 tests OK; `tests/test_rag_grounding.py` ran 4 tests OK; `tests/test_llm_guardrails.py` ran 4 tests OK; `tests/test_context_schema.py` ran 5 tests OK; `tests/test_timbre_difference.py` ran 7 tests OK.
+
 ### TASK 10
 
 TASK ID: `TASK-10`
 
 TITLE: End-To-End Fan MVP Orchestrator
 
-STATUS: `PLANNED`
+STATUS: `READY`
 
 GOAL:
 
