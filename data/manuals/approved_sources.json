@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "corpus_version": "AMHI-FAN-MAINT-KB-v1",
+  "created_utc": "2026-07-09",
+  "policy": {
+    "approved_use": "bounded Fan maintenance retrieval evidence",
+    "forbidden_use": [
+      "production readiness claim",
+      "confirmed root-cause diagnosis",
+      "fault probability or confidence claim",
+      "Remaining Useful Life claim",
+      "time-to-failure claim"
+    ],
+    "artifact_policy": "Original PDFs are stored externally. Raw datasets, WAV files, NumPy arrays, model weights, generated indexes, and generated scientific artifacts must not be committed to Git."
+  },
+  "sources": [
+    {
+      "source_id": "doe_fan_sourcebook_2003",
+      "title": "Improving Fan System Performance: A Sourcebook for Industry",
+      "publisher": "U.S. Department of Energy, Energy Efficiency and Renewable Energy, Industrial Technologies Program",
+      "version": "2003-04-01",
+      "date": "2003-04-01",
+      "source_url": "https://www.energy.gov/sites/prod/files/2014/05/f16/fan_sourcebook.pdf",
+      "source_record_url": "https://www.osti.gov/biblio/1215862",
+      "document_type": "DOE fan system sourcebook",
+      "path": "doe_fan_sourcebook_2003_fan_maintenance.md",
+      "external_document_path": "D:\\PDM_Data\\MIMII\\manuals\\sources\\doe_fan_sourcebook_2003.pdf",
+      "approved": true,
+      "scope": "Fan maintenance, vibration monitoring, records, fan/motor assembly problems, belt drives, noise and vibration indicators.",
+      "corpus_version": "AMHI-FAN-MAINT-KB-v1",
+      "source_sections": [
+        "Quick Start Guide / systems approach",
+        "Section 2 fact sheet 3 - Basic Maintenance",
+        "Section 2 fact sheet 4 - Common Fan Systems Problems",
+        "Section 2 fact sheet 5 - Indications of Oversized Fans"
+      ],
+      "limitations": [
+        "Inspection guidance only",
+        "No AMHI-specific diagnosis validation",
+        "No RUL or fault probability support"
+      ]
+    },
+    {
+      "source_id": "doe_om_best_practices_release_3_fans",
+      "title": "Operations & Maintenance Best Practices - A Guide to Achieving Operational Efficiency Release 3.0",
+      "publisher": "U.S. Department of Energy Federal Energy Management Program / Pacific Northwest National Laboratory",
+      "version": "Release 3.0, 2010-08",
+      "date": "2010-08",
+      "source_url": "https://www.energy.gov/sites/prod/files/2020/04/f74/omguide_complete_w-eo-disclaimer.pdf",
+      "source_record_url": "https://www.osti.gov/biblio/1220381",
+      "document_type": "DOE/FEMP operations and maintenance best-practices guide",
+      "path": "doe_om_best_practices_release_3_fans.md",
+      "external_document_path": "D:\\PDM_Data\\MIMII\\manuals\\sources\\doe_om_best_practices_release_3_2010.pdf",
+      "approved": true,
+      "scope": "O&M maintenance program context, predictive maintenance context, air-handling checklist, fan checklist.",
+      "corpus_version": "AMHI-FAN-MAINT-KB-v1",
+      "source_sections": [
+        "Chapter 5 - Types of Maintenance Programs",
+        "Chapter 6 - Predictive Maintenance Technologies",
+        "Chapter 9.7 - Air Handling Systems",
+        "Chapter 9.8 - Fans / Fans Checklist"
+      ],
+      "limitations": [
+        "Broad facility O&M guidance",
+        "No AMHI-specific diagnosis validation",
+        "No production outcome validation"
+      ]
+    }
+  ]
+}

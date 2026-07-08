@@ -106,6 +106,24 @@ class RAGGroundingTests(unittest.TestCase):
         with self.assertRaises(RetrievalGroundingError):
             validate_citations(response, ["missing_manual"])
 
+    def test_repository_fan_corpus_manifest_loads_and_retrieves(self) -> None:
+        """The approved Fan corpus manifest is loadable and retrievable."""
+        root = REPO_ROOT / "data" / "manuals"
+        kb = build_knowledge_base(root)
+        self.assertTrue(kb.is_available)
+        self.assertEqual(kb.source_count, 2)
+        source_ids = {chunk.source_id for chunk in kb.chunks}
+        self.assertIn("doe_fan_sourcebook_2003", source_ids)
+        self.assertIn("doe_om_best_practices_release_3_fans", source_ids)
+
+        response = LocalRetriever(kb).retrieve(
+            "fan abnormal acoustic noise vibration belt inspection records"
+        )
+
+        self.assertTrue(response.available)
+        self.assertGreaterEqual(len(response.results), 1)
+        self.assertIn(response.results[0].source_id, source_ids)
+
 
 if __name__ == "__main__":
     unittest.main()

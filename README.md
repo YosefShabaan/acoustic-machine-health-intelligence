@@ -122,7 +122,7 @@ Current local evidence:
 
 ```text
 python -m unittest discover -s tests -p "test_*.py"
-Ran 32 tests
+Ran 42 tests
 OK
 ```
 
@@ -148,7 +148,7 @@ Not supported:
 - Physical root-cause diagnosis.
 - Rank score as confidence, probability, or severity percentage.
 - Remaining Useful Life or exact time-to-failure prediction.
-- Production-manual-grounded maintenance recommendations.
+- Evaluated production maintenance recommendations.
 - Pump, Valve, Slide Rail, or MIMII DG generalization.
 - Exact reproduction of Nishida et al.
 
@@ -156,7 +156,9 @@ Not supported:
 
 Backlog and blocked work:
 
-- Production maintenance documents and `approved_sources.json`.
+- RAG parsing/chunking review for `AMHI-FAN-MAINT-KB-v1`.
+- Semantic retrieval baseline and retrieval evaluation.
+- Gemini-backed grounded maintenance actions.
 - Pump data staging.
 - Pump Expert A evaluation.
 - Pump Expert B reference indexing and smoke.

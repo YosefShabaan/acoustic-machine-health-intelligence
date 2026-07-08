@@ -40,11 +40,13 @@
                             "fan_mvp_final_report":  "docs/fan_mvp_final_report.md",
                             "academic_claims_register":  "docs/academic_claims.md",
                             "gemini_provider_config":  "src/agents/gemini_provider.py",
-                            "gemini_explanation_smoke":  "D:\\PDM_Data\\MIMII\\processed\\gemini_explanation_fan_id_00_minus6dB_task_ai_02.json"
+                            "gemini_explanation_smoke":  "D:\\PDM_Data\\MIMII\\processed\\gemini_explanation_fan_id_00_minus6dB_task_ai_02.json",
+                            "rag_source_register":  "docs/RAG_SOURCE_REGISTER.md",
+                            "approved_public_fan_corpus_manifest":  "data/manuals/approved_sources.json"
                         },
     "current_phase":  "real_intelligence_completion",
-    "last_completed_phase":  "task_ai_02_live_gemini_text_generator",
-    "next_executable_phase":  "task_rag_01_authoritative_public_fan_maintenance_corpus_v1",
+    "last_completed_phase":  "task_rag_01_authoritative_public_fan_maintenance_corpus_v1",
+    "next_executable_phase":  "task_rag_02_maintenance_document_parsing_and_chunking_review",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -278,22 +280,38 @@
                               "next_use":  "TASK-12 Fan MVP final report"
                               },
     "current_rag_state":  {
-                              "status":  "source_preserving_retriever_complete_production_kb_empty",
+                              "status":  "approved_public_fan_corpus_v1_available_pending_chunking_and_retrieval_evaluation",
                               "implementation_files_present":  [
                                                                    "src/rag/__init__.py",
                                                                    "src/rag/knowledge_base.py",
                                                                    "src/rag/retriever.py",
                                                                    "tests/test_rag_grounding.py",
-                                                                   "data/manuals/README.md"
+                                                                   "data/manuals/README.md",
+                                                                   "data/manuals/approved_sources.json",
+                                                                   "data/manuals/doe_fan_sourcebook_2003_fan_maintenance.md",
+                                                                   "data/manuals/doe_om_best_practices_release_3_fans.md",
+                                                                   "docs/RAG_SOURCE_REGISTER.md"
                                                                ],
                               "manuals_dir":  "D:\\IOT\\data\\manuals",
                               "approved_manifest":  "D:\\IOT\\data\\manuals\\approved_sources.json",
-                              "approved_manifest_present":  false,
-                              "production_source_count":  0,
-                              "production_chunk_count":  0,
-                              "production_retrieval_available":  false,
-                              "production_unavailable_message":  "No approved maintenance source was retrieved; maintenance recommendations must remain unavailable.",
+                              "approved_manifest_present":  true,
+                              "corpus_version":  "AMHI-FAN-MAINT-KB-v1",
+                              "approved_source_ids":  [
+                                                          "doe_fan_sourcebook_2003",
+                                                          "doe_om_best_practices_release_3_fans"
+                                                      ],
+                              "external_original_sources_dir":  "D:\\PDM_Data\\MIMII\\manuals\\sources",
+                              "production_source_count":  2,
+                              "production_chunk_count":  7,
+                              "production_retrieval_available":  true,
+                              "production_unavailable_message":  null,
                               "smoke_output":  "D:\\PDM_Data\\MIMII\\processed\\rag_retrieval_smoke_task08.json",
+                              "task_rag_01_smoke":  {
+                                                        "query":  "fan abnormal acoustic noise vibration belt inspection records",
+                                                        "result_count":  3,
+                                                        "top_source_id":  "doe_fan_sourcebook_2003",
+                                                        "warnings":  []
+                                                    },
                               "fixture_runtime_gate":  {
                                                            "source_count":  1,
                                                            "chunk_count":  1,
@@ -305,10 +323,10 @@
                                                  "only manifest-listed approved:true .md/.txt files are indexed",
                                                  "loose files under data/manuals are ignored",
                                                  "retrieval preserves source ID, title, version, chunk ID, snippet, score, and path",
-                                                 "empty production KB returns safe unavailable result",
+                                                 "empty production KB returns safe unavailable result when no approved manifest is present",
                                                  "citation validation rejects non-retrieved source IDs"
                                              ],
-                              "next_use":  "TASK-12 Fan MVP final report"
+                              "next_use":  "TASK-RAG-02 maintenance document parsing and chunking review"
                               },
     "current_maintenance_agent_state":  {
                                             "status":  "grounded_maintenance_agent_complete_fixture_grounded",
@@ -403,7 +421,7 @@
                                                                           "D:\\PDM_Data\\MIMII\\processed\\dashboard_fan_id_00_minus6dB_task11.html"
                                                                       ],
                                                "supported_claim_summary":  "Fan MVP integration works for one bounded same-audio abnormal Fan event; Expert A SNR results are verified; Expert B rank scores are qualitative local ranks; dashboard artifact exists.",
-                                               "unsupported_claim_summary":  "No Expert B direction accuracy, no root-cause diagnosis, no RUL, no production-manual-grounded recommendation, no multi-machine or domain-robustness claim.",
+                                               "unsupported_claim_summary":  "No Expert B direction accuracy, no root-cause diagnosis, no RUL, no evaluated production maintenance recommendation, no multi-machine or domain-robustness claim.",
                                                "next_task_status":  "TASK-13 blocked because Pump data is not staged."
                               },
     "known_performance_blocker":  {
@@ -443,8 +461,8 @@
                                     "affects":  "Paper-like Expert B evaluation and domain robustness."
                                 },
                                 {
-                                    "blocker":  "No approved production maintenance documents exist.",
-                                    "affects":  "Production maintenance recommendations."
+                                    "blocker":  "Approved public Fan maintenance corpus exists, but chunking review, retrieval evaluation, and Gemini maintenance-action validation are incomplete.",
+                                    "affects":  "Evaluated production maintenance recommendations."
                                 },
                                 {
                                     "blocker":  "Pump data is not staged at D:\\PDM_Data\\MIMII\\pump\\id_00.",
@@ -528,11 +546,11 @@
                                      {
                                          "item":  "production maintenance grounding",
                                          "expected":  "approved production source manifest and documents",
-                                         "actual":  "data/manuals/approved_sources.json is absent; only fixture-grounded smokes exist",
-                                         "action":  "provide approved maintenance documents before production recommendation claims"
+                                         "actual":  "data/manuals/approved_sources.json now defines AMHI-FAN-MAINT-KB-v1; retrieval evaluation and Maintenance Agent v2 are still pending",
+                                         "action":  "complete TASK-RAG-02 through TASK-MAINT-01 before evaluated production recommendation claims"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-AI-02 completed live Gemini text generation with structured validation, deterministic fallback, metadata, tests, and one bounded real Fan context smoke.",
+    "last_state_update_reason":  "TASK-RAG-01 created AMHI-FAN-MAINT-KB-v1 from authoritative public DOE Fan maintenance sources with provenance, manifest, tests, and bounded retrieval smoke.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -558,8 +576,8 @@
     "plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "approved_plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "current_task":  null,
-    "last_completed_task":  "TASK-AI-02",
-    "next_task":  "TASK-RAG-01",
+    "last_completed_task":  "TASK-RAG-01",
+    "next_task":  "TASK-RAG-02",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -685,10 +703,17 @@
                                            "notes":  "Implemented GeminiTextGenerator over google-genai with JSON schema request, guarded output validation, deterministic fallback metadata, 9 LLM/Gemini tests, and one real Fan context Gemini smoke with fallback_used=false."
                                        },
                         "TASK-RAG-01":  {
+                                           "status":  "done",
+                                           "verdict":  "DONE",
+                                           "completed_utc":  "2026-07-09",
+                                           "primary_skill":  "$paper-forensics+$scientific-implementer",
+                                           "notes":  "Created AMHI-FAN-MAINT-KB-v1 with DOE Fan Sourcebook and DOE/FEMP O&M Best Practices Release 3.0 provenance, external original PDFs, approved_sources.json, compact tracked RAG notes, source register, 5 RAG tests, and bounded retrieval smoke."
+                                       },
+                        "TASK-RAG-02":  {
                                            "status":  "next",
                                            "verdict":  null,
-                                           "primary_skill":  "$paper-forensics+$scientific-implementer",
-                                           "notes":  "Next Real Intelligence Completion task: create the approved public Fan maintenance corpus v1 with provenance and approved_sources.json."
+                                           "primary_skill":  "$scientific-implementer",
+                                           "notes":  "Next Real Intelligence Completion task: review maintenance document parsing and implement source-preserving chunking suitable for the selected corpus."
                                        },
                         "TASK-14":  {
                                         "status":  "planned",

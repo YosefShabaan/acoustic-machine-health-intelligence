@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: TASK-12 complete; TASK-13 blocked by missing Pump data.
+Status: Real Intelligence Completion in progress; TASK-RAG-01 complete.
 
-Latest completed task: `TASK-12`.
+Latest completed task: `TASK-RAG-01`.
 
 Use this template after every task:
 
@@ -29,6 +29,70 @@ Rules:
 - Do not mark `DONE` based only on code creation.
 - Use `FAILED` when bounded diagnosis was attempted and the task still fails.
 - Use `BLOCKED` when Yosef input, data, credentials, or architecture approval is required.
+
+```text
+TASK:
+TASK-RAG-01 - Authoritative Public Fan Maintenance Corpus V1
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $paper-forensics and $scientific-implementer for the approved corpus task.
+- Inspected current RAG code, tests, data/manuals policy, project_state.json, README, and task instructions.
+- Verified official/public source provenance for:
+  - DOE Improving Fan System Performance: A Sourcebook for Industry.
+  - DOE/FEMP Operations & Maintenance Best Practices - A Guide to Achieving Operational Efficiency Release 3.0.
+- Downloaded the official PDFs to external storage under D:\PDM_Data\MIMII\manuals\sources.
+- Created docs/RAG_SOURCE_REGISTER.md with source IDs, publisher/date/source URL, approved sections, RAG role, limitations, and rejected-source policy.
+- Created compact tracked source-preserving RAG notes under data/manuals for the two approved sources.
+- Created data/manuals/approved_sources.json with corpus version AMHI-FAN-MAINT-KB-v1, source metadata, official URLs, external original PDF paths, approved flags, scope, and guardrails.
+- Updated data/manuals/README.md to document the current corpus and external PDF storage policy.
+- Added a repository corpus test proving the approved manifest loads and retrieves.
+
+TESTS:
+- python -m json.tool data\manuals\approved_sources.json
+- python -m unittest discover -s tests -p "test_rag_grounding.py"
+- Bounded retrieval smoke over data/manuals using query: fan abnormal acoustic noise vibration belt inspection records
+- Bounded retrieval smoke over data/manuals using query: fan visual inspection belts pulley dampers fan blades wiring ductwork
+- python -m json.tool project_state.json
+
+ACTUAL OUTPUT:
+- External source PDFs:
+  - D:\PDM_Data\MIMII\manuals\sources\doe_fan_sourcebook_2003.pdf, 1229746 bytes.
+  - D:\PDM_Data\MIMII\manuals\sources\doe_om_best_practices_release_3_2010.pdf, 8562032 bytes.
+- RAG tests: Ran 5 tests, OK.
+- Corpus smoke: CORPUS_AVAILABLE=True.
+- Corpus smoke: SOURCE_COUNT=2.
+- Corpus smoke: CHUNK_COUNT=7.
+- Corpus smoke warnings: [].
+- Acoustic-noise query returned 3 results; top source_id=doe_fan_sourcebook_2003.
+- Visual-inspection query returned doe_om_best_practices_release_3_fans as top source.
+- Inspected returned snippets for acoustic-noise, belt, records, visual inspection, pulley, damper, fan blade, wiring, and ductwork relevance.
+
+IMPLEMENTATION REVIEW:
+- Original PDFs are external and not tracked.
+- Tracked corpus files are small markdown notes, not full manual copies.
+- approved_sources.json uses approved:true gating and includes source URL and external path provenance.
+- Existing LocalRetriever and manifest loading contracts are preserved.
+- No vector store, generated index, model artifact, dataset, WAV, NumPy array, or PDF was added to Git.
+
+SCIENTIFIC REVIEW:
+- Corpus enables approved public source evidence for later Fan RAG work.
+- It does not validate production maintenance recommendations.
+- It does not enable root-cause diagnosis, RUL, confidence, probability, Expert B direction accuracy, or multi-machine generalization.
+- Source text is inspection-oriented and keeps AMHI acoustic evidence separate from component-level confirmation.
+
+DIFF REVIEW:
+- Changed files: docs/RAG_SOURCE_REGISTER.md, data/manuals/approved_sources.json, data/manuals/doe_fan_sourcebook_2003_fan_maintenance.md, data/manuals/doe_om_best_practices_release_3_fans.md, data/manuals/README.md, tests/test_rag_grounding.py, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- External PDFs are under D:\PDM_Data\MIMII\manuals\sources and are not tracked.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-RAG-02 - Maintenance Document Parsing And Chunking Review.
+```
 
 ```text
 TASK:

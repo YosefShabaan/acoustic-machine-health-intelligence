@@ -1,8 +1,8 @@
 # Academic Claims Register
 
-Date: 2026-07-08
+Date: 2026-07-09
 
-Scope: claims supported by the current repository after `TASK-12`.
+Scope: claims supported by the current repository after `TASK-RAG-01`.
 
 ## Claim Classification Rules
 
@@ -34,7 +34,8 @@ Scope: claims supported by the current repository after `TASK-12`.
 | TASK-04 Expert B rank scores are boominess 0.000000, brightness 0.933333, depth 0.666667, roughness 0.933333, and sharpness 0.933333. | VERIFIED REPOSITORY FACT | TASK-04 JSON |
 | Structured Health Context schema version `0.1.0` exists and was instantiated for the Fan event. | VERIFIED REPOSITORY FACT | TASK-06 JSON, `src/context` tests |
 | Guardrailed explanation output exists for the Fan event. | VERIFIED REPOSITORY FACT | TASK-07 JSON, `tests/test_llm_guardrails.py` |
-| Production maintenance retrieval is unavailable because no approved production source manifest exists. | VERIFIED REPOSITORY FACT | TASK-08 JSON |
+| Approved public Fan maintenance corpus `AMHI-FAN-MAINT-KB-v1` exists with two DOE-source entries. | VERIFIED REPOSITORY FACT | `data/manuals/approved_sources.json`, `docs/RAG_SOURCE_REGISTER.md` |
+| The current approved Fan corpus loads into the local RAG knowledge base and returns retrieved source chunks in a bounded smoke. | VERIFIED REPOSITORY FACT | `tests/test_rag_grounding.py`, TASK-RAG-01 smoke |
 | Grounded maintenance output exists using an approved fixture source. | VERIFIED REPOSITORY FACT | TASK-09 JSON |
 | One end-to-end Fan MVP JSON exists. | VERIFIED REPOSITORY FACT | TASK-10 JSON |
 | One static dashboard HTML artifact exists. | VERIFIED REPOSITORY FACT | TASK-11 HTML |
@@ -68,7 +69,7 @@ Scope: claims supported by the current repository after `TASK-12`.
 | Expert B rank score is confidence or failure probability. | FORBIDDEN | rank score is a local relative rank, not calibrated probability |
 | The system predicts remaining useful life. | OUT OF SCOPE | RUL/PRONOSTIA removed from active architecture |
 | The system predicts exact time to failure. | OUT OF SCOPE | no run-to-failure target in active MIMII runtime |
-| Maintenance recommendations are production-grounded. | UNSUPPORTED | production approved-source manifest is absent |
+| Maintenance recommendations are evaluated production guidance. | UNSUPPORTED | chunking review, retrieval evaluation, and Gemini maintenance-action validation are not complete |
 | The architecture generalizes to Pump, Valve, or Slide Rail. | UNSUPPORTED | those machine datasets are not staged/evaluated |
 | The system is robust to domain shift. | UNSUPPORTED | MIMII DG phase not executed |
 | The current Expert B exactly reproduces Nishida et al. | UNSUPPORTED | MVP uses Expert A bottleneck adapter and lacks paper-equivalent labels/assets |
@@ -87,6 +88,8 @@ For one Expert A-flagged Fan event, Expert B compares the same audio with
 same-machine normal references and reports five qualitative timbre rank scores.
 Those outputs are translated into structured evidence, explained cautiously,
 combined with source-preserving retrieval, and rendered in a static dashboard.
+An approved public Fan maintenance corpus now exists for the next retrieval
+evaluation phase.
 ```
 
 Must include limitation:
@@ -94,7 +97,7 @@ Must include limitation:
 ```text
 The current Fan MVP does not validate Expert B timbre-direction accuracy, does
 not diagnose physical root cause, does not predict remaining useful life, and
-does not yet provide production-manual-grounded maintenance recommendations.
+does not yet provide evaluated production maintenance recommendations.
 ```
 
 ## Next Required Evidence Before Stronger Claims
@@ -102,7 +105,7 @@ does not yet provide production-manual-grounded maintenance recommendations.
 | Stronger future claim | Required evidence |
 |---|---|
 | Expert B direction accuracy | five-attribute timbre labels or approved equivalent protocol |
-| Production-grounded maintenance recommendations | approved production source manifest and documents |
+| Evaluated maintenance recommendations | chunking review, retrieval evaluation, selected retriever, and Maintenance Agent v2 validation |
 | Pump/Valve/Slide Rail generalization | staged data, machine-specific artifacts, bounded per-machine evaluation |
 | Domain robustness | MIMII DG data/assets and approved protocol |
 | Production readiness | broader validation, operations requirements, monitoring, and reviewed maintenance content |
