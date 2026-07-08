@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 from typing import Any
 
@@ -13,7 +13,8 @@ from .schemas import CONTEXT_SCHEMA_VERSION, TIMBRE_ATTRIBUTES, validate_structu
 
 def _event_id(machine_type: str, machine_id: str, snr_tag: str, audio_path: str) -> str:
     """Build a stable event identifier from machine scope and audio filename."""
-    stem = Path(audio_path).stem
+    normalized_path = audio_path.replace("\\", "/")
+    stem = PurePosixPath(normalized_path).stem
     raw = f"{machine_type}_{machine_id}_{snr_tag}_{stem}"
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", raw)
 

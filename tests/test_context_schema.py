@@ -126,7 +126,7 @@ class ContextSchemaTests(unittest.TestCase):
         self.assertEqual(context["event"]["machine_id"], "id_00")
         self.assertEqual(context["event"]["snr_tag"], "minus6dB")
         self.assertEqual(context["event"]["asset_id"], "FAN-ID00-001")
-        self.assertIn("fan_id_00_minus6dB_00000002", context["event"]["event_id"])
+        self.assertEqual(context["event"]["event_id"], "fan_id_00_minus6dB_00000002")
 
     def test_expert_outputs_and_limits_are_preserved(self) -> None:
         """Expert A/B evidence and mandatory limits are explicit."""
