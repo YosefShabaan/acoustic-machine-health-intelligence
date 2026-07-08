@@ -146,7 +146,21 @@ SEVERITY_LEVELS = ("LOW", "MEDIUM", "HIGH", "CRITICAL")
 TREND_STATES = ("STABLE", "DEGRADING", "CRITICAL")
 ANOMALY_STATES = ("NORMAL", "ANOMALY_DETECTED")
 
-LLM_MODEL = "llama-3-8b"
+# Gemini API integration.
+# The API key is never stored in configuration; providers read it from this
+# environment variable at runtime.
+GEMINI_API_KEY_ENV_VAR = "GEMINI_API_KEY"
+
+# Default selected from Google AI Gemini documentation inspected on 2026-07-09:
+# `gemini-2.5-flash` is listed as a stable Gemini text-output model with
+# structured-output support. Override via GEMINI_MODEL when needed.
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_REQUEST_TIMEOUT_SECONDS = float(
+    os.environ.get("GEMINI_REQUEST_TIMEOUT_SECONDS", "30")
+)
+
+# Backward-compatible alias for legacy call sites that refer to a generic LLM.
+LLM_MODEL = GEMINI_MODEL
 CHROMA_DIR = PROJECT_ROOT / "chroma_store"
 RAG_MANUALS_DIR = DATA_DIR / "manuals"
 

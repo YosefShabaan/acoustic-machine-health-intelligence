@@ -38,11 +38,12 @@
                             "end_to_end_orchestrator":  "scripts/run_end_to_end_demo.py",
                             "dashboard_mvp":  "app/dashboard.py",
                             "fan_mvp_final_report":  "docs/fan_mvp_final_report.md",
-                            "academic_claims_register":  "docs/academic_claims.md"
+                            "academic_claims_register":  "docs/academic_claims.md",
+                            "gemini_provider_config":  "src/agents/gemini_provider.py"
                         },
-    "current_phase":  "blocked_task_13_pump_generalization_data_missing",
-    "last_completed_phase":  "task_12_fan_mvp_final_evaluation_and_academic_report",
-    "next_executable_phase":  null,
+    "current_phase":  "real_intelligence_completion",
+    "last_completed_phase":  "task_ai_01_gemini_secret_and_provider_preflight",
+    "next_executable_phase":  "task_ai_02_live_gemini_text_generator",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -530,7 +531,7 @@
                                          "action":  "provide approved maintenance documents before production recommendation claims"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-12 created the final Fan MVP evidence report and academic claims register; TASK-13 is blocked because Pump data is not staged.",
+    "last_state_update_reason":  "TASK-AI-01 completed secure Gemini secret preflight, google-genai dependency configuration, Gemini model metadata, and non-secret provider preflight tests.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -552,13 +553,13 @@
                                                        "rerun known slow Expert B job without timing evidence"
                                                    ]
                                     },
-    "execution_mode":  "blocked",
-    "plan_version":  "master_execution_plan_v3_2026-07-07",
-    "approved_plan_version":  "master_execution_plan_v3_2026-07-07",
+    "execution_mode":  "implementing",
+    "plan_version":  "real_intelligence_completion_v1_2026-07-09",
+    "approved_plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "current_task":  null,
-    "last_completed_task":  "TASK-12",
-    "next_task":  "TASK-13",
-    "blocker":  "TASK-13 blocked: D:\\PDM_Data\\MIMII\\pump\\id_00 is not present.",
+    "last_completed_task":  "TASK-AI-01",
+    "next_task":  "TASK-AI-02",
+    "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
                              "stage_1":  "architecture_and_complete_task_decomposition",
@@ -668,6 +669,19 @@
                                         "primary_skill":  "$project-architect",
                                         "notes":  "Blocked before execution because D:\\PDM_Data\\MIMII\\pump\\id_00 is not present."
                                     },
+                        "TASK-AI-01":  {
+                                           "status":  "done",
+                                           "verdict":  "DONE",
+                                           "completed_utc":  "2026-07-09",
+                                           "primary_skill":  "$scientific-implementer",
+                                           "notes":  "Verified GEMINI_API_KEY presence without printing the value, added google-genai dependency, Gemini model/env configuration, secure provider preflight helpers, and 4 Gemini config tests."
+                                       },
+                        "TASK-AI-02":  {
+                                           "status":  "next",
+                                           "verdict":  null,
+                                           "primary_skill":  "$scientific-implementer",
+                                           "notes":  "Next Real Intelligence Completion task: implement live Gemini text generator with guarded validation and deterministic fallback."
+                                       },
                         "TASK-14":  {
                                         "status":  "planned",
                                         "verdict":  null

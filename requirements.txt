@@ -8,3 +8,6 @@ soundfile
 # Expert A and Expert B runtime dependencies
 torch
 timbral_models
+
+# Live Gemini provider integration
+google-genai
