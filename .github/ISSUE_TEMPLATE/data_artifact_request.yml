@@ -1,0 +1,65 @@
+name: Data or Artifact Request
+description: Request staging, validation, or external artifact handling.
+title: "DATA - "
+labels:
+  - type:data
+  - component:data
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Raw datasets, WAV files, NumPy arrays, model weights, generated indexes, generated reports, and generated scientific artifacts must not be committed to Git.
+
+        Store large or generated artifacts outside the repository, for example under `D:\PDM_Data\MIMII`, and reference paths or manifests instead.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What data or artifact is needed?
+    validations:
+      required: true
+  - type: dropdown
+    id: machine_type
+    attributes:
+      label: Machine Type
+      options:
+        - Fan
+        - Pump
+        - Valve
+        - Slide Rail
+        - Multi-Machine
+        - N/A
+    validations:
+      required: true
+  - type: input
+    id: external_path
+    attributes:
+      label: External Path or Source
+      placeholder: "Example: D:\\PDM_Data\\MIMII\\pump\\id_00"
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification Needed
+      description: Counts, metadata, checksums, smoke command, or manifest validation required.
+    validations:
+      required: true
+  - type: textarea
+    id: expected_artifacts
+    attributes:
+      label: Expected Artifacts
+      description: What external artifacts should exist after completion?
+    validations:
+      required: true
+  - type: checkboxes
+    id: artifact_policy
+    attributes:
+      label: Artifact Policy
+      options:
+        - label: No raw dataset files will be committed to Git.
+          required: true
+        - label: No WAV, NumPy array, model weight, generated index, or generated scientific artifact will be committed to Git.
+          required: true
+        - label: Any generated artifact will be stored outside the repository or represented only by a small manifest/document.
+          required: true

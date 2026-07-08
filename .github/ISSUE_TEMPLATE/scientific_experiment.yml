@@ -1,0 +1,101 @@
+name: Scientific Experiment
+description: Propose a bounded experiment with explicit claim limits.
+title: "EXPERIMENT - "
+labels:
+  - type:research
+  - science:claim-review
+body:
+  - type: textarea
+    id: research_question
+    attributes:
+      label: Research Question
+      description: What question will this experiment answer?
+    validations:
+      required: true
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis
+      description: What outcome do you expect and why?
+    validations:
+      required: true
+  - type: dropdown
+    id: machine_type
+    attributes:
+      label: Machine Type
+      options:
+        - Fan
+        - Pump
+        - Valve
+        - Slide Rail
+        - Multi-Machine
+        - N/A
+    validations:
+      required: true
+  - type: input
+    id: machine_id
+    attributes:
+      label: Machine ID
+      placeholder: "Example: id_00"
+    validations:
+      required: true
+  - type: input
+    id: snr_or_domain
+    attributes:
+      label: SNR or Domain Condition
+      placeholder: "Example: minus6dB, 0dB, plus6dB, source domain, target domain"
+    validations:
+      required: true
+  - type: textarea
+    id: changed_variable
+    attributes:
+      label: Changed Variable
+      description: What single variable is intentionally changed?
+    validations:
+      required: true
+  - type: textarea
+    id: controlled_variables
+    attributes:
+      label: Controlled Variables
+      description: What must stay fixed for the result to be interpretable?
+    validations:
+      required: true
+  - type: textarea
+    id: required_dataset_artifacts
+    attributes:
+      label: Required Dataset or Artifacts
+      description: List external datasets, models, indexes, or reports required. Do not attach or commit generated artifacts.
+    validations:
+      required: true
+  - type: textarea
+    id: evaluation_metric
+    attributes:
+      label: Evaluation Metric
+      description: What metric, table, or bounded qualitative protocol will be used?
+    validations:
+      required: true
+  - type: textarea
+    id: claim_enabled
+    attributes:
+      label: Claim Enabled If Successful
+      description: What exact bounded claim would become supportable?
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Scientific or Overclaim Risk
+      description: What could be overstated, confounded, or unsupported?
+    validations:
+      required: true
+  - type: checkboxes
+    id: guardrails
+    attributes:
+      label: Mandatory Guardrails
+      options:
+        - label: The experiment does not claim RUL or exact time-to-failure prediction.
+          required: true
+        - label: The experiment does not claim confirmed physical root cause unless a validated diagnosis protocol is explicitly in scope.
+          required: true
+        - label: The experiment follows the bounded runtime ladder before any full-data run.
+          required: true

@@ -1,0 +1,52 @@
+name: Feature Request
+description: Propose a bounded engineering or product improvement.
+title: "FEATURE - "
+labels:
+  - type:feature
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What part of the Fan MVP or roadmap does this affect?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: Why is this worth doing now?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What should be included?
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of Scope
+      description: What should not be included?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Definition of Done
+      description: What observable result proves this is complete?
+    validations:
+      required: true
+  - type: checkboxes
+    id: guardrails
+    attributes:
+      label: Scientific Guardrails
+      options:
+        - label: This request does not require a Remaining Useful Life claim.
+          required: true
+        - label: This request does not require a confirmed physical root-cause claim.
+          required: true
+        - label: This request does not require invented confidence, probability, or severity percentages.
+          required: true

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security or sensitive artifact concern
+    url: https://github.com/YosefShabaan/acoustic-machine-health-intelligence/security
+    about: Do not paste secrets, private documents, raw datasets, model weights, or generated artifacts into public issue text.
