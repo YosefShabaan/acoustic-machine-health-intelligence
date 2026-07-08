@@ -20,8 +20,11 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install dependencies
+        env:
+          SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL: "True"
         run: |
           python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
           python -m pip install -r requirements.txt
       - name: Compile Python sources
         run: python -m compileall -q src scripts tests app
@@ -37,8 +40,11 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install dependencies
+        env:
+          SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL: "True"
         run: |
           python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
           python -m pip install -r requirements.txt
       - name: Run unit tests
         env:
