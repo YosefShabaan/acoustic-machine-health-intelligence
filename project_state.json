@@ -36,11 +36,13 @@
                             "maintenance_rag_retriever":  "src/rag/retriever.py",
                             "grounded_maintenance_agent":  "src/agents/maintenance_agent.py",
                             "end_to_end_orchestrator":  "scripts/run_end_to_end_demo.py",
-                            "dashboard_mvp":  "app/dashboard.py"
+                            "dashboard_mvp":  "app/dashboard.py",
+                            "fan_mvp_final_report":  "docs/fan_mvp_final_report.md",
+                            "academic_claims_register":  "docs/academic_claims.md"
                         },
-    "current_phase":  "task_12_fan_mvp_final_evaluation_and_academic_report",
-    "last_completed_phase":  "task_11_dashboard_mvp",
-    "next_executable_phase":  "task_12_fan_mvp_final_evaluation_and_academic_report",
+    "current_phase":  "blocked_task_13_pump_generalization_data_missing",
+    "last_completed_phase":  "task_12_fan_mvp_final_evaluation_and_academic_report",
+    "next_executable_phase":  null,
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -88,8 +90,9 @@
                                                        "notes":  "TASK-11 implemented app/dashboard.py and rendered one static HTML dashboard artifact."
                                                    },
                              "phase_9_multi_machine_generalization":  {
-                                                                          "status":  "planned",
-                                                                          "primary_skill":  "$project-architect"
+                                                                          "status":  "blocked_data_missing",
+                                                                          "primary_skill":  "$project-architect",
+                                                                          "notes":  "TASK-13 cannot start because D:\\PDM_Data\\MIMII\\pump\\id_00 is not present."
                                                                       },
                              "phase_10_mimii_dg_robustness":  {
                                                                   "status":  "planned",
@@ -145,9 +148,14 @@
                                                            "notes":  "Implemented app/dashboard.py, tests/test_dashboard.py, and D:\\PDM_Data\\MIMII\\processed\\dashboard_fan_id_00_minus6dB_task11.html."
                                                        },
                              "task_12_fan_mvp_final_evaluation_and_academic_report":  {
-                                                                                          "status":  "next_executable",
+                                                                                          "status":  "complete",
                                                                                           "primary_skill":  "$project-architect",
-                                                                                          "notes":  "Produce final Fan MVP evidence package and academic claims report."
+                                                                                          "notes":  "Created docs/fan_mvp_final_report.md and docs/academic_claims.md."
+                                                                             },
+                             "task_13_pump_generalization":  {
+                                                                "status":  "blocked_data_missing",
+                                                                "primary_skill":  "$project-architect",
+                                                                "notes":  "D:\\PDM_Data\\MIMII\\pump\\id_00 is not present; no Pump data can be evaluated."
                                                                              }
                          },
     "verified_expert_a_snr_auc_results":  {
@@ -373,7 +381,28 @@
                                     "citation_visible":  "task10_fixture_fan_inspection",
                                     "forbidden_hits":  [],
                                     "runtime_side_effects":  "static render only; no training, model scoring, Expert B recomputation, or dataset loops",
-                                    "next_use":  "TASK-12 Fan MVP final report"
+                                    "next_use":  "TASK-12 Fan MVP final report completed"
+                              },
+    "current_fan_mvp_final_report_state":  {
+                                               "status":  "complete_bounded_fan_mvp_evidence_package",
+                                               "files":  [
+                                                             "docs/fan_mvp_final_report.md",
+                                                             "docs/academic_claims.md"
+                                                         ],
+                                               "scope":  "MIMII Fan id_00 minus6dB one bounded same-audio MVP path through dashboard",
+                                               "inspected_artifacts":  [
+                                                                          "D:\\PDM_Data\\MIMII\\processed\\snr_ad_summary.json",
+                                                                          "D:\\PDM_Data\\MIMII\\processed\\expert_b_smoke_fan_id_00_minus6dB_task04.json",
+                                                                          "D:\\PDM_Data\\MIMII\\processed\\structured_context_fan_id_00_minus6dB_task06.json",
+                                                                          "D:\\PDM_Data\\MIMII\\processed\\guarded_explanation_fan_id_00_minus6dB_task07.json",
+                                                                          "D:\\PDM_Data\\MIMII\\processed\\rag_retrieval_smoke_task08.json",
+                                                                          "D:\\PDM_Data\\MIMII\\processed\\grounded_maintenance_output_fan_id_00_minus6dB_task09.json",
+                                                                          "D:\\PDM_Data\\MIMII\\processed\\end_to_end_fan_id_00_minus6dB_task10.json",
+                                                                          "D:\\PDM_Data\\MIMII\\processed\\dashboard_fan_id_00_minus6dB_task11.html"
+                                                                      ],
+                                               "supported_claim_summary":  "Fan MVP integration works for one bounded same-audio abnormal Fan event; Expert A SNR results are verified; Expert B rank scores are qualitative local ranks; dashboard artifact exists.",
+                                               "unsupported_claim_summary":  "No Expert B direction accuracy, no root-cause diagnosis, no RUL, no production-manual-grounded recommendation, no multi-machine or domain-robustness claim.",
+                                               "next_task_status":  "TASK-13 blocked because Pump data is not staged."
                               },
     "known_performance_blocker":  {
                                       "phase":  "phase_1_expert_b_performance_forensics",
@@ -412,8 +441,12 @@
                                     "affects":  "Paper-like Expert B evaluation and domain robustness."
                                 },
                                 {
-                                    "blocker":  "No approved production maintenance documents and no final Fan MVP academic report exists.",
-                                    "affects":  "Production maintenance recommendation and final academic claim package."
+                                    "blocker":  "No approved production maintenance documents exist.",
+                                    "affects":  "Production maintenance recommendations."
+                                },
+                                {
+                                    "blocker":  "Pump data is not staged at D:\\PDM_Data\\MIMII\\pump\\id_00.",
+                                    "affects":  "TASK-13 Pump generalization."
                                 },
                                 {
                                     "blocker":  "RUL/PRONOSTIA are legacy-only and unsupported in active architecture.",
@@ -485,19 +518,19 @@
                        },
     "repository_disagreements":  [
                                      {
-                                         "item":  "Fan MVP final evaluation and academic report",
-                                         "expected":  "final report summarizes verified artifacts and supported/unsupported claims",
-                                         "actual":  "Dashboard and end-to-end output exist, but final Fan MVP report is not written yet",
-                                         "action":  "TASK-12 Fan MVP final evaluation and academic report"
+                                         "item":  "Pump generalization",
+                                         "expected":  "Pump data staged before TASK-13 execution",
+                                         "actual":  "D:\\PDM_Data\\MIMII\\pump\\id_00 is not present",
+                                         "action":  "stage Pump data or revise TASK-13 scope"
                                      },
                                      {
-                                         "item":  "future explanation stack",
-                                         "expected":  "final Fan MVP report implemented before multi-machine work",
-                                         "actual":  "Fan MVP components and dashboard exist, but final evidence package is not implemented yet",
-                                         "action":  "planned TASK-12; do not claim Fan MVP complete"
+                                         "item":  "production maintenance grounding",
+                                         "expected":  "approved production source manifest and documents",
+                                         "actual":  "data/manuals/approved_sources.json is absent; only fixture-grounded smokes exist",
+                                         "action":  "provide approved maintenance documents before production recommendation claims"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-11 implemented a static dashboard MVP over the end-to-end Fan output; continuing to TASK-12 final Fan MVP report.",
+    "last_state_update_reason":  "TASK-12 created the final Fan MVP evidence report and academic claims register; TASK-13 is blocked because Pump data is not staged.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -519,13 +552,13 @@
                                                        "rerun known slow Expert B job without timing evidence"
                                                    ]
                                     },
-    "execution_mode":  "implementing",
+    "execution_mode":  "blocked",
     "plan_version":  "master_execution_plan_v3_2026-07-07",
     "approved_plan_version":  "master_execution_plan_v3_2026-07-07",
     "current_task":  null,
-    "last_completed_task":  "TASK-11",
-    "next_task":  "TASK-12",
-    "blocker":  null,
+    "last_completed_task":  "TASK-12",
+    "next_task":  "TASK-13",
+    "blocker":  "TASK-13 blocked: D:\\PDM_Data\\MIMII\\pump\\id_00 is not present.",
     "last_review_verdict":  "DONE",
     "execution_policy":  {
                              "stage_1":  "architecture_and_complete_task_decomposition",
@@ -623,14 +656,17 @@
                                         "notes":  "Implemented app/dashboard.py, 3 dashboard tests, and static HTML artifact D:\\PDM_Data\\MIMII\\processed\\dashboard_fan_id_00_minus6dB_task11.html."
                                     },
                         "TASK-12":  {
-                                        "status":  "ready",
-                                        "verdict":  null,
+                                        "status":  "done",
+                                        "verdict":  "DONE",
+                                        "completed_utc":  "2026-07-08",
                                         "primary_skill":  "$project-architect",
-                                        "notes":  "Next executable task: produce final Fan MVP evidence package and academic claims report."
+                                        "notes":  "Created docs/fan_mvp_final_report.md and docs/academic_claims.md after inspecting all required Fan MVP artifacts."
                                     },
                         "TASK-13":  {
-                                        "status":  "planned",
-                                        "verdict":  null
+                                        "status":  "blocked",
+                                        "verdict":  "BLOCKED",
+                                        "primary_skill":  "$project-architect",
+                                        "notes":  "Blocked before execution because D:\\PDM_Data\\MIMII\\pump\\id_00 is not present."
                                     },
                         "TASK-14":  {
                                         "status":  "planned",

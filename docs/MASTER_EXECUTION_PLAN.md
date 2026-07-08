@@ -1306,7 +1306,7 @@ TASK ID: `TASK-12`
 
 TITLE: Fan MVP Final Evaluation And Academic Report
 
-STATUS: `READY`
+STATUS: `DONE`
 
 GOAL:
 
@@ -1378,13 +1378,25 @@ BLOCKER CONDITIONS:
 
 - Required Fan MVP artifacts are missing.
 
+TASK-12 RESULT:
+
+- Created `docs/fan_mvp_final_report.md`.
+- Created `docs/academic_claims.md`.
+- Inspected required Fan MVP artifacts: SNR summary, Expert B smoke, Structured Health Context, guarded explanation, RAG retrieval smoke, maintenance output, end-to-end JSON, and dashboard HTML.
+- Summarized verified Expert A/SNR results and bounded Expert B qualitative evidence.
+- Recorded LLM/RAG/maintenance/dashboard status and production-source limitations.
+- Produced a supported/unsupported academic claims register with paper facts, repository facts, project decisions, inferences, and unknowns separated.
+- No model training, dataset preprocessing, Expert B indexing, or scoring was run.
+- Fan MVP evidence package is complete for one bounded Fan `id_00` same-audio path through dashboard.
+- Next task `TASK-13` is blocked because `D:\PDM_Data\MIMII\pump\id_00` is not present.
+
 ### TASK 13
 
 TASK ID: `TASK-13`
 
 TITLE: Pump Generalization
 
-STATUS: `PLANNED`
+STATUS: `BLOCKED_DATA_MISSING`
 
 GOAL:
 
@@ -1452,6 +1464,10 @@ DEFINITION OF DONE:
 BLOCKER CONDITIONS:
 
 - Pump data unavailable.
+
+CURRENT BLOCKER:
+
+- `D:\PDM_Data\MIMII\pump\id_00` is not present as of TASK-12 review, so no Pump metadata, Expert A baseline, Expert B reference index, or end-to-end Pump smoke can be run.
 
 ### TASK 14
 
