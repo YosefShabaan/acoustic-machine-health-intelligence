@@ -173,6 +173,10 @@ LLM_MODEL = GEMINI_MODEL
 CHROMA_DIR = PROJECT_ROOT / "chroma_store"
 RAG_MANUALS_DIR = DATA_DIR / "manuals"
 
+# PROJECT DECISION after TASK-RAG-05 on AMHI-FAN-MAINT-RETRIEVAL-EVAL-v1:
+# semantic retrieval is selected for the bounded Fan MVP RAG path.
+RAG_FAN_MVP_SELECTED_RETRIEVER = "semantic"
+
 
 # ===========================================================================
 # REPRODUCIBILITY

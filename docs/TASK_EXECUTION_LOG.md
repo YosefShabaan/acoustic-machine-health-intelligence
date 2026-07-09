@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Real Intelligence Completion in progress; TASK-RAG-04 complete.
+Status: Real Intelligence Completion in progress; TASK-RAG-05 complete.
 
-Latest completed task: `TASK-RAG-04`.
+Latest completed task: `TASK-RAG-05`.
 
 Use this template after every task:
 
@@ -29,6 +29,65 @@ Rules:
 - Do not mark `DONE` based only on code creation.
 - Use `FAILED` when bounded diagnosis was attempted and the task still fails.
 - Use `BLOCKED` when Yosef input, data, credentials, or architecture approval is required.
+
+```text
+TASK:
+TASK-RAG-05 - Lexical vs Semantic vs Hybrid Evaluation
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $scientific-implementer for the approved bounded retriever evaluation task.
+- Added scripts/evaluate_rag_retrieval.py for repeatable lexical, Gemini semantic, and reciprocal-rank hybrid evaluation.
+- Added tests/test_rag_retrieval_evaluation.py for metric, failure-classification, fusion, and selection-policy behavior.
+- Ran a three-query timing gate before the full 24-query live semantic retrieval evaluation.
+- Created docs/RAG_RETRIEVAL_EVALUATION.md.
+- Recorded selected retriever as a PROJECT DECISION, not a paper fact or production validation claim.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_rag_retrieval_evaluation.py"
+- python -m compileall -q src scripts tests app
+- python scripts\evaluate_rag_retrieval.py --limit 3 --output D:\PDM_Data\MIMII\processed\rag_retrieval_evaluation_task_rag_05_limit3.json
+- python scripts\evaluate_rag_retrieval.py
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m json.tool project_state.json
+- git diff --check
+
+ACTUAL OUTPUT:
+- Helper tests: Ran 4 tests, OK.
+- Full unit suite: Ran 53 tests, OK.
+- Three-query timing gate: lexical Hit@3=1.0 mean latency=0.001915s; semantic Hit@3=1.0 mean latency=4.094736s; hybrid Hit@3=1.0 mean latency=4.096726s.
+- Full evaluation query count: 24.
+- Lexical: Hit@1=0.875000, Hit@3=0.958333, MRR=0.918056, mean latency=0.000793s, failures=1.
+- Semantic: Hit@1=0.958333, Hit@3=1.000000, MRR=0.979167, mean latency=1.889571s, failures=0.
+- Hybrid: Hit@1=0.916667, Hit@3=1.000000, MRR=0.958333, mean latency=1.890422s, failures=0.
+- Selected retriever: semantic.
+- External artifact: D:\PDM_Data\MIMII\processed\rag_retrieval_evaluation_amhi_fan_maint_kb_v1_task_rag_05.json.
+
+IMPLEMENTATION REVIEW:
+- Lexical baseline remains available.
+- Semantic retriever uses the existing external Gemini embedding index.
+- Hybrid uses documented reciprocal-rank fusion and adds no reranker.
+- Failure inspection identified fan_eval_022 as the single lexical Hit@3 failure.
+- Selected retriever is based on Hit@3, then MRR, then Hit@1, then latency/simplicity.
+
+SCIENTIFIC REVIEW:
+- Evaluation set remains project_annotation_not_paper_ground_truth.
+- Semantic selection is bounded to AMHI-FAN-MAINT-RETRIEVAL-EVAL-v1 and AMHI-FAN-MAINT-KB-v1.
+- No claim is made that semantic retrieval is production-superior or generally superior.
+- No RUL, root-cause, probability, confidence, maintenance validation, or multi-machine generalization claim is enabled.
+
+DIFF REVIEW:
+- Changed files: README.md, src/config.py, scripts/evaluate_rag_retrieval.py, tests/test_rag_retrieval_evaluation.py, docs/RAG_RETRIEVAL_EVALUATION.md, docs/academic_claims.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No generated embedding index, generated evaluation JSON, raw data, model weights, or large scientific artifact was added to Git.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-MAINT-01 - Grounded Maintenance Agent V2.
+```
 
 ```text
 TASK:

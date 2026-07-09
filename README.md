@@ -114,6 +114,7 @@ The local unit suite currently covers:
 - Structured Health Context schema validation.
 - Guardrailed explanation output.
 - RAG source preservation and citation validation.
+- RAG retrieval evaluation metrics and hybrid fusion behavior.
 - Grounded maintenance output.
 - End-to-end Fan MVP orchestration behavior.
 - Static dashboard rendering.
@@ -122,7 +123,7 @@ Current local evidence:
 
 ```text
 python -m unittest discover -s tests -p "test_*.py"
-Ran 49 tests
+Ran 53 tests
 OK
 ```
 
@@ -141,6 +142,7 @@ Supported:
 - A bounded Expert B Fan reference index exists.
 - Expert B can qualitatively characterize one Expert A-flagged Fan event using same-machine normal references.
 - Structured context, guarded explanation, retrieval, maintenance output, end-to-end orchestration, and dashboard artifacts exist for the bounded Fan MVP.
+- A bounded Fan maintenance retrieval evaluation selected semantic retrieval for the next Fan MVP maintenance-grounding task.
 
 Not supported:
 
@@ -156,7 +158,6 @@ Not supported:
 
 Backlog and blocked work:
 
-- Lexical/semantic/hybrid retrieval comparison and selected retriever decision.
 - Gemini-backed grounded maintenance actions.
 - Pump data staging.
 - Pump Expert A evaluation.

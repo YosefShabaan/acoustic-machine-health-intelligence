@@ -46,11 +46,13 @@
                             "rag_corpus_chunking_review":  "docs/RAG_CORPUS_CHUNKING_REVIEW.md",
                             "rag_semantic_retriever_baseline":  "docs/RAG_SEMANTIC_RETRIEVER_BASELINE.md",
                             "rag_retrieval_evaluation_set":  "data/manuals/fan_maintenance_retrieval_eval_v1.json",
-                            "rag_retrieval_evaluation_set_review":  "docs/RAG_RETRIEVAL_EVALUATION_SET.md"
+                            "rag_retrieval_evaluation_set_review":  "docs/RAG_RETRIEVAL_EVALUATION_SET.md",
+                            "rag_retrieval_evaluation_report":  "docs/RAG_RETRIEVAL_EVALUATION.md",
+                            "rag_retrieval_evaluation_artifact":  "D:\\PDM_Data\\MIMII\\processed\\rag_retrieval_evaluation_amhi_fan_maint_kb_v1_task_rag_05.json"
                         },
     "current_phase":  "real_intelligence_completion",
-    "last_completed_phase":  "task_rag_04_retrieval_evaluation_set",
-    "next_executable_phase":  "task_rag_05_lexical_vs_semantic_vs_hybrid_evaluation",
+    "last_completed_phase":  "task_rag_05_lexical_vs_semantic_vs_hybrid_evaluation",
+    "next_executable_phase":  "task_maint_01_grounded_maintenance_agent_v2",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -284,7 +286,7 @@
                               "next_use":  "TASK-12 Fan MVP final report"
                               },
     "current_rag_state":  {
-                              "status":  "retrieval_evaluation_set_complete_pending_lexical_semantic_hybrid_comparison",
+                              "status":  "semantic_retriever_selected_for_bounded_fan_mvp_pending_maintenance_agent_v2",
                               "implementation_files_present":  [
                                                                    "src/rag/__init__.py",
                                                                    "src/rag/knowledge_base.py",
@@ -302,7 +304,10 @@
                                                                    "docs/RAG_SEMANTIC_RETRIEVER_BASELINE.md",
                                                                    "data/manuals/fan_maintenance_retrieval_eval_v1.json",
                                                                    "tests/test_rag_evaluation_set.py",
-                                                                   "docs/RAG_RETRIEVAL_EVALUATION_SET.md"
+                                                                   "docs/RAG_RETRIEVAL_EVALUATION_SET.md",
+                                                                   "scripts/evaluate_rag_retrieval.py",
+                                                                   "tests/test_rag_retrieval_evaluation.py",
+                                                                   "docs/RAG_RETRIEVAL_EVALUATION.md"
                                                                ],
                               "manuals_dir":  "D:\\IOT\\data\\manuals",
                               "approved_manifest":  "D:\\IOT\\data\\manuals\\approved_sources.json",
@@ -373,6 +378,39 @@
                                                                                      },
                                                                  "review_doc":  "docs/RAG_RETRIEVAL_EVALUATION_SET.md"
                                                              },
+                              "task_rag_05_retrieval_evaluation":  {
+                                                                       "evaluation_set_id":  "AMHI-FAN-MAINT-RETRIEVAL-EVAL-v1",
+                                                                       "query_count":  24,
+                                                                       "top_k":  15,
+                                                                       "external_artifact":  "D:\\PDM_Data\\MIMII\\processed\\rag_retrieval_evaluation_amhi_fan_maint_kb_v1_task_rag_05.json",
+                                                                       "selected_retriever":  "semantic",
+                                                                       "selection_classification":  "PROJECT_DECISION",
+                                                                       "metrics":  {
+                                                                                       "lexical":  {
+                                                                                                       "hit_at_1":  0.875,
+                                                                                                       "hit_at_3":  0.958333,
+                                                                                                       "mrr":  0.918056,
+                                                                                                       "mean_latency_seconds":  0.000793,
+                                                                                                       "failure_count":  1
+                                                                                                   },
+                                                                                       "semantic":  {
+                                                                                                        "hit_at_1":  0.958333,
+                                                                                                        "hit_at_3":  1.0,
+                                                                                                        "mrr":  0.979167,
+                                                                                                        "mean_latency_seconds":  1.889571,
+                                                                                                        "failure_count":  0
+                                                                                                    },
+                                                                                       "hybrid":  {
+                                                                                                      "hit_at_1":  0.916667,
+                                                                                                      "hit_at_3":  1.0,
+                                                                                                      "mrr":  0.958333,
+                                                                                                      "mean_latency_seconds":  1.890422,
+                                                                                                      "failure_count":  0
+                                                                                                  }
+                                                                                   },
+                                                                       "lexical_failure_query":  "fan_eval_022",
+                                                                       "review_doc":  "docs/RAG_RETRIEVAL_EVALUATION.md"
+                                                                   },
                               "fixture_runtime_gate":  {
                                                            "source_count":  1,
                                                            "chunk_count":  1,
@@ -387,10 +425,11 @@
                                                  "section-aware chunks preserve publisher, corpus_version, section_id, section_heading, and source_url",
                                                  "semantic embedding artifacts are generated outside Git",
                                                  "retrieval evaluation set expected IDs must point to approved corpus chunks",
+                                                 "selected retriever is a bounded project decision, not a production superiority claim",
                                                  "empty production KB returns safe unavailable result when no approved manifest is present",
                                                  "citation validation rejects non-retrieved source IDs"
                                              ],
-                              "next_use":  "TASK-RAG-05 lexical vs semantic vs hybrid evaluation"
+                              "next_use":  "TASK-MAINT-01 grounded maintenance agent v2"
                               },
     "current_maintenance_agent_state":  {
                                             "status":  "grounded_maintenance_agent_complete_fixture_grounded",
@@ -610,11 +649,11 @@
                                      {
                                          "item":  "production maintenance grounding",
                                          "expected":  "approved production source manifest and documents",
-                                         "actual":  "data/manuals/approved_sources.json now defines AMHI-FAN-MAINT-KB-v1; retrieval evaluation and Maintenance Agent v2 are still pending",
-                                         "action":  "complete TASK-RAG-02 through TASK-MAINT-01 before evaluated production recommendation claims"
+                                         "actual":  "data/manuals/approved_sources.json now defines AMHI-FAN-MAINT-KB-v1; TASK-RAG-05 selected semantic retrieval; Maintenance Agent v2 is still pending",
+                                         "action":  "complete TASK-MAINT-01 before evaluated production recommendation claims"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-RAG-04 created a 24-query bounded Fan maintenance retrieval evaluation set grounded in AMHI-FAN-MAINT-KB-v1 and validated all expected chunks.",
+    "last_state_update_reason":  "TASK-RAG-05 compared lexical, Gemini semantic, and reciprocal-rank hybrid retrieval over the 24-query Fan maintenance evaluation set and selected semantic retrieval as a bounded project decision.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -640,8 +679,8 @@
     "plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "approved_plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "current_task":  null,
-    "last_completed_task":  "TASK-RAG-04",
-    "next_task":  "TASK-RAG-05",
+    "last_completed_task":  "TASK-RAG-05",
+    "next_task":  "TASK-MAINT-01",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -795,10 +834,17 @@
                                            "notes":  "Created AMHI-FAN-MAINT-RETRIEVAL-EVAL-v1 with 24 manually reviewed project-annotation queries, expected approved source/chunk IDs, rationale, validation tests, and review documentation."
                                        },
                         "TASK-RAG-05":  {
-                                           "status":  "next",
-                                           "verdict":  null,
+                                           "status":  "done",
+                                           "verdict":  "DONE",
+                                           "completed_utc":  "2026-07-09",
                                            "primary_skill":  "$scientific-implementer",
-                                           "notes":  "Next Real Intelligence Completion task: compare lexical, Gemini semantic, and simple hybrid retrieval on the bounded evaluation set."
+                                           "notes":  "Compared lexical, Gemini semantic, and reciprocal-rank hybrid retrieval on AMHI-FAN-MAINT-RETRIEVAL-EVAL-v1; semantic achieved Hit@3 1.000000, MRR 0.979167, and was selected for the bounded Fan MVP RAG path."
+                                       },
+                        "TASK-MAINT-01":  {
+                                             "status":  "next",
+                                             "verdict":  null,
+                                             "primary_skill":  "$scientific-implementer",
+                                             "notes":  "Next Real Intelligence Completion task: upgrade the maintenance agent to Gemini-backed, source-grounded, citation-valid maintenance actions using the selected semantic retriever."
                                        },
                         "TASK-14":  {
                                         "status":  "planned",
