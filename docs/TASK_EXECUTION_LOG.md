@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Real Intelligence Completion in progress; TASK-FAN-14 complete.
+Status: Real Intelligence Completion in progress; TASK-DASH-02 complete.
 
-Latest completed task: `TASK-FAN-14`.
+Latest completed task: `TASK-DASH-02`.
 
 Use this template after every task:
 
@@ -19,6 +19,64 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-DASH-02 - Updated Fan Intelligence Evidence Dashboard
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Updated app/dashboard.py to render the upgraded real Gemini/RAG Fan evidence artifact.
+- Added optional bounded Fan evaluation artifact rendering.
+- Updated tests/test_dashboard.py for real Gemini/RAG provenance, source/chunk citations, timing metadata, bounded evaluation summary, and fallback visibility.
+- Rendered the upgraded static dashboard artifact to D:\PDM_Data\MIMII\processed\dashboard_real_intelligence_fan_id_00_minus6dB_task_dash_02.html.
+- Inspected the rendered HTML for required sections, provider/model/corpus metadata, citations, evaluation summary, timing data, and generated-claim guardrails.
+- Updated README.md, docs/academic_claims.md, docs/TASK_EXECUTION_LOG.md, and project_state.json.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_dashboard.py" -v
+- python -m compileall -q app\dashboard.py tests\test_dashboard.py
+- python app\dashboard.py
+- python -m unittest discover -s tests -p "test_*.py"
+- HTML inspection script over the rendered external artifact
+
+ACTUAL OUTPUT:
+- Dashboard render: DASHBOARD_RENDER=OK.
+- Input: D:\PDM_Data\MIMII\processed\real_intelligence_end_to_end_fan_id_00_minus6dB_task_fan_13.json.
+- Evaluation: D:\PDM_Data\MIMII\processed\fan_system_evaluation_fan_id_00_minus6dB_task_fan_14.json.
+- Output: D:\PDM_Data\MIMII\processed\dashboard_real_intelligence_fan_id_00_minus6dB_task_dash_02.html.
+- Event ID: fan_id_00_minus6dB_00000002.
+- Evaluation events displayed: 20.
+- HTML size: 14580 bytes.
+- Required sections present: Fan Intelligence Evidence Dashboard, Expert A, Expert B Timbre Ranks, Context Schema, Analysis Run, Pipeline Version, LLM, RAG, Retrieved Sources, Maintenance Actions, Pipeline Timings, Bounded Fan Evaluation, Scientific Limits, Limitations.
+- Generated explanation/recommendation/limitations forbidden hits: [].
+- Source excerpt contains component terms from retrieved DOE source text; this is displayed as retrieved source evidence, not generated diagnosis.
+- Dashboard tests: Ran 4 tests, OK.
+- Full unit suite: Ran 76 tests, OK.
+
+IMPLEMENTATION REVIEW:
+- The dashboard remains a static HTML renderer; no FastAPI, live app, training, scoring, dataset loop, or Gemini call is triggered by rendering.
+- The renderer exposes Structured Health Context v0.2 traceability fields, Gemini provider/model/prompt metadata, semantic RAG corpus/query/source/chunk snippets, maintenance actions with citations, stage timings, bounded evaluation summary, fallback fields, and scientific limits.
+- Fallback visibility is covered by a unit test.
+
+SCIENTIFIC REVIEW:
+- The dashboard does not call the system production-ready.
+- It shows approved public corpus provenance while explicitly stating this is not production maintenance validation.
+- It displays bounded integration results as an evidence dashboard, not diagnostic accuracy.
+- No generated RUL, time-to-failure, confidence, probability, root-cause, or confirmed component-failure claim was found.
+
+DIFF REVIEW:
+- Changed files: app/dashboard.py, tests/test_dashboard.py, README.md, docs/academic_claims.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- External artifact: D:\PDM_Data\MIMII\processed\dashboard_real_intelligence_fan_id_00_minus6dB_task_dash_02.html.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+Final Real Intelligence Completion documentation and project record reconciliation.
 ```
 
 ```text

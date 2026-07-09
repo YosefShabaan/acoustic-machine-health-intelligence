@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from pathlib import Path
 import sys
 import tempfile
@@ -17,9 +18,23 @@ from dashboard import render_dashboard_html, write_dashboard  # noqa: E402
 
 def _data() -> dict:
     return {
-        "maintenance_source_mode": "approved_fixture_not_production_manual",
-        "timings": {"total_seconds": 15.792862},
+        "task": "TASK-FAN-13",
+        "timings": {
+            "total_seconds": 25.781358,
+            "gemini_explanation_seconds": 9.707559,
+            "retrieval_seconds": 1.639424,
+            "gemini_maintenance_seconds": 8.912582,
+        },
+        "limits": {
+            "same_machine_same_audio": True,
+            "rank_scores_are_probabilities": False,
+            "physical_root_cause_confirmed": False,
+            "remaining_life_prediction_available": False,
+            "production_maintenance_validation_complete": False,
+            "multi_machine_generalization_enabled": False,
+        },
         "structured_context": {
+            "schema_version": "0.2.0",
             "event": {
                 "event_id": "fan_id_00_minus6dB_00000002",
                 "asset_id": "FAN-ID00-001",
@@ -43,8 +58,46 @@ def _data() -> dict:
                     "depth": {"rank_score": 0.666667},
                 },
             },
+            "analysis": {
+                "analysis_run_id": "analysis_fan_id_00_minus6dB_00000002_task_fan_13",
+                "pipeline_version": "amhi-real-intelligence-v0.2",
+                "llm": {
+                    "provider": "gemini",
+                    "model": "gemini-2.5-flash",
+                    "prompt_version": "diagnostic_explanation_v2_gemini_json_2026-07-09",
+                    "generation_mode": "live_gemini",
+                    "fallback_used": False,
+                },
+                "rag": {
+                    "retriever_type": "semantic",
+                    "corpus_version": "AMHI-FAN-MAINT-KB-v1",
+                    "retrieval_query": "fan abnormal acoustic noise inspection",
+                },
+                "maintenance": {
+                    "provider": "gemini",
+                    "model": "gemini-2.5-flash",
+                    "prompt_version": "maintenance_actions_v2_gemini_json_2026-07-09",
+                    "generation_mode": "live_gemini",
+                    "fallback_used": False,
+                },
+            },
+        },
+        "guarded_explanation": {
+            "metadata": {
+                "provider": "gemini",
+                "model": "gemini-2.5-flash",
+                "generation_mode": "live_gemini",
+                "fallback_used": False,
+            },
         },
         "technician_output": {
+            "metadata": {
+                "provider": "gemini",
+                "model": "gemini-2.5-flash",
+                "prompt_version": "maintenance_actions_v2_gemini_json_2026-07-09",
+                "generation_mode": "live_gemini",
+                "fallback_used": False,
+            },
             "technician_explanation": {
                 "summary": "The fan audio event was flagged as acoustically anomalous.",
                 "observations": ["Expert A flagged the event.", "Expert B compared normal references."],
@@ -52,17 +105,25 @@ def _data() -> dict:
             },
             "retrieved_maintenance_guidance": [
                 {
-                    "source_id": "task10_fixture_fan_inspection",
-                    "title": "TASK-10 Fixture Fan Inspection Procedure",
-                    "version": "task10-smoke-v1",
-                    "chunk_id": "task10_fixture_fan_inspection#chunk-1",
+                    "source_id": "doe_fan_sourcebook_2003",
+                    "title": "Improving Fan System Performance",
+                    "version": "2003",
+                    "chunk_id": "doe_fan_sourcebook_2003#DOE-FAN-2003-BASIC-MAINTENANCE",
                     "snippet": "Inspect mounting condition and rotating assembly condition.",
                 }
             ],
             "recommendation": {
                 "available": True,
                 "text": "Use the retrieved approved guidance as inspection context only.",
-                "citations": ["task10_fixture_fan_inspection"],
+                "citations": ["doe_fan_sourcebook_2003"],
+                "recommended_next_actions": [
+                    {
+                        "action": "Inspect mounting condition.",
+                        "reason": "Retrieved approved guidance supports inspection context.",
+                        "source_id": "doe_fan_sourcebook_2003",
+                        "chunk_id": "doe_fan_sourcebook_2003#DOE-FAN-2003-BASIC-MAINTENANCE",
+                    }
+                ],
             },
             "limitations": [
                 "Acoustic evidence is not a component-level finding.",
@@ -72,21 +133,44 @@ def _data() -> dict:
     }
 
 
+def _evaluation() -> dict:
+    return {
+        "summary": {
+            "total_events": 20,
+            "expert_b_execution_count": 10,
+            "pipeline_failures": 0,
+            "gemini_explanation_fallback_count": 0,
+            "maintenance_fallback_count": 0,
+            "citation_validation_failures": 0,
+            "per_stage_latency_seconds": {
+                "total_seconds": {"mean": 23.444230},
+            },
+        }
+    }
+
+
 class DashboardTests(unittest.TestCase):
     """Static dashboard rendering tests."""
 
     def test_render_contains_required_sections(self) -> None:
-        html = render_dashboard_html(_data())
-        self.assertIn("Fan MVP Evidence Dashboard", html)
+        html = render_dashboard_html(_data(), evaluation=_evaluation())
+        self.assertIn("Fan Intelligence Evidence Dashboard", html)
         self.assertIn("Expert A", html)
         self.assertIn("Expert B Timbre Ranks", html)
-        self.assertIn("Retrieved Sources", html)
-        self.assertIn("Recommendation", html)
+        self.assertIn("LLM", html)
+        self.assertIn("RAG", html)
+        self.assertIn("Maintenance Actions", html)
+        self.assertIn("Pipeline Timings", html)
+        self.assertIn("Bounded Fan Evaluation", html)
         self.assertIn("Limitations", html)
-        self.assertIn("task10_fixture_fan_inspection", html)
+        self.assertIn("gemini-2.5-flash", html)
+        self.assertIn("AMHI-FAN-MAINT-KB-v1", html)
+        self.assertIn("doe_fan_sourcebook_2003", html)
+        self.assertIn("TASK-FAN-13", html)
+        self.assertIn("20", html)
 
     def test_render_keeps_limits_visible_without_forbidden_claims(self) -> None:
-        html = render_dashboard_html(_data()).lower()
+        html = render_dashboard_html(_data(), evaluation=_evaluation()).lower()
         self.assertIn("not a component-level finding", html)
         self.assertNotIn("rul", html)
         self.assertNotIn("remaining useful life", html)
@@ -98,9 +182,20 @@ class DashboardTests(unittest.TestCase):
 
     def test_write_dashboard_outputs_html_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            output = write_dashboard(_data(), Path(tmp) / "dashboard.html")
+            output = write_dashboard(
+                _data(),
+                Path(tmp) / "dashboard.html",
+                evaluation=_evaluation(),
+            )
             self.assertTrue(output.exists())
             self.assertGreater(output.stat().st_size, 1000)
+
+    def test_live_fallback_is_visible_when_present(self) -> None:
+        data = deepcopy(_data())
+        data["structured_context"]["analysis"]["llm"]["fallback_used"] = True
+        data["structured_context"]["analysis"]["maintenance"]["fallback_used"] = True
+        html = render_dashboard_html(data, evaluation=_evaluation())
+        self.assertGreaterEqual(html.count("Fallback used"), 2)
 
 
 if __name__ == "__main__":

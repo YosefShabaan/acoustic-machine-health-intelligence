@@ -2,7 +2,7 @@
 
 Date: 2026-07-09
 
-Scope: claims supported by the current repository after `TASK-FAN-14`.
+Scope: claims supported by the current repository after `TASK-DASH-02`.
 
 ## Claim Classification Rules
 
@@ -47,7 +47,8 @@ Scope: claims supported by the current repository after `TASK-FAN-14`.
 | TASK-FAN-13 produced three citation-valid inspection actions over retrieved DOE Fan maintenance chunks with explanation fallback_used=false and maintenance fallback_used=false. | VERIFIED REPOSITORY FACT | external TASK-FAN-13 artifact |
 | TASK-FAN-14 evaluated 20 bounded Fan events: 10 normal events and 10 Expert A-flagged abnormal events selected as an integration stress set. | VERIFIED REPOSITORY FACT | `docs/FAN_SYSTEM_EVALUATION.md`, external TASK-FAN-14 artifact |
 | TASK-FAN-14 completed 10 downstream Expert B/context/RAG/Gemini/maintenance continuations with zero observed pipeline failures, zero Gemini explanation fallbacks, zero maintenance fallbacks, and zero citation validation failures. | VERIFIED REPOSITORY FACT | `docs/FAN_SYSTEM_EVALUATION.md`, external TASK-FAN-14 artifact |
-| One static dashboard HTML artifact exists. | VERIFIED REPOSITORY FACT | TASK-11 HTML |
+| One historical static dashboard HTML artifact exists for the TASK-10 fixture-era MVP. | VERIFIED REPOSITORY FACT | TASK-11 HTML |
+| TASK-DASH-02 rendered an updated static Fan intelligence dashboard over the real Gemini/RAG smoke and bounded Fan system evaluation artifacts. | VERIFIED REPOSITORY FACT | external TASK-DASH-02 HTML artifact, `tests/test_dashboard.py` |
 
 ## Project Decisions
 
@@ -114,6 +115,9 @@ and maintenance-agent metadata used for the bounded trace. TASK-FAN-14 adds a
 bounded 20-event Fan integration evaluation with 10 downstream continuations,
 zero observed Gemini fallbacks, zero maintenance fallbacks, zero citation
 validation failures, and zero pipeline failures.
+TASK-DASH-02 renders the real Gemini/RAG provenance, maintenance citations,
+bounded evaluation summary, timing metadata, and limitations in a static evidence
+dashboard.
 ```
 
 Must include limitation:

@@ -29,7 +29,7 @@ audio event that Expert A evaluated; it is not an independent diagnosis system.
 
 ## Fan MVP Status
 
-The Fan MVP is complete through `TASK-FAN-14` for one bounded same-audio Fan
+The Fan MVP is complete through `TASK-DASH-02` for one bounded same-audio Fan
 `id_00` path.
 
 Done:
@@ -46,10 +46,11 @@ Done:
 - Real Gemini + selected semantic RAG end-to-end Fan smoke using Structured
   Health Context v0.2.
 - Bounded 20-event Fan system integration evaluation.
+- Updated static Fan intelligence evidence dashboard.
 
 Current next work:
 
-- `TASK-DASH-02` updated Fan intelligence evidence dashboard.
+- Final Real Intelligence Completion documentation and project record reconciliation.
 - Multi-machine Pump generalization remains blocked because
   `D:\PDM_Data\MIMII\pump\id_00` is not staged.
 
@@ -100,6 +101,12 @@ Bounded Fan system evaluation (`TASK-FAN-14`):
 - Citation validation failures: 0.
 - Pipeline failures: 0.
 - Total wall time: `242.509219s`.
+
+Updated dashboard (`TASK-DASH-02`):
+
+- Artifact: `D:\PDM_Data\MIMII\processed\dashboard_real_intelligence_fan_id_00_minus6dB_task_dash_02.html`.
+- HTML size: `14580` bytes.
+- Displays event identity, Expert A/B evidence, Structured Health Context v0.2 provenance, Gemini provider/model/prompt metadata, semantic RAG corpus/query/source/chunk snippets, maintenance actions with citations, timing, bounded evaluation summary, and limitations.
 
 ## Workflow
 
@@ -152,7 +159,7 @@ Current local evidence:
 
 ```text
 python -m unittest discover -s tests -p "test_*.py"
-Ran 75 tests
+Ran 76 tests
 OK
 ```
 
@@ -176,6 +183,7 @@ Supported:
 - Structured Health Context v0.2 records provenance for Expert A, Expert B, LLM, RAG, and Maintenance Agent outputs.
 - One bounded real Gemini + semantic RAG Fan smoke completed with live Gemini explanation and live Gemini grounded maintenance output.
 - One bounded 20-event Fan system integration evaluation completed with 10 downstream continuations and no observed fallback, citation, or pipeline failures.
+- The static dashboard now renders real Gemini/RAG provenance, bounded evaluation summary, timings, and limitations.
 
 Not supported:
 
@@ -191,7 +199,6 @@ Not supported:
 
 Backlog and blocked work:
 
-- Updated Fan intelligence evidence dashboard.
 - Pump data staging.
 - Pump Expert A evaluation.
 - Pump Expert B reference indexing and smoke.
