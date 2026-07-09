@@ -66,11 +66,12 @@
                             "persistence_repositories":  "src/application/repositories.py",
                             "sqlite_persistence":  "src/infrastructure/persistence/sqlite_repository.py",
                             "postgres_persistence_migration":  "src/infrastructure/persistence/migrations/001_initial_postgres.sql",
-                            "api_contract_v1":  "docs/API_CONTRACT_V1.md"
+                            "api_contract_v1":  "docs/API_CONTRACT_V1.md",
+                            "fastapi_fan_event_api":  "src/api/app.py"
                         },
     "current_phase":  "fan_production_mvp_in_progress",
-    "last_completed_phase":  "task_prod_06_api_contract",
-    "next_executable_phase":  "task_prod_07_fastapi_fan_event_api",
+    "last_completed_phase":  "task_prod_07_fastapi_fan_event_api",
+    "next_executable_phase":  "task_prod_08_async_event_processing",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -134,7 +135,7 @@
                                                                "status":  "implementing",
                                                                "primary_skill":  "$project-architect",
                                                                "secondary_skill":  "$scientific-implementer",
-                                                               "notes":  "TASK-PROD-06 documented the Fan-only API v1 contract, canonical multipart ingestion, development registered-reference mode, event/result schemas, safety rules, health/readiness semantics, and implementation notes for FastAPI. Next: FastAPI Fan Event API."
+                                                               "notes":  "TASK-PROD-07 implemented the FastAPI Fan event API with POST/list/detail/machine-filter/health/ready routes, queued 202 semantics, sanitized responses, OpenAPI schemas, and bounded tests. Next: asynchronous event processing."
                                                            },
                              "task_03_expert_b_reference_index_completion":  {
                                                                                  "status":  "complete",
@@ -768,7 +769,7 @@
                                          "action":  "do not claim production maintenance validation; complete production/maintenance review in a separate approved phase"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-PROD-06 created docs/API_CONTRACT_V1.md and tests/test_api_contract_doc.py defining the Fan-only /api/v1 contract before route implementation.",
+    "last_state_update_reason":  "TASK-PROD-07 implemented src/api FastAPI routes for Fan-only event ingestion and lookup, added minimal API dependencies, and verified 110 tests plus API runtime smoke.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -794,8 +795,8 @@
     "plan_version":  "fan_production_mvp_v1_2026-07-09",
     "approved_plan_version":  "fan_production_mvp_v1_2026-07-09",
     "current_task":  null,
-    "last_completed_task":  "TASK-PROD-06",
-    "next_task":  "TASK-PROD-07",
+    "last_completed_task":  "TASK-PROD-07",
+    "next_task":  "TASK-PROD-08",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -1044,6 +1045,13 @@
                                              "primary_skill":  "$project-architect",
                                              "secondary_skill":  "$scientific-implementer",
                                              "notes":  "Created docs/API_CONTRACT_V1.md and tests/test_api_contract_doc.py. The contract defines /api/v1 endpoints, canonical multipart WAV event ingestion, config-gated development registered-reference ingestion, 202 queued semantics, event/result schemas, pagination, errors, health/readiness, versioning, response safety, and scientific claim guardrails without implementing routes."
+                                         },
+                        "TASK-PROD-07":  {
+                                             "status":  "done",
+                                             "verdict":  "DONE",
+                                             "completed_utc":  "2026-07-09",
+                                             "primary_skill":  "$scientific-implementer",
+                                             "notes":  "Implemented FastAPI app factory and ASGI entrypoint, API schemas, POST /api/v1/events, event detail/list/machine-filter endpoints, health and readiness endpoints, safe error schema, multipart upload and config-gated registered-reference ingestion, sanitized audio responses, OpenAPI visibility, and tests/test_api_v1.py. API runtime smoke accepted one Fan event with 202 queued semantics and no local path leak."
                                          },
                         "TASK-14":  {
                                         "status":  "planned",

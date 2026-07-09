@@ -11,3 +11,8 @@ timbral_models
 
 # Live Gemini provider integration
 google-genai
+
+# Fan Production MVP API
+fastapi
+python-multipart
+httpx

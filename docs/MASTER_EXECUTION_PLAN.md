@@ -1963,8 +1963,8 @@ Ordered productionization tasks:
 | `TASK-PROD-04` Audio Storage abstraction | DONE | `src/infrastructure/audio_storage.py`, `tests/test_audio_storage.py` |
 | `TASK-PROD-05` Event and Result Persistence | DONE | `src/application/repositories.py`, `src/infrastructure/persistence/sqlite_repository.py`, `src/infrastructure/persistence/migrations/001_initial_postgres.sql`, `tests/test_persistence.py` |
 | `TASK-PROD-06` API v1 contract | DONE | `docs/API_CONTRACT_V1.md`, `tests/test_api_contract_doc.py` |
-| `TASK-PROD-07` FastAPI Fan Event API | NEXT | pending |
-| `TASK-PROD-08` Asynchronous Event Processing | PLANNED | pending |
+| `TASK-PROD-07` FastAPI Fan Event API | DONE | `src/api/app.py`, `src/api/schemas.py`, `tests/test_api_v1.py` |
+| `TASK-PROD-08` Asynchronous Event Processing | NEXT | pending |
 | `TASK-PROD-09` API-backed Technician Dashboard | PLANNED | pending |
 | `TASK-PROD-10` Structured Logging | PLANNED | pending |
 | `TASK-PROD-11` Metrics and Observability | PLANNED | pending |
@@ -2149,4 +2149,41 @@ Claims still not enabled by TASK-PROD-06:
 - Expert B timbre-direction accuracy,
 - implemented API routes,
 - async processing, dashboard, observability, or container deployment,
+- Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
+
+TASK-PROD-07 result:
+
+- Added minimal API dependencies to `requirements.txt`: `fastapi`,
+  `python-multipart`, and `httpx`.
+- Created `src/api/` with FastAPI app factory, ASGI entrypoint, and
+  OpenAPI-visible response schemas.
+- Implemented `POST /api/v1/events` with canonical multipart WAV upload,
+  config-gated development registered-reference ingestion, Fan-only scope
+  validation, artifact registry validation, audio storage validation, queued
+  event persistence, and `202 Accepted` response semantics.
+- Implemented `GET /api/v1/events/{event_id}`, `GET /api/v1/events`,
+  `GET /api/v1/machines/{machine_type}/{machine_id}/events`,
+  `GET /api/v1/health`, and `GET /api/v1/ready`.
+- Added safe API error responses for unsupported machines, unsupported audio,
+  missing events, and validation failures.
+- Kept routes out of Expert A/B/RAG/Gemini orchestration and did not process
+  events synchronously during ingestion.
+- Added `tests/test_api_v1.py` covering event submission, invalid machine,
+  invalid audio, lookup, list, machine filter, not found, persisted completed
+  result readback, health, readiness, OpenAPI paths, config-gated registered
+  reference mode, and response path masking.
+- Runtime API smoke accepted one uploaded Fan event with `202`, retrieved it as
+  `queued`, confirmed health `ok`, readiness `not_ready` for later worker/RAG/
+  Gemini readiness phases, and confirmed no temp local path leak.
+
+Claims still not enabled by TASK-PROD-07:
+
+- accepted production operation,
+- production maintenance validation,
+- confirmed physical root cause,
+- probability/confidence/severity claims,
+- RUL or exact time-to-failure,
+- Expert B timbre-direction accuracy,
+- asynchronous processing or worker completion,
+- API-backed dashboard, structured logging, metrics, or container deployment,
 - Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.

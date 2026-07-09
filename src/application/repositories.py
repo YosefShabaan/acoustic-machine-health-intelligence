@@ -136,6 +136,9 @@ class AnalysisRepository(Protocol):
     def get_run(self, analysis_run_id: str) -> AnalysisRunRecord | None:
         """Return one analysis run by id."""
 
+    def get_latest_run_for_event(self, event_id: str) -> AnalysisRunRecord | None:
+        """Return the newest analysis run for an event."""
+
     def complete_run(
         self,
         analysis_run_id: str,

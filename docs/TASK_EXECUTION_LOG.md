@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Fan Production MVP implementation in progress; TASK-PROD-06 complete.
+Status: Fan Production MVP implementation in progress; TASK-PROD-07 complete.
 
-Latest completed task: `TASK-PROD-06`.
+Latest completed task: `TASK-PROD-07`.
 
 Use this template after every task:
 
@@ -19,6 +19,70 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-PROD-07 - FastAPI Fan Event API
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $scientific-implementer as the primary skill.
+- Added fastapi, python-multipart, and httpx to requirements.txt without version pins.
+- Created src/api/__init__.py, src/api/app.py, src/api/schemas.py, and src/api/main.py.
+- Implemented create_app(...) with injectable repositories, artifact registry, audio storage, upload directory, and registered-reference toggle.
+- Implemented POST /api/v1/events with multipart WAV upload, Fan-only validation, artifact registry validation, LocalAudioStorage validation, queued event persistence, 202 Accepted response, and sanitized audio metadata.
+- Implemented config-gated JSON registered-reference ingestion for local development/tests.
+- Implemented GET /api/v1/events/{event_id}, GET /api/v1/events, GET /api/v1/machines/{machine_type}/{machine_id}/events, GET /api/v1/health, and GET /api/v1/ready.
+- Added safe API error response handling for invalid requests, unsupported machine scope, unsupported audio, missing event, and validation errors.
+- Added get_latest_run_for_event to the AnalysisRepository contract and SQLite adapter for event detail readback.
+- Added tests/test_api_v1.py.
+
+TESTS:
+- python -m compileall -q src\api src\application src\infrastructure tests\test_api_v1.py
+- python -m unittest discover -s tests -p "test_api_v1.py" -v
+- python -m unittest discover -s tests -p "test_persistence.py" -v
+- FastAPI runtime smoke with TestClient, temp upload storage, and SQLite in-memory repositories.
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+
+ACTUAL OUTPUT:
+- API tests: Ran 8 tests, OK.
+- Persistence tests: Ran 7 tests, OK.
+- API runtime smoke: TASK_PROD_07_API_SMOKE=OK; create_status=202; event_status=queued; lookup_status=queued; health_status=ok; ready_status=not_ready; audio_reference_exposed=False; tmp_path_leaked=False.
+- Full unit suite: Ran 110 tests in 5.453s, OK.
+- Full compileall: passed.
+
+RUNTIME GATE:
+- Created one FastAPI app instance with SQLite in-memory repositories and a temporary upload directory.
+- Submitted one Fan id_00 minus6dB WAV upload to POST /api/v1/events.
+- Verified immediate 202 queued response, persistent event lookup, health response, readiness response, and no local temp path exposure.
+- No Expert A scoring, Expert B characterization, RAG retrieval, Gemini call, worker loop, dashboard rendering, training, indexing, or full-data run was executed.
+
+IMPLEMENTATION REVIEW:
+- Routes call repositories, ArtifactRegistry, and AudioStorage boundaries; they do not implement scientific orchestration.
+- POST /events creates queued persistent state and returns immediately, leaving long-running processing for TASK-PROD-08.
+- API responses use sanitized schemas and do not expose internal audio processing paths by default.
+- OpenAPI paths are visible for the required v1 endpoints.
+- Readiness is present but expected to report not_ready until later worker/Gemini/RAG readiness phases are completed.
+
+SCIENTIFIC REVIEW:
+- Fan id_00 minus6dB remains the only implemented full Real Intelligence API scope.
+- Unsupported machines fail explicitly instead of reusing Fan artifacts.
+- Expert A metrics, Expert B k=30, distance=euclidean, rank_threshold=None, qualitative rank interpretation, selected semantic retriever, and Structured Health Context v0.2 were preserved.
+- No RUL, root-cause, confidence/probability, severity, production maintenance validation, multi-machine, or domain-robustness claim was added.
+
+DIFF REVIEW:
+- Changed files: requirements.txt, src/api/__init__.py, src/api/app.py, src/api/main.py, src/api/schemas.py, src/application/repositories.py, src/infrastructure/persistence/sqlite_repository.py, tests/test_api_v1.py, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No repo-local WAV, NumPy array, model weight, embedding index, generated dashboard, generated runtime output, or generated scientific artifact was added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-PROD-08 - Asynchronous Event Processing.
 ```
 
 ```text

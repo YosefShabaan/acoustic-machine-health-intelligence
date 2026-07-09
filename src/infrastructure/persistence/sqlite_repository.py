@@ -71,9 +71,13 @@ CREATE TABLE IF NOT EXISTS analysis_results (
 """
 
 
-def connect_sqlite(path: str | Path = ":memory:") -> sqlite3.Connection:
+def connect_sqlite(
+    path: str | Path = ":memory:",
+    *,
+    check_same_thread: bool = True,
+) -> sqlite3.Connection:
     """Connect to SQLite and initialize the local persistence schema."""
-    connection = sqlite3.connect(str(path))
+    connection = sqlite3.connect(str(path), check_same_thread=check_same_thread)
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
     initialize_sqlite_schema(connection)
@@ -250,6 +254,18 @@ class SQLiteAnalysisRepository:
         row = self.connection.execute(
             "SELECT * FROM analysis_runs WHERE analysis_run_id = ?",
             (analysis_run_id,),
+        ).fetchone()
+        return _analysis_run_from_row(row) if row else None
+
+    def get_latest_run_for_event(self, event_id: str) -> AnalysisRunRecord | None:
+        row = self.connection.execute(
+            """
+            SELECT * FROM analysis_runs
+            WHERE event_id = ?
+            ORDER BY started_at DESC, analysis_run_id DESC
+            LIMIT 1
+            """,
+            (event_id,),
         ).fetchone()
         return _analysis_run_from_row(row) if row else None
 

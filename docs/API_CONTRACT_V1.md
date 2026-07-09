@@ -44,6 +44,10 @@ Development and unit tests may use a JSON registered-reference request only
 when explicitly enabled by application configuration. That mode is not the
 canonical staging ingestion path and must not expose local absolute processing
 paths in API responses.
+The reference string must be resolvable by the configured `AudioStorage`
+adapter. The current `LocalAudioStorage` adapter resolves local paths; a
+future registry URI adapter can support `registered://` references without
+changing the public endpoint.
 
 ## Statuses
 
@@ -180,7 +184,7 @@ Content type: `application/json`
   "machine_type": "fan",
   "machine_id": "id_00",
   "snr_tag": "minus6dB",
-  "registered_audio_reference": "registered://fan/id_00/minus6dB/event.wav"
+  "registered_audio_reference": "path-resolvable-by-configured-audio-storage.wav"
 }
 ```
 
