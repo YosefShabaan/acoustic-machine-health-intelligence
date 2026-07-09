@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from time import perf_counter
 from typing import Any, Protocol
 
-from observability import StructuredLogger, get_structured_logger
+from observability import MetricsRegistry, StructuredLogger, get_structured_logger
 
 from .repositories import (
     EVENT_STATUS_COMPLETED,
@@ -71,6 +71,7 @@ class EventProcessingService:
     pipeline_service: PipelineService
     config: EventProcessingConfig = EventProcessingConfig()
     structured_logger: StructuredLogger = field(default_factory=get_structured_logger)
+    metrics_registry: MetricsRegistry = field(default_factory=MetricsRegistry)
 
     def process_next_event(self) -> EventProcessingResult:
         """Claim and process one queued event, if available."""
@@ -132,6 +133,7 @@ class EventProcessingService:
                 run.analysis_run_id,
                 total_duration=processing_duration,
             )
+            self._record_success_metrics(payload, processing_duration)
             completed = self.event_repository.update_status(
                 claimed.event_id,
                 EVENT_STATUS_COMPLETED,
@@ -160,6 +162,7 @@ class EventProcessingService:
                 error_code=error_code,
                 error_summary=error_summary,
             )
+            self.metrics_registry.increment("amhi_events_failed_total")
             self.analysis_repository.fail_run(
                 run.analysis_run_id,
                 error_code=error_code,
@@ -279,6 +282,43 @@ class EventProcessingService:
             status="completed",
         )
 
+    def _record_success_metrics(
+        self,
+        payload: dict[str, Any],
+        processing_duration: float,
+    ) -> None:
+        timings = dict(payload.get("timings") or {})
+        self.metrics_registry.increment("amhi_events_completed_total")
+        if bool((payload.get("expert_a") or {}).get("is_anomaly", False)):
+            self.metrics_registry.increment("amhi_anomalies_flagged_total")
+        self.metrics_registry.observe_duration("amhi_pipeline_duration_seconds", processing_duration)
+        self.metrics_registry.observe_duration(
+            "amhi_expert_a_duration_seconds",
+            _duration_seconds(timings, "expert_a_seconds", "audio_expert_a_seconds"),
+        )
+        self.metrics_registry.observe_duration(
+            "amhi_expert_b_duration_seconds",
+            _duration_seconds(timings, "expert_b_seconds"),
+        )
+        self.metrics_registry.observe_duration(
+            "amhi_retrieval_duration_seconds",
+            _duration_seconds(timings, "retrieval_seconds"),
+        )
+        self.metrics_registry.observe_duration(
+            "amhi_explanation_duration_seconds",
+            _duration_seconds(timings, "explanation_seconds", "gemini_explanation_seconds"),
+        )
+        self.metrics_registry.observe_duration(
+            "amhi_maintenance_duration_seconds",
+            _duration_seconds(timings, "maintenance_seconds", "gemini_maintenance_seconds"),
+        )
+        if _metadata(payload.get("guarded_explanation")).get("fallback_used") is True:
+            self.metrics_registry.increment("gemini_fallback_total")
+        if _metadata(payload.get("technician_output")).get("fallback_used") is True:
+            self.metrics_registry.increment("maintenance_fallback_total")
+        if _citation_validation_failed(payload):
+            self.metrics_registry.increment("citation_validation_failure_total")
+
 
 def _expert_b_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
     if payload.get("expert_b_output") is not None:
@@ -302,6 +342,14 @@ def _duration_ms(timings: dict[str, Any], *keys: str) -> float | None:
     return None
 
 
+def _duration_seconds(timings: dict[str, Any], *keys: str) -> float | None:
+    for key in keys:
+        value = timings.get(key)
+        if isinstance(value, (int, float)):
+            return float(value)
+    return None
+
+
 def _seconds_to_ms(value: float) -> float:
     return round(value * 1000.0, 3)
 
@@ -310,6 +358,19 @@ def _metadata(value: Any) -> dict[str, Any]:
     if isinstance(value, dict) and isinstance(value.get("metadata"), dict):
         return value["metadata"]
     return {}
+
+
+def _citation_validation_failed(payload: dict[str, Any]) -> bool:
+    if payload.get("citation_validation_failed") is True:
+        return True
+    maintenance = payload.get("technician_output")
+    if isinstance(maintenance, dict):
+        metadata = _metadata(maintenance)
+        if metadata.get("citation_validation_failed") is True:
+            return True
+        if maintenance.get("citation_validation_failed") is True:
+            return True
+    return False
 
 
 def _elapsed_since(iso_timestamp: str, end_time: datetime) -> float | None:

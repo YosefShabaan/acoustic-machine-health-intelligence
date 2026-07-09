@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Fan Production MVP implementation in progress; TASK-PROD-10 complete.
+Status: Fan Production MVP implementation in progress; TASK-PROD-11 complete.
 
-Latest completed task: `TASK-PROD-10`.
+Latest completed task: `TASK-PROD-11`.
 
 Use this template after every task:
 
@@ -19,6 +19,72 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-PROD-11 - Metrics and Observability
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $scientific-implementer as the primary skill and loaded $performance-forensics as secondary runtime discipline; no performance-forensics escalation was triggered.
+- Created src/observability/metrics.py.
+- Added MetricsRegistry with counters, gauges, duration observations, snapshots, and Prometheus text exposition.
+- Exposed GET /api/v1/metrics.
+- Added EventRepository.count_events(...) and SQLite count implementation for queued event gauge support.
+- Instrumented API event creation with amhi_events_created_total.
+- Instrumented queued event gauge amhi_events_queued from persisted repository state.
+- Instrumented EventProcessingService success/failure paths with completed/failed/anomaly/fallback/citation-failure counters and pipeline/stage duration summaries.
+- Added tests/test_metrics.py.
+
+TESTS:
+- python -m compileall -q src\observability src\api src\application src\infrastructure tests\test_metrics.py
+- python -m unittest discover -s tests -p "test_metrics.py" -v
+- python -m unittest discover -s tests -p "test_api_v1.py" -v
+- python -m unittest discover -s tests -p "test_event_processing.py" -v
+- python -m unittest discover -s tests -p "test_structured_logging.py" -v
+- Metrics runtime smoke through API event creation, /api/v1/metrics, worker processing, and /api/v1/metrics after completion.
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+
+ACTUAL OUTPUT:
+- Metrics tests: Ran 4 tests, OK.
+- API v1 tests: Ran 8 tests, OK.
+- Event processing tests: Ran 5 tests, OK.
+- Structured logging tests: Ran 4 tests, OK.
+- Runtime metrics smoke: TASK_PROD_11_METRICS_SMOKE=OK; created_status=202; worker_status=completed; before_has_created=True; before_queue_depth=True; after_has_completed=True; after_has_anomaly=True; after_has_pipeline_duration=True; after_queue_depth=True; fallback_counters=True.
+- Full unit suite: Ran 128 tests in 7.385s, OK.
+- Full compileall: passed.
+
+RUNTIME GATE:
+- Created one Fan event through the API using TestClient.
+- Inspected /api/v1/metrics before worker processing and observed created counter plus queued gauge.
+- Processed the event through EventProcessingService with a fake pipeline.
+- Inspected /api/v1/metrics after processing and observed completed/anomaly/duration/fallback metrics and queued gauge returning to zero.
+- No real Expert A scoring, Expert B characterization, RAG retrieval, Gemini call, dashboard rendering, training, indexing, or full-data run was executed.
+
+IMPLEMENTATION REVIEW:
+- Metrics are centralized in src/observability and injected into API/worker dependencies.
+- Metrics endpoint uses simple Prometheus text exposition without adding a heavy dependency.
+- Queue depth comes from persisted event state rather than in-memory assumptions.
+- Duration metrics are stage-specific and bounded to observed worker payload timings.
+
+SCIENTIFIC REVIEW:
+- Metrics observe application behavior and do not change Expert A/B/RAG/Gemini semantics.
+- The metrics do not imply diagnostic accuracy, maintenance correctness, confidence, probability, RUL, or production acceptance.
+- No Pump, Valve, Slide Rail, cross-machine, or domain-robustness behavior was added.
+
+DIFF REVIEW:
+- Changed files: src/observability/metrics.py, src/observability/__init__.py, src/api/app.py, src/application/event_processing.py, src/application/repositories.py, src/infrastructure/persistence/sqlite_repository.py, tests/test_metrics.py, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No repo-local WAV, NumPy array, model weight, embedding index, generated dashboard, generated runtime output, or generated scientific artifact was added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-PROD-12 - Health and Readiness.
 ```
 
 ```text

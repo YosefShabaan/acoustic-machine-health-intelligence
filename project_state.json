@@ -71,11 +71,12 @@
                             "event_processing_worker":  "src/application/event_processing.py",
                             "event_processing_worker_doc":  "docs/EVENT_PROCESSING_WORKER.md",
                             "api_backed_dashboard":  "src/api/dashboard.py",
-                            "structured_logging":  "src/observability/structured_logging.py"
+                            "structured_logging":  "src/observability/structured_logging.py",
+                            "metrics_observability":  "src/observability/metrics.py"
                         },
     "current_phase":  "fan_production_mvp_in_progress",
-    "last_completed_phase":  "task_prod_10_structured_logging",
-    "next_executable_phase":  "task_prod_11_metrics_observability",
+    "last_completed_phase":  "task_prod_11_metrics_observability",
+    "next_executable_phase":  "task_prod_12_health_readiness",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -139,7 +140,7 @@
                                                                "status":  "implementing",
                                                                "primary_skill":  "$project-architect",
                                                                "secondary_skill":  "$scientific-implementer",
-                                                               "notes":  "TASK-PROD-10 implemented JSON structured logging, secret redaction, API event_created/event_queued logs, worker lifecycle logs, pipeline stage completion logs, and tests for correlation/failure/duration/secret exclusion. Next: metrics and observability."
+                                                               "notes":  "TASK-PROD-11 implemented bounded metrics registry/exposition, /api/v1/metrics, API/worker metric instrumentation, queue gauge, duration summaries, fallback counters, and tests/smoke. Next: health and readiness semantics."
                                                            },
                              "task_03_expert_b_reference_index_completion":  {
                                                                                  "status":  "complete",
@@ -773,7 +774,7 @@
                                          "action":  "do not claim production maintenance validation; complete production/maintenance review in a separate approved phase"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-PROD-10 implemented src/observability structured logging and instrumented API plus worker lifecycle logs with correlated event_id/analysis_run_id JSON records.",
+    "last_state_update_reason":  "TASK-PROD-11 implemented MetricsRegistry, Prometheus text metrics endpoint, queue depth gauge, API event creation counter, worker completion/failure/anomaly/fallback/duration metrics, and tests/test_metrics.py.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -799,8 +800,8 @@
     "plan_version":  "fan_production_mvp_v1_2026-07-09",
     "approved_plan_version":  "fan_production_mvp_v1_2026-07-09",
     "current_task":  null,
-    "last_completed_task":  "TASK-PROD-10",
-    "next_task":  "TASK-PROD-11",
+    "last_completed_task":  "TASK-PROD-11",
+    "next_task":  "TASK-PROD-12",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -1078,6 +1079,14 @@
                                              "completed_utc":  "2026-07-09",
                                              "primary_skill":  "$scientific-implementer",
                                              "notes":  "Implemented src/observability/structured_logging.py with JSON records and secret redaction; instrumented API event_created/event_queued logs and EventProcessingService event_processing_started, pipeline stage completion, pipeline_completed, and pipeline_failed logs. Added tests/test_structured_logging.py and runtime smoke with 11 correlated JSON log records."
+                                         },
+                        "TASK-PROD-11":  {
+                                             "status":  "done",
+                                             "verdict":  "DONE",
+                                             "completed_utc":  "2026-07-09",
+                                             "primary_skill":  "$scientific-implementer",
+                                             "secondary_skill":  "$performance-forensics",
+                                             "notes":  "Implemented MetricsRegistry and Prometheus text exposition, /api/v1/metrics, amhi_events_created/completed/failed/anomalies counters, pipeline/stage duration summaries, Gemini and maintenance fallback counters, citation validation failure counter, and amhi_events_queued gauge. Added tests/test_metrics.py and runtime smoke; performance-forensics escalation was not triggered."
                                          },
                         "TASK-14":  {
                                         "status":  "planned",

@@ -99,6 +99,9 @@ class EventRepository(Protocol):
     ) -> list[EventRecord]:
         """Return events with optional status filtering."""
 
+    def count_events(self, *, status: str | None = None) -> int:
+        """Count events with optional status filtering."""
+
     def list_machine_events(
         self,
         *,

@@ -169,6 +169,17 @@ class SQLiteEventRepository:
             ).fetchall()
         return [_event_from_row(row) for row in rows]
 
+    def count_events(self, *, status: str | None = None) -> int:
+        if status is not None:
+            validate_event_status(status)
+            row = self.connection.execute(
+                "SELECT COUNT(*) AS count FROM events WHERE status = ?",
+                (status,),
+            ).fetchone()
+        else:
+            row = self.connection.execute("SELECT COUNT(*) AS count FROM events").fetchone()
+        return int(row["count"])
+
     def list_machine_events(
         self,
         *,

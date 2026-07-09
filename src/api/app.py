@@ -11,7 +11,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from starlette.datastructures import UploadFile as StarletteUploadFile
 
 from application import (
@@ -43,7 +43,7 @@ from infrastructure.artifact_registry import (
     FAN_MACHINE_TYPE,
     FAN_REAL_INTELLIGENCE_SNR,
 )
-from observability import StructuredLogger, get_structured_logger
+from observability import MetricsRegistry, StructuredLogger, get_structured_logger
 
 from .schemas import (
     API_VERSION,
@@ -77,6 +77,7 @@ class ApiDependencies:
     artifact_registry: ArtifactRegistry = field(default_factory=ArtifactRegistry)
     audio_storage: AudioStorage = field(default_factory=LocalAudioStorage)
     structured_logger: StructuredLogger = field(default_factory=get_structured_logger)
+    metrics_registry: MetricsRegistry = field(default_factory=MetricsRegistry)
     upload_dir: Path = field(
         default_factory=lambda: Path(tempfile.gettempdir()) / "amhi_uploads",
     )
@@ -264,6 +265,7 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
                 audio_file_name=stored_audio.summary.file_name,
                 storage_backend=stored_audio.summary.storage_backend,
             )
+            deps.metrics_registry.increment("amhi_events_created_total")
             deps.structured_logger.emit(
                 "event_queued",
                 event_id=event.event_id,
@@ -375,6 +377,18 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
             ready=is_ready,
             status="ready" if is_ready else "not_ready",
             dependencies=dependency_status,
+        )
+
+    @router.get("/metrics", response_class=PlainTextResponse)
+    async def metrics(request: Request) -> PlainTextResponse:
+        deps = _dependencies(request)
+        deps.metrics_registry.set_gauge(
+            "amhi_events_queued",
+            deps.event_repository.count_events(status=EVENT_STATUS_QUEUED),
+        )
+        return PlainTextResponse(
+            deps.metrics_registry.render_prometheus(),
+            media_type="text/plain; version=0.0.4",
         )
 
     app.include_router(router)

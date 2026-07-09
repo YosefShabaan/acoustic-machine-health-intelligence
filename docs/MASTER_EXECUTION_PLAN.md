@@ -1967,8 +1967,8 @@ Ordered productionization tasks:
 | `TASK-PROD-08` Asynchronous Event Processing | DONE | `src/application/event_processing.py`, `docs/EVENT_PROCESSING_WORKER.md`, `tests/test_event_processing.py` |
 | `TASK-PROD-09` API-backed Technician Dashboard | DONE | `src/api/dashboard.py`, `tests/test_api_dashboard.py` |
 | `TASK-PROD-10` Structured Logging | DONE | `src/observability/structured_logging.py`, `tests/test_structured_logging.py` |
-| `TASK-PROD-11` Metrics and Observability | NEXT | pending |
-| `TASK-PROD-12` Health and Readiness | PLANNED | pending |
+| `TASK-PROD-11` Metrics and Observability | DONE | `src/observability/metrics.py`, `tests/test_metrics.py` |
+| `TASK-PROD-12` Health and Readiness | NEXT | pending |
 | `TASK-PROD-13` Containerize Fan Production MVP | PLANNED | pending |
 | `TASK-PROD-14` Bounded Fan Production Integration Evaluation | PLANNED | pending |
 | `TASK-PROD-15` Staging Architecture and Bounded Deployment | PLANNED | pending |
@@ -2292,4 +2292,43 @@ Claims still not enabled by TASK-PROD-10:
 - RUL or exact time-to-failure,
 - Expert B timbre-direction accuracy,
 - metrics or container deployment,
+- Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
+
+TASK-PROD-11 result:
+
+- Created `src/observability/metrics.py`.
+- Added `MetricsRegistry` with counters, gauges, duration observations, and
+  Prometheus text exposition.
+- Exposed `GET /api/v1/metrics`.
+- Instrumented API event creation with `amhi_events_created_total`.
+- Added queue depth gauge `amhi_events_queued` from persisted queued event
+  count.
+- Instrumented worker success/failure with:
+  `amhi_events_completed_total`, `amhi_events_failed_total`,
+  `amhi_anomalies_flagged_total`, `gemini_fallback_total`,
+  `maintenance_fallback_total`, and `citation_validation_failure_total`.
+- Instrumented duration summaries:
+  `amhi_pipeline_duration_seconds`,
+  `amhi_expert_a_duration_seconds`,
+  `amhi_expert_b_duration_seconds`,
+  `amhi_retrieval_duration_seconds`,
+  `amhi_explanation_duration_seconds`, and
+  `amhi_maintenance_duration_seconds`.
+- Added `EventRepository.count_events(...)` for metrics support.
+- Added `tests/test_metrics.py` for registry rendering, API event/queue
+  metrics, worker success counters/durations/fallbacks/citation failures, and
+  failed-event counter behavior.
+- Runtime metrics smoke created one API event, observed created/queued metrics,
+  processed it through the worker, and observed completed/anomaly/duration/
+  fallback metrics plus queued gauge returning to zero.
+
+Claims still not enabled by TASK-PROD-11:
+
+- accepted production operation,
+- production maintenance validation,
+- confirmed physical root cause,
+- probability/confidence/severity claims,
+- RUL or exact time-to-failure,
+- Expert B timbre-direction accuracy,
+- container deployment,
 - Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
