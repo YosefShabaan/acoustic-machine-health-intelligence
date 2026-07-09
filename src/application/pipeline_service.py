@@ -22,6 +22,11 @@ from agents import (
 )
 from context.translator import context_from_expert_b_output
 from data_loader import _extract_logmel
+from infrastructure import (
+    ArtifactNotRegisteredError,
+    ArtifactRegistry,
+    ResolvedArtifactConfig,
+)
 from models.anomaly_detector import compute_threshold, rebuild_validation_tensor
 from models.timbre_difference import (
     DEFAULT_DISTANCE,
@@ -46,7 +51,7 @@ PIPELINE_ARCHITECTURE = (
 )
 
 
-class UnsupportedMachineScopeError(ValueError):
+class UnsupportedMachineScopeError(ArtifactNotRegisteredError):
     """Raised when the Fan Production MVP service receives unsupported scope."""
 
 
@@ -83,7 +88,8 @@ class AMHIPipelineDependencies:
 class AMHIPipelineService:
     """Run one Fan event through the reusable AMHI application pipeline."""
 
-    artifacts: FanPipelineArtifactConfig
+    artifacts: FanPipelineArtifactConfig | None = None
+    artifact_registry: ArtifactRegistry = field(default_factory=ArtifactRegistry)
     dependencies: AMHIPipelineDependencies = field(
         default_factory=AMHIPipelineDependencies,
     )
@@ -102,13 +108,19 @@ class AMHIPipelineService:
         task_id: str,
     ) -> dict[str, Any]:
         """Process one audio event and return a structured pipeline result."""
-        self._validate_scope(machine_type, machine_id, snr_tag)
+        artifact_config = self._resolve_artifacts(machine_type, machine_id, snr_tag)
         if self.k != DEFAULT_K:
             raise ValueError(f"Fan Production MVP preserves Expert B k={DEFAULT_K}")
         if self.distance != DEFAULT_DISTANCE:
             raise ValueError(
                 f"Fan Production MVP preserves Expert B distance={DEFAULT_DISTANCE}"
             )
+        if artifact_config.k != self.k or artifact_config.distance != self.distance:
+            raise ValueError("Resolved Expert B artifact metadata does not match service configuration")
+        if artifact_config.rag_retriever_type != "semantic":
+            raise ValueError("Fan Production MVP requires the selected semantic retriever")
+        if artifact_config.rag_corpus_version != self.corpus_version:
+            raise ValueError("Resolved RAG corpus version does not match service configuration")
 
         audio_path = Path(audio_reference)
         timings: dict[str, float] = {}
@@ -116,7 +128,7 @@ class AMHIPipelineService:
 
         start = perf_counter()
         reference_index = self.dependencies.reference_index_loader(
-            self.artifacts.reference_index_path,
+            artifact_config.expert_b_reference_index_path,
         )
         embedder = self.dependencies.embedder_factory(snr_tag=snr_tag)
         timings["load_reference_index_and_embedder_seconds"] = perf_counter() - start
@@ -135,6 +147,7 @@ class AMHIPipelineService:
                 audio_path=audio_path,
                 expert_a=expert_a,
                 timings=timings,
+                artifacts=artifact_config,
             )
 
         start = perf_counter()
@@ -165,7 +178,7 @@ class AMHIPipelineService:
             expert_b_output,
             created_at=created_at,
             analysis_run_id=analysis_run_id,
-            reference_index_path=self.artifacts.reference_index_path,
+            reference_index_path=artifact_config.expert_b_reference_index_path,
         )
         timings["context_translation_seconds"] = perf_counter() - start
 
@@ -178,7 +191,7 @@ class AMHIPipelineService:
 
         start = perf_counter()
         retrieval_query = build_retrieval_query(pre_context)
-        retrieval = self._retrieve(pre_context, retrieval_query)
+        retrieval = self._retrieve(pre_context, retrieval_query, artifact_config)
         timings["retrieval_seconds"] = perf_counter() - start
 
         start = perf_counter()
@@ -197,7 +210,7 @@ class AMHIPipelineService:
             expert_b_output,
             created_at=created_at,
             analysis_run_id=analysis_run_id,
-            reference_index_path=self.artifacts.reference_index_path,
+            reference_index_path=artifact_config.expert_b_reference_index_path,
             llm_metadata=explanation.get("metadata"),
             rag_metadata={
                 "retriever_type": "semantic",
@@ -219,8 +232,9 @@ class AMHIPipelineService:
                 "snr_tag": snr_tag,
             },
             "audio_path": str(audio_path),
-            "reference_index_path": str(self.artifacts.reference_index_path),
-            "semantic_index_path": str(self.artifacts.semantic_index_path),
+            "reference_index_path": str(artifact_config.expert_b_reference_index_path),
+            "semantic_index_path": str(artifact_config.semantic_index_path),
+            "artifact_metadata": artifact_config.to_metadata(),
             "retrieval_top_k": self.retrieval_top_k,
             "retrieval_query": retrieval_query,
             "expert_a": expert_a,
@@ -245,6 +259,7 @@ class AMHIPipelineService:
         self,
         context: dict[str, Any],
         retrieval_query: str,
+        artifacts: ResolvedArtifactConfig,
     ) -> RetrievalResponse:
         if self.dependencies.retrieval_fn is not None:
             return self.dependencies.retrieval_fn(
@@ -253,7 +268,7 @@ class AMHIPipelineService:
                 self.retrieval_top_k,
             )
         semantic_index = self.dependencies.semantic_index_loader(
-            self.artifacts.semantic_index_path,
+            artifacts.semantic_index_path,
         )
         retriever = self.dependencies.semantic_retriever_factory(
             semantic_index,
@@ -261,13 +276,39 @@ class AMHIPipelineService:
         )
         return retriever.retrieve(retrieval_query, top_k=self.retrieval_top_k)
 
-    def _validate_scope(self, machine_type: str, machine_id: str, snr_tag: str) -> None:
-        if machine_type != "fan" or machine_id != "id_00":
-            raise UnsupportedMachineScopeError(
-                "Fan Production MVP supports only machine_type=fan and machine_id=id_00"
+    def _resolve_artifacts(
+        self,
+        machine_type: str,
+        machine_id: str,
+        snr_tag: str,
+    ) -> ResolvedArtifactConfig:
+        registered = self.artifact_registry.resolve(
+            machine_type=machine_type,
+            machine_id=machine_id,
+            snr_tag=snr_tag,
+        ).require_real_intelligence()
+        if self.artifacts is not None:
+            return ResolvedArtifactConfig(
+                machine_type=registered.machine_type,
+                machine_id=registered.machine_id,
+                snr_tag=registered.snr_tag,
+                expert_a_model_path=registered.expert_a_model_path,
+                expert_a_norm_stats_path=registered.expert_a_norm_stats_path,
+                expert_a_available=registered.expert_a_available,
+                expert_b_reference_index_path=self.artifacts.reference_index_path,
+                expert_b_available=True,
+                embedding_model=registered.embedding_model,
+                embedding_status=registered.embedding_status,
+                timbre_model=registered.timbre_model,
+                k=registered.k,
+                distance=registered.distance,
+                rank_threshold=registered.rank_threshold,
+                rag_corpus_version=registered.rag_corpus_version,
+                rag_retriever_type=registered.rag_retriever_type,
+                semantic_index_path=self.artifacts.semantic_index_path,
+                real_intelligence_available=True,
             )
-        if snr_tag not in cfg.MIMII_SNR_DIRS:
-            raise UnsupportedMachineScopeError(f"Unsupported Fan snr_tag: {snr_tag}")
+        return registered
 
     def _unflagged_result(
         self,
@@ -279,6 +320,7 @@ class AMHIPipelineService:
         audio_path: Path,
         expert_a: dict[str, Any],
         timings: dict[str, float],
+        artifacts: ResolvedArtifactConfig,
     ) -> dict[str, Any]:
         return {
             "task": task_id,
@@ -290,8 +332,9 @@ class AMHIPipelineService:
                 "snr_tag": snr_tag,
             },
             "audio_path": str(audio_path),
-            "reference_index_path": str(self.artifacts.reference_index_path),
-            "semantic_index_path": str(self.artifacts.semantic_index_path),
+            "reference_index_path": str(artifacts.expert_b_reference_index_path),
+            "semantic_index_path": str(artifacts.semantic_index_path),
+            "artifact_metadata": artifacts.to_metadata(),
             "expert_a": expert_a,
             "expert_b_skipped": {
                 "skipped": True,

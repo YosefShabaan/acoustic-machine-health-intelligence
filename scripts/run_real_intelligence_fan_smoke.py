@@ -19,10 +19,8 @@ import config as cfg  # noqa: E402
 from agents import validate_maintenance_output  # noqa: E402
 from application import AMHIPipelineService, FanPipelineArtifactConfig  # noqa: E402
 from context.schemas import CONTEXT_SCHEMA_VERSION, TIMBRE_ATTRIBUTES, validate_structured_context  # noqa: E402
+from infrastructure import ArtifactRegistry  # noqa: E402
 from models.timbre_difference import DEFAULT_DISTANCE, DEFAULT_K  # noqa: E402
-from rag import default_embedding_index_path  # noqa: E402
-
-from run_expert_b_smoke import _default_index  # noqa: E402
 
 
 CORPUS_VERSION = "AMHI-FAN-MAINT-KB-v1"
@@ -335,12 +333,15 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     """CLI entrypoint."""
     args = parse_args()
-    reference_index_path = args.reference_index or _default_index(
-        args.machine_type,
-        args.machine_id,
-        args.snr_tag,
-    )
-    semantic_index_path = args.semantic_index or default_embedding_index_path(CORPUS_VERSION)
+    registered_artifacts = ArtifactRegistry().resolve(
+        machine_type=args.machine_type,
+        machine_id=args.machine_id,
+        snr_tag=args.snr_tag,
+    ).require_real_intelligence()
+    reference_index_path = args.reference_index or registered_artifacts.expert_b_reference_index_path
+    semantic_index_path = args.semantic_index or registered_artifacts.semantic_index_path
+    if reference_index_path is None or semantic_index_path is None:
+        raise ValueError("Real Intelligence reference and semantic indexes are required")
     audio_path = args.audio_path or default_audio_path(args.snr_tag)
     output_path = args.output or default_output_path(
         args.machine_type,

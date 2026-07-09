@@ -60,11 +60,12 @@
                             "fan_real_intelligence_report":  "docs/FAN_REAL_INTELLIGENCE_REPORT.md",
                             "fan_production_architecture":  "docs/PRODUCTION_ARCHITECTURE.md",
                             "amhi_pipeline_service":  "src/application/pipeline_service.py",
-                            "task_prod_02_runtime_gate_artifact":  "D:\\PDM_Data\\MIMII\\processed\\real_intelligence_end_to_end_fan_id_00_minus6dB_task_prod_02_fallback_probe.json"
+                            "task_prod_02_runtime_gate_artifact":  "D:\\PDM_Data\\MIMII\\processed\\real_intelligence_end_to_end_fan_id_00_minus6dB_task_prod_02_fallback_probe.json",
+                            "artifact_registry":  "src/infrastructure/artifact_registry.py"
                         },
     "current_phase":  "fan_production_mvp_in_progress",
-    "last_completed_phase":  "task_prod_02_pipeline_service_extraction",
-    "next_executable_phase":  "task_prod_03_artifact_registry",
+    "last_completed_phase":  "task_prod_03_artifact_registry",
+    "next_executable_phase":  "task_prod_04_audio_storage",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -128,7 +129,7 @@
                                                                "status":  "implementing",
                                                                "primary_skill":  "$project-architect",
                                                                "secondary_skill":  "$scientific-implementer",
-                                                               "notes":  "TASK-PROD-02 extracted AMHIPipelineService and refactored the real-intelligence Fan smoke script to reuse it. Next: explicit machine-aware ArtifactRegistry."
+                                                               "notes":  "TASK-PROD-03 implemented explicit machine-aware ArtifactRegistry. Next: AudioStorage abstraction."
                                                            },
                              "task_03_expert_b_reference_index_completion":  {
                                                                                  "status":  "complete",
@@ -762,7 +763,7 @@
                                          "action":  "do not claim production maintenance validation; complete production/maintenance review in a separate approved phase"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-PROD-02 extracted AMHIPipelineService, refactored run_real_intelligence_fan_smoke.py to call it, added service tests, and recorded a bounded runtime gate with matching Expert A/B/context/RAG semantics and Gemini ClientError fallback metadata.",
+    "last_state_update_reason":  "TASK-PROD-03 implemented src/infrastructure/artifact_registry.py, integrated AMHIPipelineService and the real-intelligence Fan smoke CLI with registry-based artifact resolution, and verified unsupported machines/SNRs do not silently fall back to Fan artifacts.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -788,8 +789,8 @@
     "plan_version":  "fan_production_mvp_v1_2026-07-09",
     "approved_plan_version":  "fan_production_mvp_v1_2026-07-09",
     "current_task":  null,
-    "last_completed_task":  "TASK-PROD-02",
-    "next_task":  "TASK-PROD-03",
+    "last_completed_task":  "TASK-PROD-03",
+    "next_task":  "TASK-PROD-04",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -1006,6 +1007,14 @@
                                              "primary_skill":  "$project-architect",
                                              "secondary_skill":  "$scientific-implementer",
                                              "notes":  "Created src/application/pipeline_service.py and tests/test_pipeline_service.py; refactored scripts/run_real_intelligence_fan_smoke.py to use AMHIPipelineService; runtime gate preserved same audio, Expert A score/threshold/decision, Expert B k/distance/null directions/rank scores, Structured Health Context v0.2, selected semantic retriever, corpus, and retrieved chunks. Gemini returned ClientError during the runtime gate, so fallback metadata was recorded and validated."
+                                         },
+                        "TASK-PROD-03":  {
+                                             "status":  "done",
+                                             "verdict":  "DONE",
+                                             "completed_utc":  "2026-07-09",
+                                             "primary_skill":  "$project-architect",
+                                             "secondary_skill":  "$scientific-implementer",
+                                             "notes":  "Implemented ArtifactRegistry with Fan id_00 minus6dB full Real Intelligence mapping, Fan 0dB/plus6dB Expert-A-only mappings, explicit ArtifactNotRegisteredError failures for unsupported machines, unknown IDs, and unregistered SNRs; integrated AMHIPipelineService and real-intelligence Fan smoke CLI with registry resolution."
                                          },
                         "TASK-14":  {
                                         "status":  "planned",

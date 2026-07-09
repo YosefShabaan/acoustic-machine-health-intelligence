@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Fan Production MVP implementation in progress; TASK-PROD-02 complete.
+Status: Fan Production MVP implementation in progress; TASK-PROD-03 complete.
 
-Latest completed task: `TASK-PROD-02`.
+Latest completed task: `TASK-PROD-03`.
 
 Use this template after every task:
 
@@ -19,6 +19,72 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-PROD-03 - Machine-Aware Artifact Registry
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $project-architect as the primary skill and $scientific-implementer as secondary implementation support.
+- Created src/infrastructure/__init__.py.
+- Created src/infrastructure/artifact_registry.py with ArtifactRegistry, ResolvedArtifactConfig, and ArtifactNotRegisteredError.
+- Registered Fan id_00 minus6dB as the active full Real Intelligence artifact scope.
+- Registered Fan id_00 0dB and plus6dB as Expert-A-only artifact scopes, not full Real Intelligence scopes.
+- Integrated AMHIPipelineService with registry-based artifact resolution while preserving test artifact injection.
+- Integrated scripts/run_real_intelligence_fan_smoke.py default artifact resolution with ArtifactRegistry.
+- Added tests/test_artifact_registry.py.
+- Updated tests/test_pipeline_service.py to expect ArtifactNotRegisteredError for unsupported machine scope.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_artifact_registry.py" -v
+- python -m unittest discover -s tests -p "test_pipeline_service.py" -v
+- python -m unittest discover -s tests -p "test_real_intelligence_fan_smoke.py" -v
+- python -m compileall -q src\infrastructure src\application scripts\run_real_intelligence_fan_smoke.py tests\test_artifact_registry.py tests\test_pipeline_service.py
+- registry smoke script resolving Fan minus6dB, Fan 0dB, and rejecting Pump/Valve/Slide Rail.
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+- python -m json.tool project_state.json
+- git diff --check
+
+ACTUAL OUTPUT:
+- Artifact registry tests: Ran 6 tests, OK.
+- Pipeline service tests: Ran 5 tests, OK.
+- Real-intelligence smoke validator tests: Ran 5 tests, OK.
+- Full unit suite: Ran 87 tests in 7.951s, OK.
+- compileall: passed.
+- project_state.json: valid JSON.
+- git diff --check: passed; line-ending warnings only.
+- Registry smoke: FAN_MINUS6DB_REAL_INTELLIGENCE=True; reference index timbre_reference_index_fan_id_00_minus6dB.json; semantic index rag_semantic_embeddings_amhi_fan_maint_kb_v1_gemini_embedding_2_768.json; FAN_0DB_EXPERT_A_ONLY=True; REJECTED_PUMP=YES; REJECTED_VALVE=YES; REJECTED_SLIDE_RAIL=YES.
+
+RUNTIME GATE:
+- No model loading, audio scoring, Expert B characterization, RAG retrieval, Gemini call, training, indexing, or dataset processing was needed.
+- TASK-PROD-03 validation is registry resolution and rejection behavior.
+
+IMPLEMENTATION REVIEW:
+- Artifact selection is explicit and machine-aware.
+- Unsupported machines, unknown Fan IDs, and unregistered SNR tags raise ArtifactNotRegisteredError.
+- Fan 0dB and plus6dB do not expose full Real Intelligence artifacts.
+- The service now requests artifact resolution through the registry instead of accepting silent machine fallback.
+
+SCIENTIFIC REVIEW:
+- Expert A artifacts and metrics are unchanged.
+- Expert B k, distance, rank_threshold, and null direction policy are unchanged.
+- The registry does not imply Pump, Valve, Slide Rail, cross-machine, or domain-robustness support.
+- No new scientific performance claim was added.
+
+DIFF REVIEW:
+- Changed files: src/infrastructure/__init__.py, src/infrastructure/artifact_registry.py, src/application/pipeline_service.py, scripts/run_real_intelligence_fan_smoke.py, tests/test_artifact_registry.py, tests/test_pipeline_service.py, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No repo-local data/model/generated scientific artifact was added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-PROD-04 - Audio Storage Abstraction.
 ```
 
 ```text

@@ -16,8 +16,8 @@ from application import (  # noqa: E402
     AMHIPipelineDependencies,
     AMHIPipelineService,
     FanPipelineArtifactConfig,
-    UnsupportedMachineScopeError,
 )
+from infrastructure import ArtifactNotRegisteredError  # noqa: E402
 from rag import RetrievalResponse, RetrievalResult  # noqa: E402
 
 
@@ -355,7 +355,7 @@ class AMHIPipelineServiceTests(unittest.TestCase):
 
     def test_unsupported_machine_scope_is_rejected(self) -> None:
         service = _service(_dependencies())
-        with self.assertRaises(UnsupportedMachineScopeError):
+        with self.assertRaises(ArtifactNotRegisteredError):
             service.process_event(
                 AUDIO_PATH,
                 machine_type="pump",

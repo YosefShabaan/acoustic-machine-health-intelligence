@@ -1959,8 +1959,8 @@ Ordered productionization tasks:
 |---|---|---|
 | `TASK-PROD-01` Define Fan Production Architecture | DONE | `docs/PRODUCTION_ARCHITECTURE.md` |
 | `TASK-PROD-02` Extract reusable AMHI Pipeline Service | DONE | `src/application/pipeline_service.py`, `tests/test_pipeline_service.py` |
-| `TASK-PROD-03` Machine-aware Artifact Registry | NEXT | pending |
-| `TASK-PROD-04` Audio Storage abstraction | PLANNED | pending |
+| `TASK-PROD-03` Machine-aware Artifact Registry | DONE | `src/infrastructure/artifact_registry.py`, `tests/test_artifact_registry.py` |
+| `TASK-PROD-04` Audio Storage abstraction | NEXT | pending |
 | `TASK-PROD-05` Event and Result Persistence | PLANNED | pending |
 | `TASK-PROD-06` API v1 contract | PLANNED | pending |
 | `TASK-PROD-07` FastAPI Fan Event API | PLANNED | pending |
@@ -2028,3 +2028,32 @@ Claims still not enabled by TASK-PROD-02:
 - RUL or exact time-to-failure,
 - Expert B timbre-direction accuracy,
 - multi-machine or domain-robustness generalization.
+
+TASK-PROD-03 result:
+
+- Created `src/infrastructure/artifact_registry.py` and
+  `src/infrastructure/__init__.py`.
+- Added `ArtifactRegistry`, `ResolvedArtifactConfig`, and
+  `ArtifactNotRegisteredError`.
+- Registered Fan `id_00` `minus6dB` as the active full Real Intelligence
+  configuration: Expert A model/norm stats, Expert B reference index,
+  Expert A bottleneck embedding metadata, `k=30`, `distance=euclidean`,
+  `rank_threshold=None`, selected semantic retriever, Fan corpus version, and
+  semantic embedding index path.
+- Registered Fan `id_00` `0dB` and `plus6dB` only as Expert-A artifact
+  configurations; they are not marked as full Real Intelligence paths.
+- Integrated `AMHIPipelineService` and `scripts/run_real_intelligence_fan_smoke.py`
+  with registry-based default artifact resolution.
+- Added `tests/test_artifact_registry.py` covering Fan resolution,
+  Expert-A-only SNRs, unsupported machines, unknown machine IDs, unregistered
+  SNRs, and no silent Fan fallback.
+
+Claims still not enabled by TASK-PROD-03:
+
+- accepted production operation,
+- production maintenance validation,
+- confirmed physical root cause,
+- probability/confidence/severity claims,
+- RUL or exact time-to-failure,
+- Expert B timbre-direction accuracy,
+- Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
