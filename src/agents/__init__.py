@@ -12,16 +12,21 @@ from .diagnostic_agent import (
 )
 from .gemini_provider import (
     GeminiConfigurationError,
+    GeminiMaintenanceTextGenerator,
     GeminiProviderConfig,
     GeminiTextGenerator,
     gemini_preflight_metadata,
 )
 from .maintenance_agent import (
     GroundedMaintenanceAgent,
+    MAINTENANCE_PROMPT_VERSION,
     MaintenanceGroundingError,
     build_retrieval_query,
+    build_maintenance_prompt,
+    coerce_maintenance_payload,
     generate_grounded_maintenance_output,
     validate_maintenance_output,
+    validate_maintenance_payload_shape,
 )
 
 __all__ = [
@@ -29,12 +34,16 @@ __all__ = [
     "DiagnosticExplanationAgent",
     "ExplanationGuardrailError",
     "GeminiConfigurationError",
+    "GeminiMaintenanceTextGenerator",
     "GeminiProviderConfig",
     "GeminiTextGenerator",
     "GroundedMaintenanceAgent",
+    "MAINTENANCE_PROMPT_VERSION",
     "MaintenanceGroundingError",
     "build_guarded_prompt",
+    "build_maintenance_prompt",
     "build_retrieval_query",
+    "coerce_maintenance_payload",
     "coerce_explanation_payload",
     "explain_context",
     "gemini_preflight_metadata",
@@ -42,4 +51,5 @@ __all__ = [
     "generate_grounded_maintenance_output",
     "validate_explanation_text",
     "validate_maintenance_output",
+    "validate_maintenance_payload_shape",
 ]

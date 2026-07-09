@@ -39,7 +39,7 @@ Done:
 - Structured Health Context schema and translator.
 - Guardrailed explanation agent.
 - Manifest-gated local maintenance retriever.
-- Grounded maintenance agent with citation guardrails.
+- Gemini-backed grounded maintenance agent with chunk-level citation guardrails and deterministic fallback.
 - End-to-end Fan MVP orchestrator.
 - Static dashboard MVP.
 - Final Fan MVP evidence report and academic claims register.
@@ -115,7 +115,7 @@ The local unit suite currently covers:
 - Guardrailed explanation output.
 - RAG source preservation and citation validation.
 - RAG retrieval evaluation metrics and hybrid fusion behavior.
-- Grounded maintenance output.
+- Gemini-backed grounded maintenance output.
 - End-to-end Fan MVP orchestration behavior.
 - Static dashboard rendering.
 
@@ -123,7 +123,7 @@ Current local evidence:
 
 ```text
 python -m unittest discover -s tests -p "test_*.py"
-Ran 53 tests
+Ran 63 tests
 OK
 ```
 
@@ -143,6 +143,7 @@ Supported:
 - Expert B can qualitatively characterize one Expert A-flagged Fan event using same-machine normal references.
 - Structured context, guarded explanation, retrieval, maintenance output, end-to-end orchestration, and dashboard artifacts exist for the bounded Fan MVP.
 - A bounded Fan maintenance retrieval evaluation selected semantic retrieval for the next Fan MVP maintenance-grounding task.
+- A bounded live Gemini maintenance-agent smoke produced citation-valid inspection actions over approved Fan maintenance chunks.
 
 Not supported:
 
@@ -158,7 +159,10 @@ Not supported:
 
 Backlog and blocked work:
 
-- Gemini-backed grounded maintenance actions.
+- Structured Health Context v0.2 provenance metadata.
+- Real Gemini + RAG end-to-end Fan smoke.
+- Bounded Fan system evaluation.
+- Updated Fan intelligence evidence dashboard.
 - Pump data staging.
 - Pump Expert A evaluation.
 - Pump Expert B reference indexing and smoke.

@@ -67,6 +67,36 @@ EXPLANATION_RESPONSE_SCHEMA: dict[str, Any] = {
     "required": ["summary", "observations", "hypotheses", "limitations"],
 }
 
+MAINTENANCE_RESPONSE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "event_summary": {"type": "string"},
+        "observed_evidence": {"type": "array", "items": {"type": "string"}},
+        "inspection_priority": {"type": "string"},
+        "recommended_next_actions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string"},
+                    "reason": {"type": "string"},
+                    "source_id": {"type": "string"},
+                    "chunk_id": {"type": "string"},
+                },
+                "required": ["action", "reason", "source_id", "chunk_id"],
+            },
+        },
+        "limitations": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": [
+        "event_summary",
+        "observed_evidence",
+        "inspection_priority",
+        "recommended_next_actions",
+        "limitations",
+    ],
+}
+
 
 class GeminiTextGenerator:
     """Gemini-backed text generator for guarded structured prompts."""
@@ -140,3 +170,55 @@ class GeminiTextGenerator:
             ),
         )
         return self._response_to_payload(response)
+
+
+class GeminiMaintenanceTextGenerator:
+    """Gemini-backed generator for source-grounded maintenance actions."""
+
+    def __init__(
+        self,
+        *,
+        config: GeminiProviderConfig | None = None,
+        client: Any | None = None,
+    ) -> None:
+        self.config = config or GeminiProviderConfig()
+        self._client = client
+
+    def metadata(self) -> dict[str, Any]:
+        """Return non-secret provider/model metadata."""
+        return {
+            "provider": "gemini",
+            "model": self.config.model,
+            "generation_mode": "live_gemini",
+        }
+
+    def _build_client(self) -> Any:
+        """Build the official Google GenAI SDK client using environment secrets."""
+        from google import genai
+        from google.genai import types
+
+        return genai.Client(
+            api_key=self.config.load_api_key(),
+            http_options=types.HttpOptions(
+                timeout=int(self.config.request_timeout_seconds * 1000)
+            ),
+        )
+
+    def generate(self, prompt: str) -> dict[str, Any]:
+        """Generate structured maintenance actions from a grounded prompt."""
+        from google.genai import types
+
+        client = self._client or self._build_client()
+        response = client.models.generate_content(
+            model=self.config.model,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                responseMimeType="application/json",
+                responseSchema=MAINTENANCE_RESPONSE_SCHEMA,
+                temperature=0.0,
+                httpOptions=types.HttpOptions(
+                    timeout=int(self.config.request_timeout_seconds * 1000)
+                ),
+            ),
+        )
+        return GeminiTextGenerator._response_to_payload(response)

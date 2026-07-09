@@ -48,11 +48,12 @@
                             "rag_retrieval_evaluation_set":  "data/manuals/fan_maintenance_retrieval_eval_v1.json",
                             "rag_retrieval_evaluation_set_review":  "docs/RAG_RETRIEVAL_EVALUATION_SET.md",
                             "rag_retrieval_evaluation_report":  "docs/RAG_RETRIEVAL_EVALUATION.md",
-                            "rag_retrieval_evaluation_artifact":  "D:\\PDM_Data\\MIMII\\processed\\rag_retrieval_evaluation_amhi_fan_maint_kb_v1_task_rag_05.json"
+                            "rag_retrieval_evaluation_artifact":  "D:\\PDM_Data\\MIMII\\processed\\rag_retrieval_evaluation_amhi_fan_maint_kb_v1_task_rag_05.json",
+                            "maintenance_agent_v2_smoke":  "D:\\PDM_Data\\MIMII\\processed\\grounded_maintenance_output_fan_id_00_minus6dB_task_maint_01.json"
                         },
     "current_phase":  "real_intelligence_completion",
-    "last_completed_phase":  "task_rag_05_lexical_vs_semantic_vs_hybrid_evaluation",
-    "next_executable_phase":  "task_maint_01_grounded_maintenance_agent_v2",
+    "last_completed_phase":  "task_maint_01_grounded_maintenance_agent_v2",
+    "next_executable_phase":  "task_ctx_02_structured_health_context_v0_2",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -429,31 +430,47 @@
                                                  "empty production KB returns safe unavailable result when no approved manifest is present",
                                                  "citation validation rejects non-retrieved source IDs"
                                              ],
-                              "next_use":  "TASK-MAINT-01 grounded maintenance agent v2"
+                              "next_use":  "TASK-FAN-13 real Gemini plus RAG end-to-end Fan smoke"
                               },
     "current_maintenance_agent_state":  {
-                                            "status":  "grounded_maintenance_agent_complete_fixture_grounded",
+                                            "status":  "maintenance_agent_v2_live_gemini_source_grounded",
                                             "implementation_files_present":  [
+                                                                                 "src/agents/gemini_provider.py",
                                                                                  "src/agents/maintenance_agent.py",
-                                                                                 "tests/test_maintenance_agent.py"
+                                                                                 "tests/test_maintenance_agent.py",
+                                                                                 "tests/test_end_to_end_orchestrator.py"
                                                                              ],
-                                            "sample_output":  "D:\\PDM_Data\\MIMII\\processed\\grounded_maintenance_output_fan_id_00_minus6dB_task09.json",
+                                            "sample_output":  "D:\\PDM_Data\\MIMII\\processed\\grounded_maintenance_output_fan_id_00_minus6dB_task_maint_01.json",
                                             "sample_event_id":  "fan_id_00_minus6dB_00000002",
                                             "sample_mode":  "source_grounded",
                                             "sample_recommendation_available":  true,
+                                            "sample_provider":  "gemini",
+                                            "sample_model":  "gemini-2.5-flash",
+                                            "sample_generation_mode":  "live_gemini",
+                                            "sample_fallback_used":  false,
+                                            "sample_retriever_type":  "semantic",
+                                            "sample_corpus_version":  "AMHI-FAN-MAINT-KB-v1",
+                                            "sample_action_count":  3,
                                             "sample_citations":  [
-                                                                     "task09_fixture_fan_inspection"
+                                                                     "doe_fan_sourcebook_2003"
                                                                  ],
-                                            "sample_retrieved_guidance_count":  1,
-                                            "smoke_source_type":  "approved_fixture_not_production_manual",
-                                            "production_manuals_available":  false,
+                                            "sample_chunk_citations":  [
+                                                                          "doe_fan_sourcebook_2003#DOE-FAN-2003-BASIC-MAINTENANCE",
+                                                                          "doe_fan_sourcebook_2003#DOE-FAN-2003-COMMON-FAN-PROBLEMS"
+                                                                 ],
+                                            "sample_retrieved_guidance_count":  3,
+                                            "sample_total_seconds":  13.303668,
+                                            "smoke_source_type":  "approved_public_fan_corpus",
+                                            "production_manuals_available":  true,
                                             "guardrails":  [
                                                                "recommendation_available requires retrieved source evidence",
                                                                "recommendation citations must be among retrieved source IDs",
+                                                               "each recommended action must cite a retrieved source_id and chunk_id pair",
+                                                               "Gemini output falls back to a deterministic source-grounded action if malformed, unsafe, or uncited",
                                                                "safe_unavailable mode is used when retrieval is unavailable",
                                                                "no RUL, time-to-failure, confidence percentage, root-cause certainty, or confirmed component failure wording"
                                                            ],
-                                            "next_use":  "TASK-12 Fan MVP final report"
+                                            "next_use":  "TASK-FAN-13 real Gemini plus RAG end-to-end Fan smoke"
                               },
     "current_end_to_end_state":  {
                                     "status":  "fan_mvp_orchestrator_complete_fixture_grounded",
@@ -564,7 +581,7 @@
                                     "affects":  "Paper-like Expert B evaluation and domain robustness."
                                 },
                                 {
-                                    "blocker":  "Approved public Fan maintenance corpus exists, but chunking review, retrieval evaluation, and Gemini maintenance-action validation are incomplete.",
+                                    "blocker":  "One bounded live Gemini maintenance-action smoke exists, but bounded multi-event evaluation and production validation are not complete.",
                                     "affects":  "Evaluated production maintenance recommendations."
                                 },
                                 {
@@ -649,11 +666,11 @@
                                      {
                                          "item":  "production maintenance grounding",
                                          "expected":  "approved production source manifest and documents",
-                                         "actual":  "data/manuals/approved_sources.json now defines AMHI-FAN-MAINT-KB-v1; TASK-RAG-05 selected semantic retrieval; Maintenance Agent v2 is still pending",
-                                         "action":  "complete TASK-MAINT-01 before evaluated production recommendation claims"
+                                         "actual":  "AMHI-FAN-MAINT-KB-v1 exists, TASK-RAG-05 selected semantic retrieval, and TASK-MAINT-01 produced one live Gemini citation-valid maintenance smoke; bounded system evaluation and production validation are still pending",
+                                         "action":  "complete TASK-CTX-02, TASK-FAN-13, and TASK-FAN-14 before any stronger evaluated system claim"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-RAG-05 compared lexical, Gemini semantic, and reciprocal-rank hybrid retrieval over the 24-query Fan maintenance evaluation set and selected semantic retrieval as a bounded project decision.",
+    "last_state_update_reason":  "TASK-MAINT-01 upgraded the maintenance agent to Gemini-backed, source-grounded, chunk-cited inspection actions and verified one live bounded Fan smoke with fallback_used=false.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -679,8 +696,8 @@
     "plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "approved_plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "current_task":  null,
-    "last_completed_task":  "TASK-RAG-05",
-    "next_task":  "TASK-MAINT-01",
+    "last_completed_task":  "TASK-MAINT-01",
+    "next_task":  "TASK-CTX-02",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -841,10 +858,17 @@
                                            "notes":  "Compared lexical, Gemini semantic, and reciprocal-rank hybrid retrieval on AMHI-FAN-MAINT-RETRIEVAL-EVAL-v1; semantic achieved Hit@3 1.000000, MRR 0.979167, and was selected for the bounded Fan MVP RAG path."
                                        },
                         "TASK-MAINT-01":  {
-                                             "status":  "next",
-                                             "verdict":  null,
+                                             "status":  "done",
+                                             "verdict":  "DONE",
+                                             "completed_utc":  "2026-07-09",
                                              "primary_skill":  "$scientific-implementer",
-                                             "notes":  "Next Real Intelligence Completion task: upgrade the maintenance agent to Gemini-backed, source-grounded, citation-valid maintenance actions using the selected semantic retriever."
+                                             "notes":  "Upgraded GroundedMaintenanceAgent to Gemini-backed Maintenance Agent V2 with chunk-level citation validation, deterministic fallback, semantic retriever metadata, 15 maintenance tests, and one live Gemini Fan smoke with fallback_used=false and 3 citation-valid inspection actions."
+                                       },
+                        "TASK-CTX-02":  {
+                                           "status":  "next",
+                                           "verdict":  null,
+                                           "primary_skill":  "$scientific-implementer",
+                                           "notes":  "Next Real Intelligence Completion task: evolve Structured Health Context to v0.2 with traceability metadata for model/index/corpus/retriever/LLM/maintenance configuration."
                                        },
                         "TASK-14":  {
                                         "status":  "planned",

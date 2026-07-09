@@ -2,7 +2,7 @@
 
 Date: 2026-07-09
 
-Scope: claims supported by the current repository after `TASK-RAG-05`.
+Scope: claims supported by the current repository after `TASK-MAINT-01`.
 
 ## Claim Classification Rules
 
@@ -40,6 +40,7 @@ Scope: claims supported by the current repository after `TASK-RAG-05`.
 | A 24-query Fan maintenance retrieval evaluation set exists as a project annotation artifact. | VERIFIED REPOSITORY FACT | `data/manuals/fan_maintenance_retrieval_eval_v1.json`, `docs/RAG_RETRIEVAL_EVALUATION_SET.md` |
 | The bounded retrieval comparison produced lexical Hit@3 0.958333, semantic Hit@3 1.000000, and hybrid Hit@3 1.000000 on the 24-query project evaluation set. | VERIFIED REPOSITORY FACT | `docs/RAG_RETRIEVAL_EVALUATION.md`, external TASK-RAG-05 artifact |
 | Grounded maintenance output exists using an approved fixture source. | VERIFIED REPOSITORY FACT | TASK-09 JSON |
+| A live Gemini Maintenance Agent V2 smoke produced three citation-valid inspection actions over retrieved approved Fan corpus chunks with fallback_used=false. | VERIFIED REPOSITORY FACT | external TASK-MAINT-01 artifact, `tests/test_maintenance_agent.py` |
 | One end-to-end Fan MVP JSON exists. | VERIFIED REPOSITORY FACT | TASK-10 JSON |
 | One static dashboard HTML artifact exists. | VERIFIED REPOSITORY FACT | TASK-11 HTML |
 
@@ -55,6 +56,7 @@ Scope: claims supported by the current repository after `TASK-RAG-05`.
 | `rank_threshold=None` is used until a threshold policy is approved. | PROJECT DECISION | TASK-04 JSON, qualitative protocol |
 | Production maintenance recommendations require approved retrieved source evidence. | PROJECT DECISION | RAG and maintenance-agent guardrail tests |
 | Semantic retrieval is selected for the bounded Fan MVP RAG path. | PROJECT DECISION | TASK-RAG-05 selected semantic by Hit@3, MRR, and Hit@1 on `AMHI-FAN-MAINT-RETRIEVAL-EVAL-v1` |
+| Maintenance Agent V2 outputs must remain inspection-oriented and cite retrieved source_id/chunk_id pairs. | PROJECT DECISION | TASK-MAINT-01 validation and tests |
 
 ## Cautious Inferences
 
@@ -73,7 +75,7 @@ Scope: claims supported by the current repository after `TASK-RAG-05`.
 | Expert B rank score is confidence or failure probability. | FORBIDDEN | rank score is a local relative rank, not calibrated probability |
 | The system predicts remaining useful life. | OUT OF SCOPE | RUL/PRONOSTIA removed from active architecture |
 | The system predicts exact time to failure. | OUT OF SCOPE | no run-to-failure target in active MIMII runtime |
-| Maintenance recommendations are evaluated production guidance. | UNSUPPORTED | selected retriever exists, but Gemini maintenance-action validation is not complete |
+| Maintenance recommendations are evaluated production guidance. | UNSUPPORTED | one bounded live smoke exists, but bounded multi-event evaluation and production validation are not complete |
 | Semantic retrieval is production-superior or generally superior across corpora. | UNSUPPORTED | selection is bounded to the 24-query project evaluation set and current Fan corpus |
 | The architecture generalizes to Pump, Valve, or Slide Rail. | UNSUPPORTED | those machine datasets are not staged/evaluated |
 | The system is robust to domain shift. | UNSUPPORTED | MIMII DG phase not executed |
@@ -95,7 +97,9 @@ Those outputs are translated into structured evidence, explained cautiously,
 combined with source-preserving retrieval, and rendered in a static dashboard.
 An approved public Fan maintenance corpus exists. On a bounded 24-query project
 retrieval evaluation set, semantic retrieval achieved Hit@3 1.000000 and was
-selected as the Fan MVP retriever for the next maintenance-grounding task.
+selected as the Fan MVP retriever. A live Gemini maintenance-agent smoke then
+produced three citation-valid inspection-oriented actions over retrieved
+approved Fan corpus chunks.
 ```
 
 Must include limitation:
@@ -111,7 +115,7 @@ does not yet provide evaluated production maintenance recommendations.
 | Stronger future claim | Required evidence |
 |---|---|
 | Expert B direction accuracy | five-attribute timbre labels or approved equivalent protocol |
-| Evaluated maintenance recommendations | Maintenance Agent v2 validation with the selected retriever |
+| Evaluated maintenance recommendations | bounded multi-event system evaluation plus production/maintenance review |
 | Pump/Valve/Slide Rail generalization | staged data, machine-specific artifacts, bounded per-machine evaluation |
 | Domain robustness | MIMII DG data/assets and approved protocol |
 | Production readiness | broader validation, operations requirements, monitoring, and reviewed maintenance content |

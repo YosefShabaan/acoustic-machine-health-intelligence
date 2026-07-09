@@ -40,12 +40,25 @@ def _output() -> dict:
                 }
             },
             "retrieved_maintenance_guidance": [
-                {"source_id": "approved_proc", "snippet": "Inspect mounting condition."}
+                {
+                    "source_id": "approved_proc",
+                    "chunk_id": "approved_proc#chunk-1",
+                    "snippet": "Inspect mounting condition.",
+                }
             ],
             "recommendation": {
                 "available": True,
                 "text": "Use retrieved approved guidance as inspection context only.",
                 "citations": ["approved_proc"],
+                "chunk_citations": ["approved_proc#chunk-1"],
+                "recommended_next_actions": [
+                    {
+                        "action": "Inspect mounting condition.",
+                        "reason": "The retrieved approved guidance supports inspection context.",
+                        "source_id": "approved_proc",
+                        "chunk_id": "approved_proc#chunk-1",
+                    }
+                ],
             },
             "limitations": [
                 "Acoustic evidence is not a component-level finding.",

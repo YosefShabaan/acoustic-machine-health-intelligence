@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Real Intelligence Completion in progress; TASK-RAG-05 complete.
+Status: Real Intelligence Completion in progress; TASK-MAINT-01 complete.
 
-Latest completed task: `TASK-RAG-05`.
+Latest completed task: `TASK-MAINT-01`.
 
 Use this template after every task:
 
@@ -29,6 +29,77 @@ Rules:
 - Do not mark `DONE` based only on code creation.
 - Use `FAILED` when bounded diagnosis was attempted and the task still fails.
 - Use `BLOCKED` when Yosef input, data, credentials, or architecture approval is required.
+
+```text
+TASK:
+TASK-MAINT-01 - Grounded Maintenance Agent V2
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $scientific-implementer for the approved bounded maintenance-agent upgrade.
+- Upgraded src/agents/maintenance_agent.py from source assembler to Gemini-backed Maintenance Agent V2.
+- Added chunk-level citation validation for every recommended action.
+- Added build_maintenance_prompt, maintenance payload coercion, shape validation, inspection-orientation validation, and deterministic fallback.
+- Added GeminiMaintenanceTextGenerator with a maintenance-specific JSON schema.
+- Preserved safe_unavailable behavior when retrieval is unavailable.
+- Preserved deterministic source-grounded fallback for malformed, unsafe, or uncited Gemini output.
+- Updated end-to-end fixture tests to the V2 recommendation shape.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_maintenance_agent.py"
+- python -m unittest discover -s tests -p "test_llm_guardrails.py"
+- python -m unittest discover -s tests -p "test_rag_grounding.py"
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+- python -m json.tool project_state.json
+- git diff --check
+
+RUNTIME GATE:
+- One live semantic retrieval plus Gemini maintenance generation smoke over the existing Fan structured context and approved Fan maintenance corpus.
+- External output: D:\PDM_Data\MIMII\processed\grounded_maintenance_output_fan_id_00_minus6dB_task_maint_01.json.
+
+ACTUAL OUTPUT:
+- Maintenance Agent tests: Ran 15 tests, OK.
+- Full unit suite: Ran 63 tests, OK.
+- Event ID: fan_id_00_minus6dB_00000002.
+- Retriever type: semantic.
+- Corpus version: AMHI-FAN-MAINT-KB-v1.
+- Retrieved chunks:
+  doe_fan_sourcebook_2003#DOE-FAN-2003-COMMON-FAN-PROBLEMS;
+  doe_fan_sourcebook_2003#DOE-FAN-2003-BASIC-MAINTENANCE;
+  doe_om_best_practices_release_3_fans#DOE-OM-R3-MAINTENANCE-PROGRAMS.
+- Generation mode: live_gemini.
+- Fallback used: false.
+- Action count: 3.
+- Citation pair validation: 3/3 valid source_id/chunk_id pairs.
+- Forbidden hit inspection: [].
+- Total smoke seconds: 13.303668.
+
+IMPLEMENTATION REVIEW:
+- Gemini receives structured ML evidence, guarded explanation text, retrieved approved maintenance snippets, source IDs, and chunk IDs only.
+- Raw WAV audio is not sent to Gemini.
+- Every generated action must cite a retrieved source/chunk pair.
+- Invalid Gemini outputs fall back to a deterministic citation-valid action.
+- Safe unavailable mode remains explicit when no retrieval is available.
+
+SCIENTIFIC REVIEW:
+- Actions are inspection-oriented and grounded in retrieved approved Fan corpus chunks.
+- The task enables a bounded live maintenance-agent smoke claim only.
+- It does not validate production maintenance correctness.
+- It does not enable RUL, root-cause, confidence/probability, confirmed component failure, Expert B direction accuracy, or multi-machine generalization claims.
+
+DIFF REVIEW:
+- Changed files: README.md, src/agents/__init__.py, src/agents/gemini_provider.py, src/agents/maintenance_agent.py, tests/test_maintenance_agent.py, tests/test_end_to_end_orchestrator.py, docs/academic_claims.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- Generated output artifact is external under D:\PDM_Data\MIMII\processed and not tracked in Git.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-CTX-02 - Structured Health Context V0.2.
+```
 
 ```text
 TASK:
