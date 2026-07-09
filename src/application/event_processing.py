@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from time import perf_counter
 from typing import Any, Protocol
+
+from observability import StructuredLogger, get_structured_logger
 
 from .repositories import (
     EVENT_STATUS_COMPLETED,
@@ -68,6 +70,7 @@ class EventProcessingService:
     analysis_repository: AnalysisRepository
     pipeline_service: PipelineService
     config: EventProcessingConfig = EventProcessingConfig()
+    structured_logger: StructuredLogger = field(default_factory=get_structured_logger)
 
     def process_next_event(self) -> EventProcessingResult:
         """Claim and process one queued event, if available."""
@@ -89,6 +92,15 @@ class EventProcessingService:
                 "max_retries": self.config.max_retries,
             },
         )
+        self.structured_logger.emit(
+            "event_processing_started",
+            event_id=claimed.event_id,
+            analysis_run_id=run.analysis_run_id,
+            machine_type=claimed.machine_type,
+            machine_id=claimed.machine_id,
+            stage="worker",
+            status=claimed.status,
+        )
 
         processing_start = perf_counter()
         try:
@@ -100,6 +112,12 @@ class EventProcessingService:
                 task_id=f"{self.config.task_id_prefix}_{claimed.event_id}",
             )
             processing_duration = perf_counter() - processing_start
+            self._emit_pipeline_stage_logs(
+                claimed,
+                run.analysis_run_id,
+                payload,
+                processing_duration,
+            )
             self.analysis_repository.save_result(
                 analysis_run_id=run.analysis_run_id,
                 expert_a_result=dict(payload.get("expert_a") or {}),
@@ -130,6 +148,18 @@ class EventProcessingService:
         except Exception as exc:
             processing_duration = perf_counter() - processing_start
             error_code, error_summary = _safe_error(exc)
+            self.structured_logger.emit(
+                "pipeline_failed",
+                event_id=claimed.event_id,
+                analysis_run_id=run.analysis_run_id,
+                machine_type=claimed.machine_type,
+                machine_id=claimed.machine_id,
+                stage="pipeline",
+                duration_ms=_seconds_to_ms(processing_duration),
+                status=EVENT_STATUS_FAILED,
+                error_code=error_code,
+                error_summary=error_summary,
+            )
             self.analysis_repository.fail_run(
                 run.analysis_run_id,
                 error_code=error_code,
@@ -165,6 +195,90 @@ class EventProcessingService:
             results.append(result)
         return results
 
+    def _emit_pipeline_stage_logs(
+        self,
+        event: EventRecord,
+        analysis_run_id: str,
+        payload: dict[str, Any],
+        processing_duration: float,
+    ) -> None:
+        timings = dict(payload.get("timings") or {})
+        common = {
+            "event_id": event.event_id,
+            "analysis_run_id": analysis_run_id,
+            "machine_type": event.machine_type,
+            "machine_id": event.machine_id,
+        }
+        self.structured_logger.emit(
+            "artifact_resolution_completed",
+            **common,
+            stage="artifact_resolution",
+            duration_ms=_duration_ms(timings, "artifact_resolution_seconds", "load_reference_index_and_embedder_seconds"),
+            status="completed",
+        )
+        self.structured_logger.emit(
+            "expert_a_completed",
+            **common,
+            stage="expert_a",
+            duration_ms=_duration_ms(timings, "expert_a_seconds", "audio_expert_a_seconds"),
+            status="completed",
+            is_anomaly=bool((payload.get("expert_a") or {}).get("is_anomaly", False)),
+        )
+        if payload.get("expert_b_skipped"):
+            self.structured_logger.emit(
+                "expert_b_skipped",
+                **common,
+                stage="expert_b",
+                duration_ms=_duration_ms(timings, "expert_b_seconds"),
+                status="skipped",
+                reason=(payload.get("expert_b_skipped") or {}).get("reason"),
+            )
+        else:
+            self.structured_logger.emit(
+                "expert_b_completed",
+                **common,
+                stage="expert_b",
+                duration_ms=_duration_ms(timings, "expert_b_seconds"),
+                status="completed",
+            )
+        self.structured_logger.emit(
+            "context_completed",
+            **common,
+            stage="context",
+            duration_ms=_duration_ms(timings, "context_seconds", "context_translation_seconds"),
+            status="completed",
+        )
+        self.structured_logger.emit(
+            "retrieval_completed",
+            **common,
+            stage="retrieval",
+            duration_ms=_duration_ms(timings, "retrieval_seconds"),
+            status="completed",
+        )
+        self.structured_logger.emit(
+            "explanation_completed",
+            **common,
+            stage="explanation",
+            duration_ms=_duration_ms(timings, "explanation_seconds", "gemini_explanation_seconds"),
+            status="completed",
+            fallback_used=_metadata(payload.get("guarded_explanation")).get("fallback_used"),
+        )
+        self.structured_logger.emit(
+            "maintenance_completed",
+            **common,
+            stage="maintenance",
+            duration_ms=_duration_ms(timings, "maintenance_seconds", "gemini_maintenance_seconds"),
+            status="completed",
+            fallback_used=_metadata(payload.get("technician_output")).get("fallback_used"),
+        )
+        self.structured_logger.emit(
+            "pipeline_completed",
+            **common,
+            stage="pipeline",
+            duration_ms=_seconds_to_ms(processing_duration),
+            status="completed",
+        )
+
 
 def _expert_b_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
     if payload.get("expert_b_output") is not None:
@@ -178,6 +292,24 @@ def _safe_error(exc: Exception) -> tuple[str, str]:
     code = f"pipeline_{exc.__class__.__name__.lower()}"
     summary = str(exc).strip() or exc.__class__.__name__
     return code[:80], summary[:300]
+
+
+def _duration_ms(timings: dict[str, Any], *keys: str) -> float | None:
+    for key in keys:
+        value = timings.get(key)
+        if isinstance(value, (int, float)):
+            return _seconds_to_ms(float(value))
+    return None
+
+
+def _seconds_to_ms(value: float) -> float:
+    return round(value * 1000.0, 3)
+
+
+def _metadata(value: Any) -> dict[str, Any]:
+    if isinstance(value, dict) and isinstance(value.get("metadata"), dict):
+        return value["metadata"]
+    return {}
 
 
 def _elapsed_since(iso_timestamp: str, end_time: datetime) -> float | None:

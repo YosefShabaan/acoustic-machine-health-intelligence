@@ -1966,8 +1966,8 @@ Ordered productionization tasks:
 | `TASK-PROD-07` FastAPI Fan Event API | DONE | `src/api/app.py`, `src/api/schemas.py`, `tests/test_api_v1.py` |
 | `TASK-PROD-08` Asynchronous Event Processing | DONE | `src/application/event_processing.py`, `docs/EVENT_PROCESSING_WORKER.md`, `tests/test_event_processing.py` |
 | `TASK-PROD-09` API-backed Technician Dashboard | DONE | `src/api/dashboard.py`, `tests/test_api_dashboard.py` |
-| `TASK-PROD-10` Structured Logging | NEXT | pending |
-| `TASK-PROD-11` Metrics and Observability | PLANNED | pending |
+| `TASK-PROD-10` Structured Logging | DONE | `src/observability/structured_logging.py`, `tests/test_structured_logging.py` |
+| `TASK-PROD-11` Metrics and Observability | NEXT | pending |
 | `TASK-PROD-12` Health and Readiness | PLANNED | pending |
 | `TASK-PROD-13` Containerize Fan Production MVP | PLANNED | pending |
 | `TASK-PROD-14` Bounded Fan Production Integration Evaluation | PLANNED | pending |
@@ -2260,4 +2260,36 @@ Claims still not enabled by TASK-PROD-09:
 - RUL or exact time-to-failure,
 - Expert B timbre-direction accuracy,
 - structured logging, metrics, or container deployment,
+- Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
+
+TASK-PROD-10 result:
+
+- Created `src/observability/structured_logging.py` and
+  `src/observability/__init__.py`.
+- Added `StructuredLogger.emit(...)` for bounded JSON log records with
+  `timestamp`, `event_name`, `event_id`, `analysis_run_id`, `machine_type`,
+  `machine_id`, `stage`, `duration_ms`, `status`, and `error_code`.
+- Added secret-field redaction for API keys, secrets, tokens, passwords, and
+  credentials.
+- Instrumented API event ingestion with `event_created` and `event_queued`
+  logs after safe event persistence.
+- Instrumented `EventProcessingService` with `event_processing_started`,
+  pipeline stage logs, `pipeline_completed`, and `pipeline_failed`.
+- Pipeline stage logs cover artifact resolution, Expert A, Expert B completed
+  or skipped, context, retrieval, explanation, and maintenance completion based
+  on the structured pipeline payload and timing metadata.
+- Added `tests/test_structured_logging.py` for secret exclusion, API event
+  correlation, worker stage correlation/duration metadata, and failure logging.
+- Runtime smoke created one event through the API and processed it with a fake
+  pipeline, producing 11 correlated JSON log records with no secret leak.
+
+Claims still not enabled by TASK-PROD-10:
+
+- accepted production operation,
+- production maintenance validation,
+- confirmed physical root cause,
+- probability/confidence/severity claims,
+- RUL or exact time-to-failure,
+- Expert B timbre-direction accuracy,
+- metrics or container deployment,
 - Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.

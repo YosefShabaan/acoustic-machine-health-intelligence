@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Fan Production MVP implementation in progress; TASK-PROD-09 complete.
+Status: Fan Production MVP implementation in progress; TASK-PROD-10 complete.
 
-Latest completed task: `TASK-PROD-09`.
+Latest completed task: `TASK-PROD-10`.
 
 Use this template after every task:
 
@@ -19,6 +19,70 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-PROD-10 - Structured Logging
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $scientific-implementer as the primary skill.
+- Created src/observability/structured_logging.py and src/observability/__init__.py.
+- Added StructuredLogger.emit(...) for bounded JSON logs with timestamp, event_name, event_id, analysis_run_id, machine_type, machine_id, stage, duration_ms, status, and error_code.
+- Added secret field redaction for API keys, secrets, tokens, passwords, and credentials.
+- Instrumented API event ingestion with event_created and event_queued logs after persistent event creation.
+- Instrumented EventProcessingService with event_processing_started, artifact_resolution_completed, expert_a_completed, expert_b_completed or expert_b_skipped, context_completed, retrieval_completed, explanation_completed, maintenance_completed, pipeline_completed, and pipeline_failed.
+- Added tests/test_structured_logging.py.
+
+TESTS:
+- python -m compileall -q src\observability src\api src\application tests\test_structured_logging.py
+- python -m unittest discover -s tests -p "test_structured_logging.py" -v
+- python -m unittest discover -s tests -p "test_event_processing.py" -v
+- python -m unittest discover -s tests -p "test_api_v1.py" -v
+- python -m unittest discover -s tests -p "test_api_dashboard.py" -v
+- Structured log runtime smoke through API event creation and worker processing.
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+
+ACTUAL OUTPUT:
+- Structured logging tests: Ran 4 tests, OK.
+- Event processing tests: Ran 5 tests, OK.
+- API v1 tests: Ran 8 tests, OK.
+- API dashboard tests: Ran 5 tests, OK.
+- Runtime structured log smoke: TASK_PROD_10_STRUCTURED_LOG_SMOKE=OK; worker_status=completed; log_count=11; has_event_created=True; has_event_queued=True; has_event_processing_started=True; has_pipeline_completed=True; all_correlated=True; secret_leaked=False.
+- Full unit suite: Ran 124 tests in 6.380s, OK.
+- Full compileall: passed.
+
+RUNTIME GATE:
+- Created one Fan event through the API using TestClient.
+- Processed the queued event through EventProcessingService with a fake pipeline.
+- Inspected JSON log records for API, worker, and pipeline-stage lifecycle events.
+- Verified event_id correlation across all records and no secret leakage.
+- No real Expert A scoring, Expert B characterization, RAG retrieval, Gemini call, dashboard rendering, training, indexing, or full-data run was executed.
+
+IMPLEMENTATION REVIEW:
+- Structured logging is centralized in src/observability rather than hand-built ad hoc at every callsite.
+- Logs include event_id and analysis_run_id where available.
+- Logs record bounded lifecycle event names, stage, duration metadata, status, and safe error code/summary.
+- Logs avoid audio bytes, full payloads, local paths, prompts, and secrets.
+
+SCIENTIFIC REVIEW:
+- Logging instrumentation observes application lifecycle and does not change Expert A/B/RAG/Gemini semantics.
+- Expert B k=30, distance=euclidean, rank_threshold=None, selected semantic retriever, and Structured Health Context v0.2 remain unchanged.
+- No RUL, root-cause, confidence/probability, severity, production maintenance validation, multi-machine, or domain-robustness claim was added.
+
+DIFF REVIEW:
+- Changed files: src/observability/__init__.py, src/observability/structured_logging.py, src/api/app.py, src/application/event_processing.py, tests/test_structured_logging.py, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No repo-local WAV, NumPy array, model weight, embedding index, generated dashboard, generated runtime output, or generated scientific artifact was added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-PROD-11 - Metrics and Observability.
 ```
 
 ```text

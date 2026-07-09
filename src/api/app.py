@@ -43,6 +43,7 @@ from infrastructure.artifact_registry import (
     FAN_MACHINE_TYPE,
     FAN_REAL_INTELLIGENCE_SNR,
 )
+from observability import StructuredLogger, get_structured_logger
 
 from .schemas import (
     API_VERSION,
@@ -75,6 +76,7 @@ class ApiDependencies:
     analysis_repository: AnalysisRepository
     artifact_registry: ArtifactRegistry = field(default_factory=ArtifactRegistry)
     audio_storage: AudioStorage = field(default_factory=LocalAudioStorage)
+    structured_logger: StructuredLogger = field(default_factory=get_structured_logger)
     upload_dir: Path = field(
         default_factory=lambda: Path(tempfile.gettempdir()) / "amhi_uploads",
     )
@@ -251,6 +253,24 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
                 machine_id=submission.machine_id,
                 snr_tag=submission.snr_tag,
                 audio_reference=stored_audio.internal_reference,
+            )
+            deps.structured_logger.emit(
+                "event_created",
+                event_id=event.event_id,
+                machine_type=event.machine_type,
+                machine_id=event.machine_id,
+                stage="api",
+                status=event.status,
+                audio_file_name=stored_audio.summary.file_name,
+                storage_backend=stored_audio.summary.storage_backend,
+            )
+            deps.structured_logger.emit(
+                "event_queued",
+                event_id=event.event_id,
+                machine_type=event.machine_type,
+                machine_id=event.machine_id,
+                stage="api",
+                status=event.status,
             )
             return EventCreateResponse(
                 event=_event_summary(event, stored_audio.summary),
