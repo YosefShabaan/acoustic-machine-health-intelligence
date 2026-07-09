@@ -29,8 +29,8 @@ audio event that Expert A evaluated; it is not an independent diagnosis system.
 
 ## Fan MVP Status
 
-The Fan MVP is complete through `TASK-12` for one bounded same-audio Fan `id_00`
-path.
+The Fan MVP is complete through `TASK-FAN-13` for one bounded same-audio Fan
+`id_00` path.
 
 Done:
 
@@ -43,11 +43,14 @@ Done:
 - End-to-end Fan MVP orchestrator.
 - Static dashboard MVP.
 - Final Fan MVP evidence report and academic claims register.
+- Real Gemini + selected semantic RAG end-to-end Fan smoke using Structured
+  Health Context v0.2.
 
-Current blocker:
+Current next work:
 
-- `TASK-13` Pump generalization is blocked because `D:\PDM_Data\MIMII\pump\id_00`
-  is not staged.
+- `TASK-FAN-14` bounded Fan system evaluation.
+- Multi-machine Pump generalization remains blocked because
+  `D:\PDM_Data\MIMII\pump\id_00` is not staged.
 
 ## Verified Results
 
@@ -71,6 +74,18 @@ Bounded Fan MVP evidence:
 - Expert B rank scores: boominess `0.000000`, brightness `0.933333`, depth `0.666667`, roughness `0.933333`, sharpness `0.933333`.
 - End-to-end smoke runtime: `15.792862s`.
 - Dashboard artifact size: `7561` bytes.
+
+Real intelligence Fan smoke (`TASK-FAN-13`):
+
+- Same abnormal event: `fan_id_00_minus6dB_00000002`.
+- Structured Health Context schema: `0.2.0`.
+- Selected retriever: semantic over `AMHI-FAN-MAINT-KB-v1`.
+- Retrieved chunks: DOE Fan Sourcebook common fan problems, DOE Fan Sourcebook basic maintenance, and DOE O&M Best Practices maintenance programs.
+- Gemini explanation: `live_gemini`, fallback `false`.
+- Gemini grounded maintenance: `live_gemini`, fallback `false`, 3 citation-valid inspection actions.
+- Total runtime: `25.781358s`.
+- Forbidden claim hits: `[]`.
+- TASK-10 comparison is historical only; changed free text is not scientific improvement evidence.
 
 ## Workflow
 
@@ -123,7 +138,7 @@ Current local evidence:
 
 ```text
 python -m unittest discover -s tests -p "test_*.py"
-Ran 66 tests
+Ran 71 tests
 OK
 ```
 
@@ -145,6 +160,7 @@ Supported:
 - A bounded Fan maintenance retrieval evaluation selected semantic retrieval for the next Fan MVP maintenance-grounding task.
 - A bounded live Gemini maintenance-agent smoke produced citation-valid inspection actions over approved Fan maintenance chunks.
 - Structured Health Context v0.2 records provenance for Expert A, Expert B, LLM, RAG, and Maintenance Agent outputs.
+- One bounded real Gemini + semantic RAG Fan smoke completed with live Gemini explanation and live Gemini grounded maintenance output.
 
 Not supported:
 
@@ -160,7 +176,6 @@ Not supported:
 
 Backlog and blocked work:
 
-- Real Gemini + RAG end-to-end Fan smoke.
 - Bounded Fan system evaluation.
 - Updated Fan intelligence evidence dashboard.
 - Pump data staging.

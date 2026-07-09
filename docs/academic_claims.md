@@ -2,7 +2,7 @@
 
 Date: 2026-07-09
 
-Scope: claims supported by the current repository after `TASK-CTX-02`.
+Scope: claims supported by the current repository after `TASK-FAN-13`.
 
 ## Claim Classification Rules
 
@@ -43,6 +43,8 @@ Scope: claims supported by the current repository after `TASK-CTX-02`.
 | Grounded maintenance output exists using an approved fixture source. | VERIFIED REPOSITORY FACT | TASK-09 JSON |
 | A live Gemini Maintenance Agent V2 smoke produced three citation-valid inspection actions over retrieved approved Fan corpus chunks with fallback_used=false. | VERIFIED REPOSITORY FACT | external TASK-MAINT-01 artifact, `tests/test_maintenance_agent.py` |
 | One end-to-end Fan MVP JSON exists. | VERIFIED REPOSITORY FACT | TASK-10 JSON |
+| TASK-FAN-13 ran one bounded Fan `id_00` same-audio event through Expert A, Expert B, Structured Health Context v0.2, selected semantic RAG, live Gemini explanation, and live Gemini grounded maintenance output. | VERIFIED REPOSITORY FACT | external TASK-FAN-13 artifact, `tests/test_real_intelligence_fan_smoke.py` |
+| TASK-FAN-13 produced three citation-valid inspection actions over retrieved DOE Fan maintenance chunks with explanation fallback_used=false and maintenance fallback_used=false. | VERIFIED REPOSITORY FACT | external TASK-FAN-13 artifact |
 | One static dashboard HTML artifact exists. | VERIFIED REPOSITORY FACT | TASK-11 HTML |
 
 ## Project Decisions
@@ -65,7 +67,7 @@ Scope: claims supported by the current repository after `TASK-CTX-02`.
 | Statement | Classification | Evidence | Required wording |
 |---|---|---|---|
 | Low SNR is the primary observed limitation of weak `minus6dB` Expert A separation. | INFERENCE | Controlled SNR-only comparison, AUC improves 0.6142 -> 0.8306 -> 0.9980 | "strongly indicated as the primary limitation" |
-| The bounded Fan MVP integration works for one same-audio abnormal event. | INFERENCE | TASK-10 JSON and TASK-11 dashboard artifact | "one bounded Fan MVP path" |
+| The bounded Fan MVP integration works for one same-audio abnormal event. | INFERENCE | TASK-10 JSON, TASK-11 dashboard artifact, and TASK-FAN-13 real Gemini/RAG smoke | "one bounded Fan MVP path" |
 | Expert B rank scores can guide qualitative listening/inspection focus. | INFERENCE | TASK-04 rank scores and qualitative protocol | "relative rank among selected normal references" |
 
 ## Unsupported Or Forbidden Claims
@@ -99,11 +101,13 @@ Those outputs are translated into structured evidence, explained cautiously,
 combined with source-preserving retrieval, and rendered in a static dashboard.
 An approved public Fan maintenance corpus exists. On a bounded 24-query project
 retrieval evaluation set, semantic retrieval achieved Hit@3 1.000000 and was
-selected as the Fan MVP retriever. A live Gemini maintenance-agent smoke then
+selected as the Fan MVP retriever. A live Gemini maintenance-agent smoke
 produced three citation-valid inspection-oriented actions over retrieved
-approved Fan corpus chunks. Structured Health Context v0.2 records the actual
-model, reference index, retriever, corpus, LLM, and maintenance-agent metadata
-used for the bounded trace.
+approved Fan corpus chunks. TASK-FAN-13 then ran one bounded same-audio Fan
+event through the live Gemini explanation and live Gemini grounded maintenance
+path with the selected semantic retriever and no fallback. Structured Health
+Context v0.2 records the actual model, reference index, retriever, corpus, LLM,
+and maintenance-agent metadata used for the bounded trace.
 ```
 
 Must include limitation:

@@ -50,11 +50,13 @@
                             "rag_retrieval_evaluation_set_review":  "docs/RAG_RETRIEVAL_EVALUATION_SET.md",
                             "rag_retrieval_evaluation_report":  "docs/RAG_RETRIEVAL_EVALUATION.md",
                             "rag_retrieval_evaluation_artifact":  "D:\\PDM_Data\\MIMII\\processed\\rag_retrieval_evaluation_amhi_fan_maint_kb_v1_task_rag_05.json",
-                            "maintenance_agent_v2_smoke":  "D:\\PDM_Data\\MIMII\\processed\\grounded_maintenance_output_fan_id_00_minus6dB_task_maint_01.json"
+                            "maintenance_agent_v2_smoke":  "D:\\PDM_Data\\MIMII\\processed\\grounded_maintenance_output_fan_id_00_minus6dB_task_maint_01.json",
+                            "real_intelligence_fan_smoke_script":  "scripts/run_real_intelligence_fan_smoke.py",
+                            "real_intelligence_fan_smoke_artifact":  "D:\\PDM_Data\\MIMII\\processed\\real_intelligence_end_to_end_fan_id_00_minus6dB_task_fan_13.json"
                         },
     "current_phase":  "real_intelligence_completion",
-    "last_completed_phase":  "task_ctx_02_structured_health_context_v0_2",
-    "next_executable_phase":  "task_fan_13_real_gemini_rag_end_to_end_fan_smoke",
+    "last_completed_phase":  "task_fan_13_real_gemini_rag_end_to_end_fan_smoke",
+    "next_executable_phase":  "task_fan_14_bounded_fan_system_evaluation",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -276,7 +278,7 @@
                                                                           "rul_prediction",
                                                                           "pronostia"
                                                                       ],
-                                  "next_use":  "TASK-FAN-13 real Gemini plus RAG end-to-end Fan smoke"
+                                  "next_use":  "TASK-FAN-14 bounded Fan system evaluation"
                               },
     "current_llm_state":  {
                               "status":  "guardrailed_explanation_agent_complete",
@@ -448,7 +450,7 @@
                                                  "empty production KB returns safe unavailable result when no approved manifest is present",
                                                  "citation validation rejects non-retrieved source IDs"
                                              ],
-                              "next_use":  "TASK-FAN-13 real Gemini plus RAG end-to-end Fan smoke"
+                              "next_use":  "TASK-FAN-14 bounded Fan system evaluation"
                               },
     "current_maintenance_agent_state":  {
                                             "status":  "maintenance_agent_v2_live_gemini_source_grounded",
@@ -488,15 +490,18 @@
                                                                "safe_unavailable mode is used when retrieval is unavailable",
                                                                "no RUL, time-to-failure, confidence percentage, root-cause certainty, or confirmed component failure wording"
                                                            ],
-                                            "next_use":  "TASK-FAN-13 real Gemini plus RAG end-to-end Fan smoke"
+                                            "next_use":  "TASK-FAN-14 bounded Fan system evaluation"
                               },
     "current_end_to_end_state":  {
-                                    "status":  "fan_mvp_orchestrator_complete_fixture_grounded",
+                                    "status":  "fan_real_intelligence_smoke_complete_live_gemini_semantic_rag",
                                     "implementation_files_present":  [
                                                                          "scripts/run_end_to_end_demo.py",
-                                                                         "tests/test_end_to_end_orchestrator.py"
+                                                                         "scripts/run_real_intelligence_fan_smoke.py",
+                                                                         "tests/test_end_to_end_orchestrator.py",
+                                                                         "tests/test_real_intelligence_fan_smoke.py"
                                                                      ],
-                                    "sample_output":  "D:\\PDM_Data\\MIMII\\processed\\end_to_end_fan_id_00_minus6dB_task10.json",
+                                    "sample_output":  "D:\\PDM_Data\\MIMII\\processed\\real_intelligence_end_to_end_fan_id_00_minus6dB_task_fan_13.json",
+                                    "historical_task10_output":  "D:\\PDM_Data\\MIMII\\processed\\end_to_end_fan_id_00_minus6dB_task10.json",
                                     "sample_event_id":  "fan_id_00_minus6dB_00000002",
                                     "sample_audio":  "D:\\PDM_Data\\MIMII\\fan_minus6dB\\id_00\\abnormal\\00000002.wav",
                                     "sample_expert_a_is_anomaly":  true,
@@ -505,18 +510,30 @@
                                     "sample_expert_b_selected_references":  30,
                                     "sample_maintenance_mode":  "source_grounded",
                                     "sample_citations":  [
-                                                             "task10_fixture_fan_inspection"
+                                                             "doe_fan_sourcebook_2003",
+                                                             "doe_om_best_practices_release_3_fans"
                                                          ],
-                                    "sample_total_seconds":  15.792862,
-                                    "maintenance_source_mode":  "approved_fixture_not_production_manual",
+                                    "sample_total_seconds":  25.781358,
+                                    "maintenance_source_mode":  "approved_public_fan_corpus_semantic_rag",
+                                    "approved_public_corpus_available":  true,
                                     "production_manuals_available":  false,
+                                    "context_schema_version":  "0.2.0",
+                                    "retriever_type":  "semantic",
+                                    "retrieval_corpus_version":  "AMHI-FAN-MAINT-KB-v1",
+                                    "llm_generation_mode":  "live_gemini",
+                                    "llm_fallback_used":  false,
+                                    "maintenance_generation_mode":  "live_gemini",
+                                    "maintenance_fallback_used":  false,
+                                    "maintenance_action_count":  3,
+                                    "forbidden_hits":  [],
                                     "guardrails":  [
                                                        "same audio path is preserved through Expert B and context",
                                                        "Expert B is gated on Expert A anomaly",
-                                                       "technician output citations must be retrieved",
+                                                       "technician output action citations must be retrieved source_id and chunk_id pairs",
+                                                       "Gemini explanation and maintenance generation used live provider output without fallback in the TASK-FAN-13 smoke",
                                                        "no RUL, time-to-failure, confidence percentage, root-cause certainty, or confirmed component failure wording"
                                                    ],
-                                    "next_use":  "TASK-12 Fan MVP final report"
+                                    "next_use":  "TASK-FAN-14 bounded Fan system evaluation"
                               },
     "current_dashboard_state":  {
                                     "status":  "dashboard_mvp_complete_static_html",
@@ -558,9 +575,9 @@
                                                                           "D:\\PDM_Data\\MIMII\\processed\\end_to_end_fan_id_00_minus6dB_task10.json",
                                                                           "D:\\PDM_Data\\MIMII\\processed\\dashboard_fan_id_00_minus6dB_task11.html"
                                                                       ],
-                                               "supported_claim_summary":  "Fan MVP integration works for one bounded same-audio abnormal Fan event; Expert A SNR results are verified; Expert B rank scores are qualitative local ranks; dashboard artifact exists.",
+                                               "supported_claim_summary":  "Fan MVP integration works for one bounded same-audio abnormal Fan event; Expert A SNR results are verified; Expert B rank scores are qualitative local ranks; dashboard artifact exists; TASK-FAN-13 adds one live Gemini plus semantic RAG smoke with citation-valid inspection actions.",
                                                "unsupported_claim_summary":  "No Expert B direction accuracy, no root-cause diagnosis, no RUL, no evaluated production maintenance recommendation, no multi-machine or domain-robustness claim.",
-                                               "next_task_status":  "TASK-13 blocked because Pump data is not staged."
+                                               "next_task_status":  "TASK-FAN-14 bounded Fan system evaluation is next; historical TASK-13 Pump generalization remains blocked because Pump data is not staged."
                               },
     "known_performance_blocker":  {
                                       "phase":  "phase_1_expert_b_performance_forensics",
@@ -684,11 +701,11 @@
                                      {
                                          "item":  "production maintenance grounding",
                                          "expected":  "approved production source manifest and documents",
-                                         "actual":  "AMHI-FAN-MAINT-KB-v1 exists, TASK-RAG-05 selected semantic retrieval, and TASK-MAINT-01 produced one live Gemini citation-valid maintenance smoke; bounded system evaluation and production validation are still pending",
-                                         "action":  "complete TASK-CTX-02, TASK-FAN-13, and TASK-FAN-14 before any stronger evaluated system claim"
+                                         "actual":  "AMHI-FAN-MAINT-KB-v1 exists, TASK-RAG-05 selected semantic retrieval, TASK-MAINT-01 produced one live Gemini citation-valid maintenance smoke, and TASK-FAN-13 produced one live end-to-end Gemini plus semantic RAG smoke; bounded system evaluation and production validation are still pending",
+                                         "action":  "complete TASK-FAN-14 before any stronger evaluated system claim"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-CTX-02 evolved Structured Health Context to v0.2 with traceability metadata for Expert A, Expert B, LLM, RAG, and Maintenance Agent outputs while preserving v0.1 compatibility.",
+    "last_state_update_reason":  "TASK-FAN-13 ran one bounded Fan id_00 minus6dB same-audio event through Expert A, Expert B, Structured Health Context v0.2, selected semantic RAG, live Gemini explanation, and live Gemini grounded maintenance output with citation-valid inspection actions.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -714,8 +731,8 @@
     "plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "approved_plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "current_task":  null,
-    "last_completed_task":  "TASK-CTX-02",
-    "next_task":  "TASK-FAN-13",
+    "last_completed_task":  "TASK-FAN-13",
+    "next_task":  "TASK-FAN-14",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -890,10 +907,17 @@
                                            "notes":  "Evolved Structured Health Context to v0.2 with analysis_run_id, created_at, pipeline_version, Expert A model/norm IDs, Expert B reference/index metadata, LLM/RAG/Maintenance provenance, v0.1 migration support, 8 context tests, and one external v0.2 sample artifact."
                                        },
                         "TASK-FAN-13":  {
+                                           "status":  "done",
+                                           "verdict":  "DONE",
+                                           "completed_utc":  "2026-07-09",
+                                           "primary_skill":  "$scientific-implementer",
+                                           "notes":  "Ran one real Gemini plus selected semantic RAG end-to-end Fan smoke on fan/id_00/minus6dB/00000002.wav using Structured Health Context v0.2; explanation and maintenance generation both used live_gemini with fallback_used=false; three inspection actions cited retrieved source_id/chunk_id pairs; output saved externally."
+                                       },
+                        "TASK-FAN-14":  {
                                            "status":  "next",
                                            "verdict":  null,
                                            "primary_skill":  "$scientific-implementer",
-                                           "notes":  "Next Real Intelligence Completion task: run one real Gemini + approved maintenance RAG end-to-end Fan smoke using Structured Health Context v0.2."
+                                           "notes":  "Next Real Intelligence Completion task: bounded Fan system evaluation over the real Gemini plus semantic RAG path without production, RUL, root-cause, confidence, or multi-machine claims."
                                        },
                         "TASK-14":  {
                                         "status":  "planned",

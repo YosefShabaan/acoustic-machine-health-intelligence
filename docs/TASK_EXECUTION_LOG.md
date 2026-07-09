@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Real Intelligence Completion in progress; TASK-CTX-02 complete.
+Status: Real Intelligence Completion in progress; TASK-FAN-13 complete.
 
-Latest completed task: `TASK-CTX-02`.
+Latest completed task: `TASK-FAN-13`.
 
 Use this template after every task:
 
@@ -19,6 +19,70 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-FAN-13 - Real Gemini + Semantic RAG End-to-End Fan Smoke
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Added scripts/run_real_intelligence_fan_smoke.py.
+- Added tests/test_real_intelligence_fan_smoke.py.
+- Ran the bounded reference Fan event D:\PDM_Data\MIMII\fan_minus6dB\id_00\abnormal\00000002.wav through Expert A, Expert B, Structured Health Context v0.2, selected semantic RAG, live Gemini explanation, live Gemini grounded maintenance generation, and validation.
+- Preserved Expert B k=30, distance=euclidean, rank_threshold=null, and null direction fields.
+- Saved the external smoke artifact to D:\PDM_Data\MIMII\processed\real_intelligence_end_to_end_fan_id_00_minus6dB_task_fan_13.json.
+- Included compact TASK-10 comparison metadata as historical context only.
+- Updated README.md, docs/academic_claims.md, and project_state.json.
+
+TESTS:
+- python -m compileall -q scripts\run_real_intelligence_fan_smoke.py tests\test_real_intelligence_fan_smoke.py
+- python tests\test_real_intelligence_fan_smoke.py -v
+- python -m unittest discover -s tests -p "test_real_intelligence_fan_smoke.py" -v
+- python -m unittest discover -s tests -p "test_*.py"
+- python scripts\run_real_intelligence_fan_smoke.py
+
+ACTUAL OUTPUT:
+- Target event: fan_id_00_minus6dB_00000002.
+- Expert A: score=0.622095, threshold=0.593284, is_anomaly=True.
+- Expert B rank scores: sharpness=0.933333, roughness=0.933333, boominess=0.000000, brightness=0.933333, depth=0.666667.
+- Expert B references: 30 selected normal references from the same machine/SNR scope.
+- Structured context schema: 0.2.0.
+- Retrieval query: fan abnormal acoustic noise inspection mechanical inspection sharpness roughness boominess brightness.
+- Retrieved chunks:
+  - doe_fan_sourcebook_2003 / doe_fan_sourcebook_2003#DOE-FAN-2003-COMMON-FAN-PROBLEMS / score=0.831609
+  - doe_fan_sourcebook_2003 / doe_fan_sourcebook_2003#DOE-FAN-2003-BASIC-MAINTENANCE / score=0.831488
+  - doe_om_best_practices_release_3_fans / doe_om_best_practices_release_3_fans#DOE-OM-R3-MAINTENANCE-PROGRAMS / score=0.817955
+- Gemini explanation: generation_mode=live_gemini, fallback_used=False.
+- Gemini maintenance: generation_mode=live_gemini, fallback_used=False, action_count=3.
+- Maintenance actions cited retrieved source_id/chunk_id pairs.
+- Forbidden claim hits: [].
+- Timings: Expert A 2.665893s, Expert B 2.622918s, context translation 0.000659s, Gemini explanation 9.707559s, retrieval 1.639424s, Gemini maintenance 8.912582s, validation 0.001679s, total 25.781358s.
+- Unit suite: Ran 71 tests in 4.624s, OK.
+
+IMPLEMENTATION REVIEW:
+- TASK-FAN-13 is implemented as a new script and validator, leaving the historical TASK-10 orchestrator intact.
+- The smoke uses the selected semantic retriever and external generated embedding index.
+- The output includes actual stage timings, provider metadata, retrieval provenance, action citations, limitations, and historical TASK-10 comparison fields.
+- No generated scientific artifact was written into Git.
+
+SCIENTIFIC REVIEW:
+- This is one bounded Fan id_00 same-audio smoke, not a production evaluation.
+- Changed LLM free text is not treated as scientific improvement evidence.
+- Expert B rank scores remain qualitative local ranks, not probabilities, confidence, severity percentages, or direction-accuracy evidence.
+- The output does not enable root-cause diagnosis, RUL/time-to-failure, production maintenance grounding, or multi-machine generalization claims.
+
+DIFF REVIEW:
+- Changed files: scripts/run_real_intelligence_fan_smoke.py, tests/test_real_intelligence_fan_smoke.py, README.md, docs/academic_claims.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- External artifact: D:\PDM_Data\MIMII\processed\real_intelligence_end_to_end_fan_id_00_minus6dB_task_fan_13.json.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-FAN-14 - Bounded Fan System Evaluation.
 ```
 
 Rules:
