@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Fan Production MVP implementation in progress; TASK-PROD-07 complete.
+Status: Fan Production MVP implementation in progress; TASK-PROD-08 complete.
 
-Latest completed task: `TASK-PROD-07`.
+Latest completed task: `TASK-PROD-08`.
 
 Use this template after every task:
 
@@ -19,6 +19,66 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-PROD-08 - Asynchronous Event Processing
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $project-architect as the primary skill and $scientific-implementer as secondary implementation support.
+- Created src/application/event_processing.py.
+- Added EventProcessingService, EventProcessingConfig, EventProcessingResult, and a PipelineService protocol.
+- Added EventRepository.claim_next_queued() and implemented it in SQLiteEventRepository with BEGIN IMMEDIATE, oldest queued event selection, and queued -> processing status transition.
+- Implemented process_next_event() and process_available(max_events=N).
+- Worker success path creates an analysis run, calls the injected pipeline service, persists the structured result, completes the run, and marks the event completed.
+- Worker failure path persists a safe failed analysis run and failed event with bounded error code/summary.
+- Defined current retry policy as max_retries=0 with no automatic retry loop.
+- Created docs/EVENT_PROCESSING_WORKER.md.
+- Added tests/test_event_processing.py.
+
+TESTS:
+- python -m compileall -q src\application src\infrastructure tests\test_event_processing.py
+- python -m unittest discover -s tests -p "test_event_processing.py" -v
+- Worker runtime smoke with one queued event and then three queued events using a fake pipeline.
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+
+ACTUAL OUTPUT:
+- Event processing tests: Ran 5 tests, OK.
+- Runtime worker smoke: TASK_PROD_08_WORKER_SMOKE=OK; one_event_status=completed; one_queue_delay_seconds=0.000115; one_processing_duration_seconds=0.000004; three_event_count=3; three_completed=3; pipeline_calls=4; remaining_queued=0.
+- Full unit suite: Ran 115 tests in 4.866s, OK.
+- Full compileall: passed.
+
+RUNTIME GATE:
+- Processed one queued Fan event with a fake pipeline through claim, analysis run, result persistence, completion, and event completion.
+- Processed three queued Fan events through bounded process_available(max_events=3).
+- Measured queue delay and processing duration for the one-event gate.
+- No real Expert A scoring, Expert B characterization, RAG retrieval, Gemini call, dashboard rendering, training, indexing, infinite worker loop, or full-data run was executed.
+
+IMPLEMENTATION REVIEW:
+- The API ingestion path remains decoupled: POST creates queued events and the worker processes them later.
+- claim_next_queued provides bounded duplicate-processing protection by moving only queued events to processing inside a transaction.
+- process_available is bounded by max_events and cannot become an infinite retry loop.
+- Failed pipeline execution persists safe failed event/run state without tracebacks or secrets.
+
+SCIENTIFIC REVIEW:
+- The worker uses an injected pipeline service and does not change Expert A/B/RAG/Gemini scientific behavior.
+- Expert B k=30, distance=euclidean, rank_threshold=None, selected semantic retriever, and Structured Health Context v0.2 are preserved in persisted fake-pipeline smoke payloads.
+- No RUL, root-cause, confidence/probability, severity, production maintenance validation, multi-machine, or domain-robustness claim was added.
+
+DIFF REVIEW:
+- Changed files: src/application/event_processing.py, src/application/__init__.py, src/application/repositories.py, src/infrastructure/persistence/sqlite_repository.py, docs/EVENT_PROCESSING_WORKER.md, tests/test_event_processing.py, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No repo-local WAV, NumPy array, model weight, embedding index, generated dashboard, generated runtime output, or generated scientific artifact was added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-PROD-09 - API-backed Technician Dashboard.
 ```
 
 ```text

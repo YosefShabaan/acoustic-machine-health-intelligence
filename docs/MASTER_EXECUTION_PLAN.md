@@ -1964,8 +1964,8 @@ Ordered productionization tasks:
 | `TASK-PROD-05` Event and Result Persistence | DONE | `src/application/repositories.py`, `src/infrastructure/persistence/sqlite_repository.py`, `src/infrastructure/persistence/migrations/001_initial_postgres.sql`, `tests/test_persistence.py` |
 | `TASK-PROD-06` API v1 contract | DONE | `docs/API_CONTRACT_V1.md`, `tests/test_api_contract_doc.py` |
 | `TASK-PROD-07` FastAPI Fan Event API | DONE | `src/api/app.py`, `src/api/schemas.py`, `tests/test_api_v1.py` |
-| `TASK-PROD-08` Asynchronous Event Processing | NEXT | pending |
-| `TASK-PROD-09` API-backed Technician Dashboard | PLANNED | pending |
+| `TASK-PROD-08` Asynchronous Event Processing | DONE | `src/application/event_processing.py`, `docs/EVENT_PROCESSING_WORKER.md`, `tests/test_event_processing.py` |
+| `TASK-PROD-09` API-backed Technician Dashboard | NEXT | pending |
 | `TASK-PROD-10` Structured Logging | PLANNED | pending |
 | `TASK-PROD-11` Metrics and Observability | PLANNED | pending |
 | `TASK-PROD-12` Health and Readiness | PLANNED | pending |
@@ -2185,5 +2185,44 @@ Claims still not enabled by TASK-PROD-07:
 - RUL or exact time-to-failure,
 - Expert B timbre-direction accuracy,
 - asynchronous processing or worker completion,
+- API-backed dashboard, structured logging, metrics, or container deployment,
+- Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
+
+TASK-PROD-08 result:
+
+- Created `src/application/event_processing.py` with `EventProcessingService`,
+  `EventProcessingConfig`, and `EventProcessingResult`.
+- Added `EventRepository.claim_next_queued()` and implemented the SQLite local
+  adapter with `BEGIN IMMEDIATE`, oldest queued event selection, and status
+  update to `processing`.
+- Implemented bounded processing:
+  queued event claim -> analysis run creation -> injected pipeline service ->
+  analysis result persistence -> run completed/event completed.
+- Implemented failed processing:
+  claimed event -> analysis run creation -> safe error summary -> run
+  failed/event failed.
+- Defined retry policy as `max_retries=0` with no automatic retry loop.
+- Added `process_available(max_events=N)` for bounded worker runs without an
+  infinite polling loop.
+- Created `docs/EVENT_PROCESSING_WORKER.md` documenting claim/locking behavior,
+  duplicate processing protection, retry policy, provider failure/fallback
+  behavior, shutdown behavior, timing metadata, and scientific guardrails.
+- Added `tests/test_event_processing.py` for completed processing, idle worker,
+  failed processing, duplicate claim prevention, and three-event bounded
+  processing.
+- Runtime worker smoke processed one event and then three events with a fake
+  pipeline: one completed, three completed, four pipeline calls total, and zero
+  queued events remaining.
+
+Claims still not enabled by TASK-PROD-08:
+
+- accepted production operation,
+- production maintenance validation,
+- confirmed physical root cause,
+- probability/confidence/severity claims,
+- RUL or exact time-to-failure,
+- Expert B timbre-direction accuracy,
+- automatic retry correctness,
+- always-on worker process supervision,
 - API-backed dashboard, structured logging, metrics, or container deployment,
 - Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.

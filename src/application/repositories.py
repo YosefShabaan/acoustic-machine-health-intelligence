@@ -119,6 +119,9 @@ class EventRepository(Protocol):
     ) -> EventRecord:
         """Update event lifecycle status."""
 
+    def claim_next_queued(self) -> EventRecord | None:
+        """Atomically claim the next queued event for processing."""
+
 
 class AnalysisRepository(Protocol):
     """Boundary for analysis run and result persistence."""

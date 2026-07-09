@@ -1,5 +1,10 @@
 """Application services for the Fan Production MVP."""
 
+from .event_processing import (
+    EventProcessingConfig,
+    EventProcessingResult,
+    EventProcessingService,
+)
 from .pipeline_service import (
     AMHIPipelineDependencies,
     AMHIPipelineService,
@@ -30,6 +35,9 @@ __all__ = [
     "AnalysisRepository",
     "AnalysisResultRecord",
     "AnalysisRunRecord",
+    "EventProcessingConfig",
+    "EventProcessingResult",
+    "EventProcessingService",
     "EVENT_STATUS_COMPLETED",
     "EVENT_STATUS_FAILED",
     "EVENT_STATUS_PROCESSING",

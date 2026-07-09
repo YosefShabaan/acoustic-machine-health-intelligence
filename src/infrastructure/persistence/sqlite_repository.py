@@ -14,6 +14,7 @@ from application.repositories import (
     ANALYSIS_STATUS_FAILED,
     ANALYSIS_STATUS_PROCESSING,
     EVENT_STATUS_QUEUED,
+    EVENT_STATUS_PROCESSING,
     AnalysisResultRecord,
     AnalysisRunRecord,
     EventRecord,
@@ -209,6 +210,37 @@ class SQLiteEventRepository:
         if record is None:
             raise KeyError(f"event not found: {event_id}")
         return record
+
+    def claim_next_queued(self) -> EventRecord | None:
+        self.connection.execute("BEGIN IMMEDIATE")
+        try:
+            row = self.connection.execute(
+                """
+                SELECT event_id FROM events
+                WHERE status = ?
+                ORDER BY created_at ASC, event_id ASC
+                LIMIT 1
+                """,
+                (EVENT_STATUS_QUEUED,),
+            ).fetchone()
+            if row is None:
+                self.connection.commit()
+                return None
+            event_id = str(row["event_id"])
+            now = _now()
+            self.connection.execute(
+                """
+                UPDATE events
+                SET status = ?, updated_at = ?, error_code = NULL, error_summary = NULL
+                WHERE event_id = ? AND status = ?
+                """,
+                (EVENT_STATUS_PROCESSING, now, event_id, EVENT_STATUS_QUEUED),
+            )
+            self.connection.commit()
+        except Exception:
+            self.connection.rollback()
+            raise
+        return self.get_event(event_id)
 
 
 class SQLiteAnalysisRepository:
