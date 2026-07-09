@@ -31,6 +31,7 @@
                             "expert_b_qualitative_protocol":  "docs/expert_b_qualitative_protocol.md",
                             "structured_context_schema":  "src/context/schemas.py",
                             "structured_context_translator":  "src/context/translator.py",
+                            "structured_context_v0_2_sample":  "D:\\PDM_Data\\MIMII\\processed\\structured_context_fan_id_00_minus6dB_task_ctx_02_v0_2.json",
                             "guardrailed_llm_agent":  "src/agents/diagnostic_agent.py",
                             "maintenance_rag_knowledge_base":  "src/rag/knowledge_base.py",
                             "maintenance_rag_retriever":  "src/rag/retriever.py",
@@ -52,8 +53,8 @@
                             "maintenance_agent_v2_smoke":  "D:\\PDM_Data\\MIMII\\processed\\grounded_maintenance_output_fan_id_00_minus6dB_task_maint_01.json"
                         },
     "current_phase":  "real_intelligence_completion",
-    "last_completed_phase":  "task_maint_01_grounded_maintenance_agent_v2",
-    "next_executable_phase":  "task_ctx_02_structured_health_context_v0_2",
+    "last_completed_phase":  "task_ctx_02_structured_health_context_v0_2",
+    "next_executable_phase":  "task_fan_13_real_gemini_rag_end_to_end_fan_smoke",
     "phase_status_map":  {
                              "phase_0_source_baseline":  {
                                                              "status":  "complete_with_task_00b_baseline",
@@ -240,16 +241,33 @@
                                    "timbral_models_compatibility":  "legacy NumPy/librosa API drift patched in src/models/timbre_difference.py without changing metric formulas."
                                },
     "current_context_state":  {
-                                  "status":  "schema_and_translator_complete",
-                                  "schema_version":  "0.1.0",
+                                  "status":  "schema_v0_2_traceability_complete",
+                                  "schema_version":  "0.2.0",
+                                  "legacy_schema_version_supported":  "0.1.0",
                                   "implementation_files_present":  [
                                                                        "src/context/__init__.py",
                                                                        "src/context/schemas.py",
                                                                        "src/context/translator.py",
                                                                        "tests/test_context_schema.py"
                                                                    ],
-                                  "sample_context_output":  "D:\\PDM_Data\\MIMII\\processed\\structured_context_fan_id_00_minus6dB_task06.json",
+                                  "sample_context_output":  "D:\\PDM_Data\\MIMII\\processed\\structured_context_fan_id_00_minus6dB_task_ctx_02_v0_2.json",
+                                  "legacy_sample_context_output":  "D:\\PDM_Data\\MIMII\\processed\\structured_context_fan_id_00_minus6dB_task06.json",
                                   "sample_event_id":  "fan_id_00_minus6dB_00000002",
+                                  "sample_analysis_run_id":  "analysis_fan_id_00_minus6dB_00000002_0.2.0",
+                                  "sample_pipeline_version":  "amhi-real-intelligence-v0.2",
+                                  "traceability_metadata":  {
+                                                                "expert_a_model_id":  "anomaly_detector_minus6dB.pt",
+                                                                "expert_a_normalization_artifact_id":  "ad_norm_stats_minus6dB.npz",
+                                                                "expert_b_reference_index_id":  "timbre_reference_index_fan_id_00_minus6dB.json",
+                                                                "expert_b_k":  30,
+                                                                "expert_b_distance":  "euclidean",
+                                                                "llm_provider":  "gemini",
+                                                                "llm_model":  "gemini-2.5-flash",
+                                                                "rag_retriever_type":  "semantic",
+                                                                "rag_corpus_version":  "AMHI-FAN-MAINT-KB-v1",
+                                                                "maintenance_provider":  "gemini",
+                                                                "maintenance_fallback_used":  false
+                                                            },
                                   "system_limits_required":  true,
                                   "unsupported_claim_keys_rejected":  [
                                                                           "confidence_pct",
@@ -258,7 +276,7 @@
                                                                           "rul_prediction",
                                                                           "pronostia"
                                                                       ],
-                                  "next_use":  "TASK-12 Fan MVP final report"
+                                  "next_use":  "TASK-FAN-13 real Gemini plus RAG end-to-end Fan smoke"
                               },
     "current_llm_state":  {
                               "status":  "guardrailed_explanation_agent_complete",
@@ -670,7 +688,7 @@
                                          "action":  "complete TASK-CTX-02, TASK-FAN-13, and TASK-FAN-14 before any stronger evaluated system claim"
                                      }
                                  ],
-    "last_state_update_reason":  "TASK-MAINT-01 upgraded the maintenance agent to Gemini-backed, source-grounded, chunk-cited inspection actions and verified one live bounded Fan smoke with fallback_used=false.",
+    "last_state_update_reason":  "TASK-CTX-02 evolved Structured Health Context to v0.2 with traceability metadata for Expert A, Expert B, LLM, RAG, and Maintenance Agent outputs while preserving v0.1 compatibility.",
     "continuation_policy_summary":  {
                                         "on_continue_project":  [
                                                                     "read AGENTS.md",
@@ -696,8 +714,8 @@
     "plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "approved_plan_version":  "real_intelligence_completion_v1_2026-07-09",
     "current_task":  null,
-    "last_completed_task":  "TASK-MAINT-01",
-    "next_task":  "TASK-CTX-02",
+    "last_completed_task":  "TASK-CTX-02",
+    "next_task":  "TASK-FAN-13",
     "blocker":  null,
     "last_review_verdict":  "DONE",
     "execution_policy":  {
@@ -865,10 +883,17 @@
                                              "notes":  "Upgraded GroundedMaintenanceAgent to Gemini-backed Maintenance Agent V2 with chunk-level citation validation, deterministic fallback, semantic retriever metadata, 15 maintenance tests, and one live Gemini Fan smoke with fallback_used=false and 3 citation-valid inspection actions."
                                        },
                         "TASK-CTX-02":  {
+                                           "status":  "done",
+                                           "verdict":  "DONE",
+                                           "completed_utc":  "2026-07-09",
+                                           "primary_skill":  "$scientific-implementer",
+                                           "notes":  "Evolved Structured Health Context to v0.2 with analysis_run_id, created_at, pipeline_version, Expert A model/norm IDs, Expert B reference/index metadata, LLM/RAG/Maintenance provenance, v0.1 migration support, 8 context tests, and one external v0.2 sample artifact."
+                                       },
+                        "TASK-FAN-13":  {
                                            "status":  "next",
                                            "verdict":  null,
                                            "primary_skill":  "$scientific-implementer",
-                                           "notes":  "Next Real Intelligence Completion task: evolve Structured Health Context to v0.2 with traceability metadata for model/index/corpus/retriever/LLM/maintenance configuration."
+                                           "notes":  "Next Real Intelligence Completion task: run one real Gemini + approved maintenance RAG end-to-end Fan smoke using Structured Health Context v0.2."
                                        },
                         "TASK-14":  {
                                         "status":  "planned",

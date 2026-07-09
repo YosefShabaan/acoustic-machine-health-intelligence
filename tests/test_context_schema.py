@@ -13,6 +13,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from context import CONTEXT_SCHEMA_VERSION, context_from_expert_b_output  # noqa: E402
+from context import LEGACY_CONTEXT_SCHEMA_VERSION, migrate_context_v01_to_v02  # noqa: E402
 from context.schemas import ContextValidationError, validate_structured_context  # noqa: E402
 
 
@@ -106,7 +107,10 @@ class ContextSchemaTests(unittest.TestCase):
 
     def test_translator_builds_required_versioned_context(self) -> None:
         """Translator emits the required top-level schema fields."""
-        context = context_from_expert_b_output(_expert_b_output())
+        context = context_from_expert_b_output(
+            _expert_b_output(),
+            created_at="2026-07-09T00:00:00+00:00",
+        )
         self.assertEqual(context["schema_version"], CONTEXT_SCHEMA_VERSION)
         self.assertEqual(set(context), {
             "schema_version",
@@ -114,13 +118,18 @@ class ContextSchemaTests(unittest.TestCase):
             "expert_a",
             "expert_b",
             "system_limits",
+            "analysis",
         })
         validate_structured_context(context)
 
     def test_same_event_identity_and_machine_metadata_are_preserved(self) -> None:
         """The context keeps the Expert B input audio and machine scope."""
         source = _expert_b_output()
-        context = context_from_expert_b_output(source, asset_id="FAN-ID00-001")
+        context = context_from_expert_b_output(
+            source,
+            asset_id="FAN-ID00-001",
+            created_at="2026-07-09T00:00:00+00:00",
+        )
         self.assertEqual(context["event"]["audio_path"], source["input_audio"]["path"])
         self.assertEqual(context["event"]["machine_type"], "fan")
         self.assertEqual(context["event"]["machine_id"], "id_00")
@@ -130,7 +139,10 @@ class ContextSchemaTests(unittest.TestCase):
 
     def test_expert_outputs_and_limits_are_preserved(self) -> None:
         """Expert A/B evidence and mandatory limits are explicit."""
-        context = context_from_expert_b_output(_expert_b_output())
+        context = context_from_expert_b_output(
+            _expert_b_output(),
+            created_at="2026-07-09T00:00:00+00:00",
+        )
         self.assertTrue(context["expert_a"]["is_anomaly"])
         self.assertEqual(context["expert_b"]["method"]["rank_threshold"], None)
         self.assertEqual(context["expert_b"]["references"]["selected_count"], 3)
@@ -144,9 +156,56 @@ class ContextSchemaTests(unittest.TestCase):
         self.assertFalse(limits["timbre_direction_accuracy_validated"])
         self.assertFalse(limits["rank_score_is_confidence"])
 
+    def test_traceability_metadata_uses_available_artifact_identifiers(self) -> None:
+        """v0.2 records model, reference, retriever, LLM, and maintenance provenance."""
+        context = context_from_expert_b_output(
+            _expert_b_output(),
+            created_at="2026-07-09T00:00:00+00:00",
+            reference_index_path=r"D:\PDM_Data\MIMII\processed\timbre_reference_index_fan_id_00_minus6dB.json",
+            llm_metadata={
+                "provider": "gemini",
+                "model": "gemini-test",
+                "prompt_version": "diagnostic-test",
+                "generation_mode": "live_gemini",
+                "fallback_used": False,
+            },
+            rag_metadata={
+                "retriever_type": "semantic",
+                "corpus_version": "AMHI-FAN-MAINT-KB-v1",
+                "retrieval_query": "fan abnormal acoustic noise",
+            },
+            maintenance_metadata={
+                "provider": "gemini",
+                "model": "gemini-test",
+                "prompt_version": "maintenance-test",
+                "generation_mode": "live_gemini",
+                "fallback_used": False,
+            },
+        )
+
+        analysis = context["analysis"]
+        self.assertEqual(analysis["analysis_run_id"], "analysis_fan_id_00_minus6dB_00000002_0.2.0")
+        self.assertEqual(analysis["pipeline_version"], "amhi-real-intelligence-v0.2")
+        self.assertEqual(analysis["expert_a"]["model_id"], "anomaly_detector_minus6dB.pt")
+        self.assertEqual(analysis["expert_a"]["model_version"], "unversioned")
+        self.assertEqual(analysis["expert_a"]["normalization_artifact_id"], "ad_norm_stats_minus6dB.npz")
+        self.assertEqual(
+            analysis["expert_b"]["reference_index_id"],
+            "timbre_reference_index_fan_id_00_minus6dB.json",
+        )
+        self.assertEqual(analysis["expert_b"]["embedding_model"], "expert_a_bottleneck_adaptation")
+        self.assertEqual(analysis["expert_b"]["k"], 3)
+        self.assertEqual(analysis["expert_b"]["distance"], "euclidean")
+        self.assertEqual(analysis["llm"]["provider"], "gemini")
+        self.assertEqual(analysis["rag"]["retriever_type"], "semantic")
+        self.assertEqual(analysis["maintenance"]["prompt_version"], "maintenance-test")
+
     def test_forbidden_claim_keys_are_rejected(self) -> None:
         """Context validation rejects unsupported claim fields."""
-        context = context_from_expert_b_output(_expert_b_output())
+        context = context_from_expert_b_output(
+            _expert_b_output(),
+            created_at="2026-07-09T00:00:00+00:00",
+        )
         for forbidden_key in (
             "confidence_pct",
             "diagnosis",
@@ -161,8 +220,43 @@ class ContextSchemaTests(unittest.TestCase):
 
     def test_null_rank_threshold_requires_null_directions(self) -> None:
         """Direction fields stay null when no rank threshold is configured."""
-        context = context_from_expert_b_output(_expert_b_output())
+        context = context_from_expert_b_output(
+            _expert_b_output(),
+            created_at="2026-07-09T00:00:00+00:00",
+        )
         context["expert_b"]["timbre_rank_scores"]["sharpness"]["direction"] = "increased"
+        with self.assertRaises(ContextValidationError):
+            validate_structured_context(context)
+
+    def test_legacy_v01_context_can_migrate_to_v02(self) -> None:
+        """Migration preserves old scientific evidence while adding trace metadata."""
+        v02 = context_from_expert_b_output(
+            _expert_b_output(),
+            created_at="2026-07-09T00:00:00+00:00",
+        )
+        legacy = deepcopy(v02)
+        legacy["schema_version"] = LEGACY_CONTEXT_SCHEMA_VERSION
+        legacy.pop("analysis")
+        validate_structured_context(legacy)
+
+        migrated = migrate_context_v01_to_v02(
+            legacy,
+            created_at="2026-07-09T00:00:00+00:00",
+        )
+
+        self.assertEqual(migrated["schema_version"], CONTEXT_SCHEMA_VERSION)
+        self.assertEqual(migrated["event"], legacy["event"])
+        self.assertEqual(migrated["expert_a"], legacy["expert_a"])
+        self.assertEqual(migrated["expert_b"], legacy["expert_b"])
+        self.assertIn("analysis", migrated)
+
+    def test_v02_requires_analysis_metadata(self) -> None:
+        """v0.2 contexts cannot omit traceability metadata."""
+        context = context_from_expert_b_output(
+            _expert_b_output(),
+            created_at="2026-07-09T00:00:00+00:00",
+        )
+        context.pop("analysis")
         with self.assertRaises(ContextValidationError):
             validate_structured_context(context)
 

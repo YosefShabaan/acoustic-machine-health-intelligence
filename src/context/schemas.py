@@ -7,7 +7,12 @@ import math
 from typing import Any
 
 
-CONTEXT_SCHEMA_VERSION = "0.1.0"
+LEGACY_CONTEXT_SCHEMA_VERSION = "0.1.0"
+CONTEXT_SCHEMA_VERSION = "0.2.0"
+SUPPORTED_CONTEXT_SCHEMA_VERSIONS = (
+    LEGACY_CONTEXT_SCHEMA_VERSION,
+    CONTEXT_SCHEMA_VERSION,
+)
 TIMBRE_ATTRIBUTES = ("sharpness", "roughness", "boominess", "brightness", "depth")
 
 FORBIDDEN_CLAIM_KEYS = {
@@ -32,6 +37,39 @@ REQUIRED_SYSTEM_LIMIT_KEYS = {
     "rank_score_is_confidence",
     "llm_or_rag_grounding_available",
     "limitations",
+}
+REQUIRED_ANALYSIS_KEYS = {
+    "analysis_run_id",
+    "created_at",
+    "pipeline_version",
+    "expert_a",
+    "expert_b",
+    "llm",
+    "rag",
+    "maintenance",
+}
+REQUIRED_EXPERT_A_METADATA_KEYS = {
+    "model_id",
+    "model_version",
+    "normalization_artifact_id",
+}
+REQUIRED_EXPERT_B_METADATA_KEYS = {
+    "reference_index_id",
+    "embedding_model",
+    "k",
+    "distance",
+}
+REQUIRED_PROVIDER_METADATA_KEYS = {
+    "provider",
+    "model",
+    "prompt_version",
+    "generation_mode",
+    "fallback_used",
+}
+REQUIRED_RAG_METADATA_KEYS = {
+    "retriever_type",
+    "corpus_version",
+    "retrieval_query",
 }
 
 
@@ -78,9 +116,9 @@ def validate_structured_context(context: Mapping[str, Any]) -> None:
         {"schema_version", "event", "expert_a", "expert_b", "system_limits"},
         "context",
     )
-    if context["schema_version"] != CONTEXT_SCHEMA_VERSION:
+    if context["schema_version"] not in SUPPORTED_CONTEXT_SCHEMA_VERSIONS:
         raise ContextValidationError(
-            f"schema_version must be {CONTEXT_SCHEMA_VERSION}, "
+            f"schema_version must be one of {SUPPORTED_CONTEXT_SCHEMA_VERSIONS}, "
             f"got {context['schema_version']!r}"
         )
 
@@ -167,3 +205,57 @@ def validate_structured_context(context: Mapping[str, Any]) -> None:
         or not all(isinstance(item, str) and item for item in limitations)
     ):
         raise ContextValidationError("system_limits.limitations must be a nonempty string list")
+
+    if context["schema_version"] == CONTEXT_SCHEMA_VERSION:
+        _validate_analysis_metadata(context)
+
+
+def _validate_analysis_metadata(context: Mapping[str, Any]) -> None:
+    """Validate v0.2 traceability metadata."""
+    _require_keys(context, {"analysis"}, "context")
+    analysis = _require_mapping(context["analysis"], "analysis")
+    _require_keys(analysis, REQUIRED_ANALYSIS_KEYS, "analysis")
+    for key in ("analysis_run_id", "created_at", "pipeline_version"):
+        _optional_text(analysis[key], f"analysis.{key}", required=True)
+
+    expert_a = _require_mapping(analysis["expert_a"], "analysis.expert_a")
+    _require_keys(expert_a, REQUIRED_EXPERT_A_METADATA_KEYS, "analysis.expert_a")
+    for key in REQUIRED_EXPERT_A_METADATA_KEYS:
+        _optional_text(expert_a[key], f"analysis.expert_a.{key}", required=True)
+
+    expert_b = _require_mapping(analysis["expert_b"], "analysis.expert_b")
+    _require_keys(expert_b, REQUIRED_EXPERT_B_METADATA_KEYS, "analysis.expert_b")
+    _optional_text(expert_b["reference_index_id"], "analysis.expert_b.reference_index_id", required=True)
+    _optional_text(expert_b["embedding_model"], "analysis.expert_b.embedding_model", required=True)
+    k = int(expert_b["k"])
+    if k <= 0:
+        raise ContextValidationError("analysis.expert_b.k must be positive")
+    _optional_text(expert_b["distance"], "analysis.expert_b.distance", required=True)
+
+    _validate_provider_metadata(analysis["llm"], "analysis.llm")
+    _validate_rag_metadata(analysis["rag"])
+    _validate_provider_metadata(analysis["maintenance"], "analysis.maintenance")
+
+
+def _validate_provider_metadata(value: Any, name: str) -> None:
+    metadata = _require_mapping(value, name)
+    _require_keys(metadata, REQUIRED_PROVIDER_METADATA_KEYS, name)
+    for key in ("provider", "model", "prompt_version", "generation_mode"):
+        _optional_text(metadata[key], f"{name}.{key}", required=False)
+    fallback_used = metadata["fallback_used"]
+    if fallback_used is not None and not isinstance(fallback_used, bool):
+        raise ContextValidationError(f"{name}.fallback_used must be boolean or null")
+
+
+def _validate_rag_metadata(value: Any) -> None:
+    metadata = _require_mapping(value, "analysis.rag")
+    _require_keys(metadata, REQUIRED_RAG_METADATA_KEYS, "analysis.rag")
+    for key in REQUIRED_RAG_METADATA_KEYS:
+        _optional_text(metadata[key], f"analysis.rag.{key}", required=False)
+
+
+def _optional_text(value: Any, name: str, *, required: bool) -> None:
+    if value is None and not required:
+        return
+    if not isinstance(value, str) or not value.strip():
+        raise ContextValidationError(f"{name} must be a nonempty string")

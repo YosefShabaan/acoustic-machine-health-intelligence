@@ -2,7 +2,7 @@
 
 Date: 2026-07-09
 
-Scope: claims supported by the current repository after `TASK-MAINT-01`.
+Scope: claims supported by the current repository after `TASK-CTX-02`.
 
 ## Claim Classification Rules
 
@@ -33,6 +33,7 @@ Scope: claims supported by the current repository after `TASK-MAINT-01`.
 | TASK-04 characterized abnormal file `00000002.wav` after Expert A flagged it. | VERIFIED REPOSITORY FACT | `docs/TASK_04_SAME_AUDIO_SMOKE.md`, TASK-04 JSON |
 | TASK-04 Expert B rank scores are boominess 0.000000, brightness 0.933333, depth 0.666667, roughness 0.933333, and sharpness 0.933333. | VERIFIED REPOSITORY FACT | TASK-04 JSON |
 | Structured Health Context schema version `0.1.0` exists and was instantiated for the Fan event. | VERIFIED REPOSITORY FACT | TASK-06 JSON, `src/context` tests |
+| Structured Health Context schema version `0.2.0` exists with traceability metadata and v0.1 migration support. | VERIFIED REPOSITORY FACT | external TASK-CTX-02 artifact, `tests/test_context_schema.py` |
 | Guardrailed explanation output exists for the Fan event. | VERIFIED REPOSITORY FACT | TASK-07 JSON, `tests/test_llm_guardrails.py` |
 | Approved public Fan maintenance corpus `AMHI-FAN-MAINT-KB-v1` exists with two DOE-source entries. | VERIFIED REPOSITORY FACT | `data/manuals/approved_sources.json`, `docs/RAG_SOURCE_REGISTER.md` |
 | The current approved Fan corpus loads into the local RAG knowledge base and returns retrieved source chunks in a bounded smoke. | VERIFIED REPOSITORY FACT | `tests/test_rag_grounding.py`, TASK-RAG-01 smoke |
@@ -57,6 +58,7 @@ Scope: claims supported by the current repository after `TASK-MAINT-01`.
 | Production maintenance recommendations require approved retrieved source evidence. | PROJECT DECISION | RAG and maintenance-agent guardrail tests |
 | Semantic retrieval is selected for the bounded Fan MVP RAG path. | PROJECT DECISION | TASK-RAG-05 selected semantic by Hit@3, MRR, and Hit@1 on `AMHI-FAN-MAINT-RETRIEVAL-EVAL-v1` |
 | Maintenance Agent V2 outputs must remain inspection-oriented and cite retrieved source_id/chunk_id pairs. | PROJECT DECISION | TASK-MAINT-01 validation and tests |
+| Structured Health Context v0.2 uses artifact identifiers rather than invented model versions when formal versions are unavailable. | PROJECT DECISION | TASK-CTX-02 translator and schema tests |
 
 ## Cautious Inferences
 
@@ -99,7 +101,9 @@ An approved public Fan maintenance corpus exists. On a bounded 24-query project
 retrieval evaluation set, semantic retrieval achieved Hit@3 1.000000 and was
 selected as the Fan MVP retriever. A live Gemini maintenance-agent smoke then
 produced three citation-valid inspection-oriented actions over retrieved
-approved Fan corpus chunks.
+approved Fan corpus chunks. Structured Health Context v0.2 records the actual
+model, reference index, retriever, corpus, LLM, and maintenance-agent metadata
+used for the bounded trace.
 ```
 
 Must include limitation:

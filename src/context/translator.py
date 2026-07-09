@@ -2,13 +2,23 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
+from datetime import UTC, datetime
 import json
 from pathlib import Path, PurePosixPath
 import re
 from typing import Any
 
 import config as cfg
-from .schemas import CONTEXT_SCHEMA_VERSION, TIMBRE_ATTRIBUTES, validate_structured_context
+from .schemas import (
+    CONTEXT_SCHEMA_VERSION,
+    LEGACY_CONTEXT_SCHEMA_VERSION,
+    TIMBRE_ATTRIBUTES,
+    validate_structured_context,
+)
+
+
+PIPELINE_VERSION = "amhi-real-intelligence-v0.2"
 
 
 def _event_id(machine_type: str, machine_id: str, snr_tag: str, audio_path: str) -> str:
@@ -60,6 +70,12 @@ def context_from_expert_b_output(
     *,
     asset_id: str = cfg.ASSET_ID,
     event_id: str | None = None,
+    created_at: str | None = None,
+    analysis_run_id: str | None = None,
+    reference_index_path: str | Path | None = None,
+    llm_metadata: dict[str, Any] | None = None,
+    rag_metadata: dict[str, Any] | None = None,
+    maintenance_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Translate one Expert B JSON output into Structured Health Context."""
     input_audio = expert_b_output["input_audio"]
@@ -120,8 +136,44 @@ def context_from_expert_b_output(
         },
         "system_limits": _system_limits(),
     }
+    context["analysis"] = _analysis_metadata(
+        context,
+        created_at=created_at,
+        analysis_run_id=analysis_run_id,
+        reference_index_path=reference_index_path,
+        llm_metadata=llm_metadata,
+        rag_metadata=rag_metadata,
+        maintenance_metadata=maintenance_metadata,
+    )
     validate_structured_context(context)
     return context
+
+
+def migrate_context_v01_to_v02(
+    context: dict[str, Any],
+    *,
+    created_at: str | None = None,
+    analysis_run_id: str | None = None,
+    reference_index_path: str | Path | None = None,
+    llm_metadata: dict[str, Any] | None = None,
+    rag_metadata: dict[str, Any] | None = None,
+    maintenance_metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Return a v0.2 context preserving existing v0.1 scientific evidence."""
+    validate_structured_context(context)
+    migrated = deepcopy(context)
+    migrated["schema_version"] = CONTEXT_SCHEMA_VERSION
+    migrated["analysis"] = _analysis_metadata(
+        migrated,
+        created_at=created_at,
+        analysis_run_id=analysis_run_id,
+        reference_index_path=reference_index_path,
+        llm_metadata=llm_metadata,
+        rag_metadata=rag_metadata,
+        maintenance_metadata=maintenance_metadata,
+    )
+    validate_structured_context(migrated)
+    return migrated
 
 
 def load_expert_b_output(path: str | Path) -> dict[str, Any]:
@@ -137,3 +189,80 @@ def save_context(context: dict[str, Any], path: str | Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as handle:
         json.dump(context, handle, indent=2)
+
+
+def _analysis_metadata(
+    context: dict[str, Any],
+    *,
+    created_at: str | None,
+    analysis_run_id: str | None,
+    reference_index_path: str | Path | None,
+    llm_metadata: dict[str, Any] | None,
+    rag_metadata: dict[str, Any] | None,
+    maintenance_metadata: dict[str, Any] | None,
+) -> dict[str, Any]:
+    event = context["event"]
+    expert_b_method = context["expert_b"]["method"]
+    expert_b_references = context["expert_b"]["references"]
+    embedding_metadata = dict(expert_b_method.get("embedding_metadata") or {})
+    model_path = str(embedding_metadata.get("model_path") or cfg.ad_paths_for(event["snr_tag"])["model"])
+    norm_path = str(
+        embedding_metadata.get("norm_stats_path")
+        or cfg.ad_paths_for(event["snr_tag"])["norm_stats"]
+    )
+    return {
+        "analysis_run_id": analysis_run_id or _default_analysis_run_id(event),
+        "created_at": created_at or datetime.now(UTC).isoformat(),
+        "pipeline_version": PIPELINE_VERSION,
+        "expert_a": {
+            "model_id": Path(model_path).name,
+            "model_version": "unversioned",
+            "normalization_artifact_id": Path(norm_path).name,
+        },
+        "expert_b": {
+            "reference_index_id": _reference_index_id(event, reference_index_path),
+            "embedding_model": str(expert_b_method["embedding_model"]),
+            "k": int(expert_b_method["k"]),
+            "distance": str(expert_b_method["distance"]),
+        },
+        "llm": _provider_metadata(llm_metadata),
+        "rag": _rag_metadata(rag_metadata),
+        "maintenance": _provider_metadata(maintenance_metadata),
+    }
+
+
+def _default_analysis_run_id(event: dict[str, Any]) -> str:
+    raw = f"analysis_{event['event_id']}_{CONTEXT_SCHEMA_VERSION}"
+    return re.sub(r"[^A-Za-z0-9_.-]+", "_", raw)
+
+
+def _reference_index_id(
+    event: dict[str, Any],
+    reference_index_path: str | Path | None,
+) -> str:
+    if reference_index_path is not None:
+        return Path(reference_index_path).name
+    return f"timbre_reference_index_{event['machine_type']}_{event['machine_id']}_{event['snr_tag']}.json"
+
+
+def _provider_metadata(metadata: dict[str, Any] | None) -> dict[str, Any]:
+    metadata = dict(metadata or {})
+    return {
+        "provider": metadata.get("provider"),
+        "model": metadata.get("model"),
+        "prompt_version": metadata.get("prompt_version"),
+        "generation_mode": metadata.get("generation_mode"),
+        "fallback_used": metadata.get("fallback_used"),
+    }
+
+
+def _rag_metadata(metadata: dict[str, Any] | None) -> dict[str, Any]:
+    metadata = dict(metadata or {})
+    return {
+        "retriever_type": metadata.get("retriever_type"),
+        "corpus_version": (
+            metadata.get("corpus_version")
+            or metadata.get("knowledge_base_version")
+        ),
+        "retrieval_query": metadata.get("retrieval_query"),
+    }

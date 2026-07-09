@@ -111,7 +111,7 @@ the bounded runtime ladder documented in the execution plan.
 The local unit suite currently covers:
 
 - Expert B rank, filtering, null-direction, and JSON guardrails.
-- Structured Health Context schema validation.
+- Structured Health Context v0.2 schema validation and legacy migration.
 - Guardrailed explanation output.
 - RAG source preservation and citation validation.
 - RAG retrieval evaluation metrics and hybrid fusion behavior.
@@ -123,7 +123,7 @@ Current local evidence:
 
 ```text
 python -m unittest discover -s tests -p "test_*.py"
-Ran 63 tests
+Ran 66 tests
 OK
 ```
 
@@ -144,6 +144,7 @@ Supported:
 - Structured context, guarded explanation, retrieval, maintenance output, end-to-end orchestration, and dashboard artifacts exist for the bounded Fan MVP.
 - A bounded Fan maintenance retrieval evaluation selected semantic retrieval for the next Fan MVP maintenance-grounding task.
 - A bounded live Gemini maintenance-agent smoke produced citation-valid inspection actions over approved Fan maintenance chunks.
+- Structured Health Context v0.2 records provenance for Expert A, Expert B, LLM, RAG, and Maintenance Agent outputs.
 
 Not supported:
 
@@ -159,7 +160,6 @@ Not supported:
 
 Backlog and blocked work:
 
-- Structured Health Context v0.2 provenance metadata.
 - Real Gemini + RAG end-to-end Fan smoke.
 - Bounded Fan system evaluation.
 - Updated Fan intelligence evidence dashboard.

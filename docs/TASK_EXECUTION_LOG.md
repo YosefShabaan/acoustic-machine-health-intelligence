@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Real Intelligence Completion in progress; TASK-MAINT-01 complete.
+Status: Real Intelligence Completion in progress; TASK-CTX-02 complete.
 
-Latest completed task: `TASK-MAINT-01`.
+Latest completed task: `TASK-CTX-02`.
 
 Use this template after every task:
 
@@ -29,6 +29,71 @@ Rules:
 - Do not mark `DONE` based only on code creation.
 - Use `FAILED` when bounded diagnosis was attempted and the task still fails.
 - Use `BLOCKED` when Yosef input, data, credentials, or architecture approval is required.
+
+```text
+TASK:
+TASK-CTX-02 - Structured Health Context V0.2
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $scientific-implementer for the approved bounded context-contract task.
+- Evolved the current Structured Health Context schema from v0.1.0 to v0.2.0.
+- Kept v0.1.0 validation compatibility for existing artifacts.
+- Added analysis metadata: analysis_run_id, created_at, pipeline_version.
+- Added Expert A traceability: model_id, model_version=unversioned, normalization_artifact_id.
+- Added Expert B traceability: reference_index_id, embedding_model, k, distance.
+- Added LLM, RAG, and Maintenance Agent provenance metadata.
+- Added migrate_context_v01_to_v02 to preserve old scientific evidence while adding v0.2 metadata.
+- Updated context package exports and context schema tests.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_context_schema.py"
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+- python -m json.tool project_state.json
+- git diff --check
+
+RUNTIME GATE:
+- Generated one external v0.2 context sample by migrating the existing Fan context and attaching actual metadata from the live Gemini explanation, semantic RAG retrieval, Maintenance Agent V2 smoke, and Expert B reference index.
+- External output: D:\PDM_Data\MIMII\processed\structured_context_fan_id_00_minus6dB_task_ctx_02_v0_2.json.
+
+ACTUAL OUTPUT:
+- Context tests: Ran 8 tests, OK.
+- Full unit suite: Ran 66 tests, OK.
+- Schema version: 0.2.0.
+- Analysis run ID: analysis_fan_id_00_minus6dB_00000002_0.2.0.
+- Pipeline version: amhi-real-intelligence-v0.2.
+- Expert A model ID: anomaly_detector_minus6dB.pt.
+- Expert A normalization artifact ID: ad_norm_stats_minus6dB.npz.
+- Expert B reference index ID: timbre_reference_index_fan_id_00_minus6dB.json.
+- Expert B k/distance: 30 / euclidean.
+- LLM provider/model: gemini / gemini-2.5-flash.
+- RAG retriever/corpus: semantic / AMHI-FAN-MAINT-KB-v1.
+- Maintenance provider/fallback: gemini / false.
+
+IMPLEMENTATION REVIEW:
+- Existing v0.1.0 artifacts remain valid through the validator.
+- New v0.2 contexts require analysis metadata.
+- Formal model versions were not invented; unavailable versions are recorded as unversioned and artifact IDs use actual filenames.
+- No Expert A, Expert B, SNR, rank-score, or threshold semantics changed.
+
+SCIENTIFIC REVIEW:
+- The task improves traceability only.
+- It does not change anomaly detection, timbre characterization, retrieval scoring, or maintenance action semantics.
+- It does not enable RUL, root-cause, probability/confidence, Expert B direction accuracy, production readiness, or multi-machine generalization claims.
+
+DIFF REVIEW:
+- Changed files: README.md, src/context/__init__.py, src/context/schemas.py, src/context/translator.py, tests/test_context_schema.py, docs/academic_claims.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- Generated v0.2 JSON artifact is external under D:\PDM_Data\MIMII\processed and not tracked in Git.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-FAN-13 - Real Gemini + RAG End-to-End Fan Smoke.
+```
 
 ```text
 TASK:
