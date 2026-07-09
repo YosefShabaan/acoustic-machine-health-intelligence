@@ -1934,3 +1934,67 @@ Do not mark the following complete from this phase:
 - Async Worker
 - Docker
 - Cloud Deployment
+
+## Fan Production MVP Addendum
+
+Plan version: `fan_production_mvp_v1_2026-07-09`
+
+Status: `IMPLEMENTING`
+
+Scope:
+
+- Fan `id_00` only.
+- Preserve the completed Real Intelligence phase and all Expert A/B/RAG/Gemini
+  semantics.
+- Move the current bounded Fan scripts toward a deployable Fan Production MVP
+  architecture with API ingestion, persistence, background processing,
+  API-backed dashboard, observability, and containerized local deployment.
+- Do not start Pump, Valve, Slide Rail, Cross-Machine, MIMII DG, Expert B
+  timbre-label research, GitHub governance synchronization, GitHub Project
+  cleanup, or release-history cleanup.
+
+Ordered productionization tasks:
+
+| Task | Status | Evidence |
+|---|---|---|
+| `TASK-PROD-01` Define Fan Production Architecture | DONE | `docs/PRODUCTION_ARCHITECTURE.md` |
+| `TASK-PROD-02` Extract reusable AMHI Pipeline Service | NEXT | pending |
+| `TASK-PROD-03` Machine-aware Artifact Registry | PLANNED | pending |
+| `TASK-PROD-04` Audio Storage abstraction | PLANNED | pending |
+| `TASK-PROD-05` Event and Result Persistence | PLANNED | pending |
+| `TASK-PROD-06` API v1 contract | PLANNED | pending |
+| `TASK-PROD-07` FastAPI Fan Event API | PLANNED | pending |
+| `TASK-PROD-08` Asynchronous Event Processing | PLANNED | pending |
+| `TASK-PROD-09` API-backed Technician Dashboard | PLANNED | pending |
+| `TASK-PROD-10` Structured Logging | PLANNED | pending |
+| `TASK-PROD-11` Metrics and Observability | PLANNED | pending |
+| `TASK-PROD-12` Health and Readiness | PLANNED | pending |
+| `TASK-PROD-13` Containerize Fan Production MVP | PLANNED | pending |
+| `TASK-PROD-14` Bounded Fan Production Integration Evaluation | PLANNED | pending |
+| `TASK-PROD-15` Staging Architecture and Bounded Deployment | PLANNED | pending |
+| `TASK-PROD-16` Final Fan Production MVP Report | PLANNED | pending |
+
+TASK-PROD-01 result:
+
+- Current script-owned orchestration responsibilities were inspected and
+  documented.
+- The approved target is a modular monolith, not appearance-driven
+  microservices.
+- Required boundaries are explicit for `AMHIPipelineService`,
+  `ArtifactRegistry`, `AudioStorage`, `EventRepository`,
+  `AnalysisRepository`, `EventProcessingService`, API, dashboard, and
+  observability.
+- Dependency direction keeps the scientific core independent from FastAPI,
+  persistence, and dashboard rendering.
+- Future multi-machine extension is described only as conceptual registry
+  expansion, not as implemented support.
+
+Claims still not enabled by TASK-PROD-01:
+
+- accepted production operation,
+- production maintenance validation,
+- confirmed physical root cause,
+- probability/confidence/severity claims,
+- RUL or exact time-to-failure,
+- Expert B timbre-direction accuracy,
+- multi-machine or domain-robustness generalization.

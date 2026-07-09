@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Real Intelligence Completion complete; FINAL-DOCS complete.
+Status: Fan Production MVP implementation in progress; TASK-PROD-01 complete.
 
-Latest completed task: `FINAL-DOCS`.
+Latest completed task: `TASK-PROD-01`.
 
 Use this template after every task:
 
@@ -19,6 +19,64 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-PROD-01 - Define Fan Production Architecture
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $project-architect as the primary skill and $scientific-implementer as secondary review support.
+- Inspected CLAUDE.md, docs/MASTER_PROJECT_ROADMAP.md, docs/MASTER_EXECUTION_PLAN.md, project_state.json, docs/TASK_EXECUTION_LOG.md, scripts/run_real_intelligence_fan_smoke.py, scripts/run_end_to_end_demo.py, scripts/evaluate_fan_system.py, scripts/run_expert_b_smoke.py, app/dashboard.py, src/config.py, src/context, src/agents, src/rag, src/models, and src/utils.
+- Created docs/PRODUCTION_ARCHITECTURE.md.
+- Documented current script-owned orchestration responsibilities.
+- Defined a modular monolith Fan Production MVP target architecture.
+- Defined boundaries for AMHIPipelineService, ArtifactRegistry, AudioStorage, EventRepository, AnalysisRepository, EventProcessingService/Worker, API, Dashboard, and Observability.
+- Added a Fan Production MVP addendum to docs/MASTER_EXECUTION_PLAN.md.
+- Updated project_state.json to mark TASK-PROD-01 done and TASK-PROD-02 next.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+- python -m json.tool project_state.json
+- git diff --check
+- rg -n "production-ready|enterprise-ready" docs/PRODUCTION_ARCHITECTURE.md docs/MASTER_EXECUTION_PLAN.md project_state.json
+
+ACTUAL OUTPUT:
+- Unit suite: Ran 76 tests in 7.382s, OK.
+- compileall: passed.
+- project_state.json: valid JSON.
+- git diff --check: passed; line-ending warnings only.
+- Forbidden exact positioning terms scan: no matches in the changed production architecture records.
+
+RUNTIME GATE:
+- No training, indexing, data processing, Expert A scoring, Expert B scoring, RAG retrieval, Gemini call, or dashboard rendering was run.
+- TASK-PROD-01 is documentation and architecture only.
+
+IMPLEMENTATION REVIEW:
+- The architecture doc identifies current script responsibilities and assigns target responsibilities to application, infrastructure, API, dashboard, worker, and observability boundaries.
+- The approved design is a modular monolith and keeps the scientific core independent from FastAPI, persistence, and dashboard rendering.
+- CLI scripts remain valid bounded evidence tools but future production processing must reuse AMHIPipelineService.
+
+SCIENTIFIC REVIEW:
+- Expert A metrics and artifacts are unchanged.
+- Expert B semantics are preserved: k=30, euclidean distance, rank_threshold=None, null direction fields.
+- Selected Fan semantic retriever remains selected.
+- The document does not enable production operation acceptance, production maintenance validation, root-cause diagnosis, probability/confidence/severity claims, RUL, Expert B direction accuracy, multi-machine generalization, or domain robustness.
+
+DIFF REVIEW:
+- Changed files: docs/PRODUCTION_ARCHITECTURE.md, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No source code changed.
+- No repo-local data/model/generated scientific artifact was added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-PROD-02 - Extract reusable AMHI Pipeline Service.
 ```
 
 ```text
