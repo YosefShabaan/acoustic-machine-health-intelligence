@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Fan Production MVP implementation in progress; TASK-PROD-08 complete.
+Status: Fan Production MVP implementation in progress; TASK-PROD-09 complete.
 
-Latest completed task: `TASK-PROD-08`.
+Latest completed task: `TASK-PROD-09`.
 
 Use this template after every task:
 
@@ -19,6 +19,64 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-PROD-09 - API-backed Technician Dashboard
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $scientific-implementer as the primary skill.
+- Preserved app/dashboard.py as the static historical Fan evidence dashboard.
+- Created src/api/dashboard.py.
+- Mounted /dashboard and /dashboard/events/{event_id} in the FastAPI app.
+- Dashboard routes read persisted application state through injected repositories.
+- Event list renders event id, machine, SNR, status, audio file label, and created timestamp.
+- Event detail renders event state, analysis run state, failure state, Expert A evidence, Expert B qualitative metadata, Structured Health Context version, RAG retriever/corpus/query/source/chunk citations, Gemini/explanation fallback state, maintenance action citations, stage timings, and scientific limitations.
+- Added tests/test_api_dashboard.py.
+
+TESTS:
+- python -m compileall -q src\api tests\test_api_dashboard.py
+- python -m unittest discover -s tests -p "test_api_dashboard.py" -v
+- FastAPI dashboard runtime smoke with TestClient, temp upload storage, SQLite in-memory repositories, and one persisted completed event.
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+
+ACTUAL OUTPUT:
+- API dashboard tests: Ran 5 tests, OK.
+- Dashboard runtime smoke: TASK_PROD_09_DASHBOARD_SMOKE=OK; list_status=200; detail_status=200; event_visible=True; fallback_visible=True; citation_visible=True; tmp_path_leaked=False.
+- Full unit suite: Ran 120 tests in 5.235s, OK.
+- Full compileall: passed.
+
+RUNTIME GATE:
+- Rendered /dashboard and /dashboard/events/dashboard-smoke from persisted event/result state.
+- Confirmed fallback visibility and source/chunk citation visibility.
+- Confirmed no local temp path leak.
+- No training, model scoring, Expert B characterization, RAG retrieval, Gemini call, worker processing, static artifact generation, or full-data run was executed during rendering.
+
+IMPLEMENTATION REVIEW:
+- The dashboard is server-rendered and lightweight; no heavy frontend framework was introduced.
+- Routes read repository/application state and do not duplicate scientific orchestration.
+- Queued, processing, completed, failed, fallback, missing result, and missing event states are covered.
+- Existing static evidence dashboard remains available and unchanged.
+
+SCIENTIFIC REVIEW:
+- The dashboard presents Expert B rank evidence as qualitative metadata and displays visible scientific limitations.
+- It does not convert rank scores into probability, confidence, severity, diagnosis, or remaining-life evidence.
+- No Pump, Valve, Slide Rail, cross-machine, or domain-robustness behavior was added.
+
+DIFF REVIEW:
+- Changed files: src/api/dashboard.py, src/api/app.py, tests/test_api_dashboard.py, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No repo-local WAV, NumPy array, model weight, embedding index, generated dashboard file, generated runtime output, or generated scientific artifact was added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-PROD-10 - Structured Logging.
 ```
 
 ```text

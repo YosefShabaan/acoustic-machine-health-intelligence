@@ -60,6 +60,7 @@ from .schemas import (
     Pagination,
     ReadyResponse,
 )
+from .dashboard import dashboard_router
 
 
 SERVICE_NAME = "amhi-fan-production-mvp"
@@ -357,6 +358,7 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
         )
 
     app.include_router(router)
+    app.include_router(dashboard_router)
     return app
 
 async def _parse_submission(request: Request, deps: ApiDependencies) -> EventSubmission:

@@ -1965,8 +1965,8 @@ Ordered productionization tasks:
 | `TASK-PROD-06` API v1 contract | DONE | `docs/API_CONTRACT_V1.md`, `tests/test_api_contract_doc.py` |
 | `TASK-PROD-07` FastAPI Fan Event API | DONE | `src/api/app.py`, `src/api/schemas.py`, `tests/test_api_v1.py` |
 | `TASK-PROD-08` Asynchronous Event Processing | DONE | `src/application/event_processing.py`, `docs/EVENT_PROCESSING_WORKER.md`, `tests/test_event_processing.py` |
-| `TASK-PROD-09` API-backed Technician Dashboard | NEXT | pending |
-| `TASK-PROD-10` Structured Logging | PLANNED | pending |
+| `TASK-PROD-09` API-backed Technician Dashboard | DONE | `src/api/dashboard.py`, `tests/test_api_dashboard.py` |
+| `TASK-PROD-10` Structured Logging | NEXT | pending |
 | `TASK-PROD-11` Metrics and Observability | PLANNED | pending |
 | `TASK-PROD-12` Health and Readiness | PLANNED | pending |
 | `TASK-PROD-13` Containerize Fan Production MVP | PLANNED | pending |
@@ -2225,4 +2225,39 @@ Claims still not enabled by TASK-PROD-08:
 - automatic retry correctness,
 - always-on worker process supervision,
 - API-backed dashboard, structured logging, metrics, or container deployment,
+- Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
+
+TASK-PROD-09 result:
+
+- Preserved the existing `app/dashboard.py` static evidence dashboard as
+  historical Fan evidence.
+- Created `src/api/dashboard.py` and mounted lightweight FastAPI dashboard
+  routes: `/dashboard` and `/dashboard/events/{event_id}`.
+- Dashboard reads persisted application state through injected repositories and
+  does not retrain, rescore, re-run Expert B, retrieve RAG, call Gemini, or
+  process audio during page rendering.
+- Event list renders event id, machine, SNR, status, audio file label, and
+  created timestamp.
+- Event detail renders processing state, failure state, analysis run metadata,
+  Expert A score/threshold/decision, Expert B qualitative metadata, Structured
+  Health Context version, RAG retriever/corpus/query/source/chunk citations,
+  explanation fallback visibility, maintenance action citations, stage timings,
+  and scientific limitations.
+- Added `tests/test_api_dashboard.py` covering event list, queued state,
+  processing state, completed state, failed state, fallback visibility,
+  maintenance citation rendering, missing event handling, and response path
+  masking.
+- Runtime dashboard smoke rendered one persisted completed event through
+  `/dashboard` and `/dashboard/events/dashboard-smoke`, confirmed fallback and
+  source/chunk citation visibility, and confirmed no temp path leakage.
+
+Claims still not enabled by TASK-PROD-09:
+
+- accepted production operation,
+- production maintenance validation,
+- confirmed physical root cause,
+- probability/confidence/severity claims,
+- RUL or exact time-to-failure,
+- Expert B timbre-direction accuracy,
+- structured logging, metrics, or container deployment,
 - Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
