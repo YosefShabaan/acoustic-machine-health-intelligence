@@ -84,6 +84,7 @@ class ApiDependencies:
     allow_registered_audio_reference: bool = False
     max_upload_bytes: int = DEFAULT_MAX_UPLOAD_BYTES
     service_name: str = SERVICE_NAME
+    worker_initialized: bool = True
 
 
 @dataclass(frozen=True)
@@ -141,6 +142,7 @@ def create_default_dependencies() -> ApiDependencies:
         allow_registered_audio_reference=(
             os.environ.get("AMHI_ALLOW_REGISTERED_AUDIO_REFERENCE", "0") == "1"
         ),
+        worker_initialized=(os.environ.get("AMHI_WORKER_INITIALIZED", "1") == "1"),
     )
 
 
@@ -372,7 +374,10 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
     async def ready(request: Request) -> ReadyResponse:
         deps = _dependencies(request)
         dependency_status = _readiness(deps)
-        is_ready = all(row.status in {"ok", "configured"} for row in dependency_status.values())
+        is_ready = all(
+            row.status in {"ok", "configured", "initialized"}
+            for row in dependency_status.values()
+        )
         return ReadyResponse(
             ready=is_ready,
             status="ready" if is_ready else "not_ready",
@@ -657,7 +662,10 @@ def _readiness(deps: ApiDependencies) -> dict[str, DependencyStatus]:
     rows: dict[str, DependencyStatus] = {}
     try:
         deps.event_repository.list_events(limit=1, offset=0)
-        rows["database"] = DependencyStatus(status="ok")
+        rows["database"] = DependencyStatus(
+            status="ok",
+            detail="event repository query succeeded",
+        )
     except Exception as exc:  # pragma: no cover - defensive readiness boundary
         rows["database"] = DependencyStatus(status="failed", detail=exc.__class__.__name__)
     try:
@@ -666,29 +674,55 @@ def _readiness(deps: ApiDependencies) -> dict[str, DependencyStatus]:
             machine_id=FAN_MACHINE_ID,
             snr_tag=FAN_REAL_INTELLIGENCE_SNR,
         ).require_real_intelligence()
-        rows["artifact_registry"] = DependencyStatus(status="ok")
+        rows["artifact_registry"] = DependencyStatus(
+            status="ok",
+            detail="fan/id_00/minus6dB Real Intelligence artifacts are registered",
+        )
         rows["rag_index"] = DependencyStatus(
             status=(
                 "ok"
                 if artifact.semantic_index_path and artifact.semantic_index_path.exists()
                 else "missing"
             ),
+            detail=(
+                "semantic RAG index is available"
+                if artifact.semantic_index_path and artifact.semantic_index_path.exists()
+                else "semantic RAG index is unavailable"
+            ),
         )
     except Exception as exc:  # pragma: no cover - defensive readiness boundary
         rows["artifact_registry"] = DependencyStatus(status="failed", detail=exc.__class__.__name__)
-        rows["rag_index"] = DependencyStatus(status="missing")
+        rows["rag_index"] = DependencyStatus(
+            status="missing",
+            detail="semantic RAG index cannot be checked without registered artifacts",
+        )
     try:
         deps.upload_dir.mkdir(parents=True, exist_ok=True)
         probe_path = deps.upload_dir / ".amhi_write_probe"
         probe_path.write_text("ok", encoding="utf-8")
         probe_path.unlink(missing_ok=True)
-        rows["audio_storage"] = DependencyStatus(status="ok")
+        rows["audio_storage"] = DependencyStatus(
+            status="ok",
+            detail="upload storage is writable",
+        )
     except Exception as exc:  # pragma: no cover - defensive readiness boundary
         rows["audio_storage"] = DependencyStatus(status="failed", detail=exc.__class__.__name__)
     rows["gemini_config"] = DependencyStatus(
         status="configured" if os.environ.get("GEMINI_API_KEY") else "missing",
+        detail=(
+            "Gemini provider configuration is present"
+            if os.environ.get("GEMINI_API_KEY")
+            else "Gemini provider configuration is missing"
+        ),
     )
-    rows["worker"] = DependencyStatus(status="not_initialized")
+    rows["worker"] = DependencyStatus(
+        status="initialized" if deps.worker_initialized else "not_initialized",
+        detail=(
+            "bounded event processing path is initialized"
+            if deps.worker_initialized
+            else "bounded event processing path is not initialized"
+        ),
+    )
     return rows
 
 

@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Fan Production MVP implementation in progress; TASK-PROD-11 complete.
+Status: Fan Production MVP implementation in progress; TASK-PROD-12 complete.
 
-Latest completed task: `TASK-PROD-11`.
+Latest completed task: `TASK-PROD-12`.
 
 Use this template after every task:
 
@@ -19,6 +19,58 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-PROD-12 - Health and Readiness
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $project-architect as the primary skill and loaded $scientific-implementer as the secondary skill.
+- Kept GET /api/v1/health as a liveness-only endpoint.
+- Upgraded GET /api/v1/ready with structured checks for database reachability, Fan id_00/minus6dB artifact registry resolution, upload storage writeability, semantic RAG index availability, Gemini provider configuration presence, and bounded worker initialization.
+- Added injectable worker readiness state through ApiDependencies.worker_initialized and AMHI_WORKER_INITIALIZED.
+- Treated ok/configured/initialized as ready statuses and missing/failed/not_initialized as not_ready.
+- Kept readiness checks free of live Gemini calls and audio processing.
+- Avoided returning secret values or local semantic index paths in readiness details.
+- Added tests/test_health_readiness.py.
+
+TESTS:
+- python tests\test_health_readiness.py
+- python -m unittest discover -s tests -p "test_*.py"
+- TASK-PROD-12 readiness smoke through TestClient for health, ready, missing Gemini config, and database failure states.
+
+ACTUAL OUTPUT:
+- Health/readiness tests: Ran 7 tests, OK.
+- Full unit suite: Ran 135 tests in 5.478s, OK.
+- Runtime readiness smoke: TASK_PROD_12_READINESS_SMOKE=OK; health_status=ok; ready_status=ready; ready_dependencies=artifact_registry,audio_storage,database,gemini_config,rag_index,worker; ready_worker=initialized; missing_gemini_ready=False; missing_gemini_status=missing; database_failed_ready=False; database_failed_status=failed; secret_leaked=False.
+
+RUNTIME GATE:
+- Exercised only FastAPI TestClient readiness and health paths with fake/in-memory dependencies.
+- No real Expert A scoring, Expert B characterization, RAG retrieval, Gemini call, dashboard rendering, training, indexing, or full-data run was executed.
+
+IMPLEMENTATION REVIEW:
+- Readiness is now dependency-specific instead of a placeholder.
+- Database, artifact registry, RAG index, storage, Gemini config, and worker checks can be tested independently.
+- The health endpoint remains lightweight and does not fail due to unavailable dependencies.
+
+SCIENTIFIC REVIEW:
+- Health/readiness status reports operational availability only and does not change Expert A/B/RAG/Gemini semantics.
+- No diagnostic accuracy, maintenance correctness, confidence, probability, RUL, root-cause, production maintenance validation, or production acceptance claim was added.
+- No Pump, Valve, Slide Rail, cross-machine, or domain-robustness behavior was added.
+
+DIFF REVIEW:
+- Changed files: src/api/app.py, tests/test_health_readiness.py, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No repo-local WAV, NumPy array, model weight, embedding index, generated dashboard, generated runtime output, or generated scientific artifact was added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-PROD-13 - Containerize Fan Production MVP.
 ```
 
 ```text

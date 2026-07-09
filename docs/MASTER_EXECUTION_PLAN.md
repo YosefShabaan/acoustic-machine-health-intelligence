@@ -1968,8 +1968,8 @@ Ordered productionization tasks:
 | `TASK-PROD-09` API-backed Technician Dashboard | DONE | `src/api/dashboard.py`, `tests/test_api_dashboard.py` |
 | `TASK-PROD-10` Structured Logging | DONE | `src/observability/structured_logging.py`, `tests/test_structured_logging.py` |
 | `TASK-PROD-11` Metrics and Observability | DONE | `src/observability/metrics.py`, `tests/test_metrics.py` |
-| `TASK-PROD-12` Health and Readiness | NEXT | pending |
-| `TASK-PROD-13` Containerize Fan Production MVP | PLANNED | pending |
+| `TASK-PROD-12` Health and Readiness | DONE | `src/api/app.py`, `tests/test_health_readiness.py` |
+| `TASK-PROD-13` Containerize Fan Production MVP | NEXT | pending |
 | `TASK-PROD-14` Bounded Fan Production Integration Evaluation | PLANNED | pending |
 | `TASK-PROD-15` Staging Architecture and Bounded Deployment | PLANNED | pending |
 | `TASK-PROD-16` Final Fan Production MVP Report | PLANNED | pending |
@@ -2323,6 +2323,38 @@ TASK-PROD-11 result:
   fallback metrics plus queued gauge returning to zero.
 
 Claims still not enabled by TASK-PROD-11:
+
+- accepted production operation,
+- production maintenance validation,
+- confirmed physical root cause,
+- probability/confidence/severity claims,
+- RUL or exact time-to-failure,
+- Expert B timbre-direction accuracy,
+- container deployment,
+- Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
+
+TASK-PROD-12 result:
+
+- Kept `GET /api/v1/health` as a process/application liveness endpoint with no
+  dependency checks, audio processing, or live Gemini call.
+- Upgraded `GET /api/v1/ready` into structured dependency readiness checks for:
+  database reachability, Fan `id_00/minus6dB` artifact registry resolution,
+  upload storage writeability, semantic RAG index availability, Gemini provider
+  configuration presence, and bounded worker initialization.
+- Added injectable worker readiness state with `AMHI_WORKER_INITIALIZED`
+  defaulting to initialized for the current local combined runtime path.
+- Readiness now returns `ready` only when dependency statuses are `ok`,
+  `configured`, or `initialized`; missing/failed/not-initialized dependencies
+  produce `not_ready`.
+- Readiness details avoid secrets, provider key values, local semantic index
+  paths, audio processing, and live provider calls.
+- Added `tests/test_health_readiness.py` covering healthy liveness, ready state,
+  database unavailable, artifact missing, Gemini config missing, RAG unavailable,
+  and worker not initialized.
+- Runtime readiness smoke inspected health, ready, missing Gemini config, and
+  database failure responses with no secret leakage.
+
+Claims still not enabled by TASK-PROD-12:
 
 - accepted production operation,
 - production maintenance validation,
