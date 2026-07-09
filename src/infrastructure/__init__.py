@@ -13,6 +13,12 @@ from .audio_storage import (
     LocalAudioStorage,
     UnsupportedAudioTypeError,
 )
+from .persistence import (
+    SQLiteAnalysisRepository,
+    SQLiteEventRepository,
+    connect_sqlite,
+    initialize_sqlite_schema,
+)
 
 __all__ = [
     "AudioNotFoundError",
@@ -23,5 +29,9 @@ __all__ = [
     "ArtifactRegistry",
     "LocalAudioStorage",
     "ResolvedArtifactConfig",
+    "SQLiteAnalysisRepository",
+    "SQLiteEventRepository",
     "UnsupportedAudioTypeError",
+    "connect_sqlite",
+    "initialize_sqlite_schema",
 ]

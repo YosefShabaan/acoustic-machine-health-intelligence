@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Fan Production MVP implementation in progress; TASK-PROD-04 complete.
+Status: Fan Production MVP implementation in progress; TASK-PROD-05 complete.
 
-Latest completed task: `TASK-PROD-04`.
+Latest completed task: `TASK-PROD-05`.
 
 Use this template after every task:
 
@@ -19,6 +19,64 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-PROD-05 - Event and Result Persistence
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $project-architect as the primary skill and $scientific-implementer as secondary implementation support.
+- Created src/application/repositories.py with EventRepository and AnalysisRepository contracts.
+- Added EventRecord, AnalysisRunRecord, and AnalysisResultRecord dataclasses.
+- Created src/infrastructure/persistence/sqlite_repository.py for local development and unit tests.
+- Added PostgreSQL migration src/infrastructure/persistence/migrations/001_initial_postgres.sql as the production-oriented persistence schema target.
+- Exported persistence contracts and adapters from src/application/__init__.py and src/infrastructure/__init__.py.
+- Added tests/test_persistence.py.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_persistence.py" -v
+- python -m compileall -q src\application src\infrastructure tests\test_persistence.py
+- File-backed SQLite persistence smoke with close/reopen/readback.
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+
+ACTUAL OUTPUT:
+- Persistence tests: Ran 7 tests, OK.
+- Focused compileall: passed.
+- Runtime persistence smoke: TASK_PROD_05_PERSISTENCE_SMOKE=OK; db_exists=True; event_status=completed; machine=fan/id_00; expert_b_k=30; retriever=semantic; schema_version=0.2.0.
+- Full unit suite: Ran 98 tests in 9.045s, OK.
+- Full compileall: passed.
+
+RUNTIME GATE:
+- Created one Fan id_00 minus6dB event, analysis run, and structured result in a file-backed SQLite database.
+- Closed the process connection, reopened the database, and retrieved the completed event and final analysis payload.
+- Preserved Expert B metadata k=30, distance=euclidean, rank_threshold=None in persisted JSON.
+- No training, indexing, Gemini call, dashboard generation, API route, worker loop, or dataset copy was run.
+
+IMPLEMENTATION REVIEW:
+- Persistence is behind repository contracts rather than embedded in FastAPI, pipeline orchestration, or dashboard code.
+- PostgreSQL is represented by a bounded migration schema using JSONB for versioned scientific payloads.
+- SQLite is limited to local/test persistence behavior and validates the same event/result lifecycle.
+- Relational rows store audio_reference and metadata, not raw audio bytes or generated scientific artifacts.
+
+SCIENTIFIC REVIEW:
+- Expert A, Expert B, Structured Health Context, selected semantic retriever, RAG, and Gemini semantics were not changed.
+- Persisted Expert B evidence remains qualitative metadata/evidence, not direction-accuracy, probability, confidence, severity, diagnosis, or RUL evidence.
+- No Pump, Valve, Slide Rail, cross-machine, or domain-robustness behavior was added.
+
+DIFF REVIEW:
+- Changed files: src/application/repositories.py, src/application/__init__.py, src/infrastructure/persistence/__init__.py, src/infrastructure/persistence/sqlite_repository.py, src/infrastructure/persistence/migrations/001_initial_postgres.sql, src/infrastructure/__init__.py, tests/test_persistence.py, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No repo-local WAV, NumPy array, model weight, embedding index, generated dashboard, or generated scientific output artifact was added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-PROD-06 - API v1 contract.
 ```
 
 ```text

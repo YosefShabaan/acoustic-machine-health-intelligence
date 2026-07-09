@@ -1961,8 +1961,8 @@ Ordered productionization tasks:
 | `TASK-PROD-02` Extract reusable AMHI Pipeline Service | DONE | `src/application/pipeline_service.py`, `tests/test_pipeline_service.py` |
 | `TASK-PROD-03` Machine-aware Artifact Registry | DONE | `src/infrastructure/artifact_registry.py`, `tests/test_artifact_registry.py` |
 | `TASK-PROD-04` Audio Storage abstraction | DONE | `src/infrastructure/audio_storage.py`, `tests/test_audio_storage.py` |
-| `TASK-PROD-05` Event and Result Persistence | NEXT | pending |
-| `TASK-PROD-06` API v1 contract | PLANNED | pending |
+| `TASK-PROD-05` Event and Result Persistence | DONE | `src/application/repositories.py`, `src/infrastructure/persistence/sqlite_repository.py`, `src/infrastructure/persistence/migrations/001_initial_postgres.sql`, `tests/test_persistence.py` |
+| `TASK-PROD-06` API v1 contract | NEXT | pending |
 | `TASK-PROD-07` FastAPI Fan Event API | PLANNED | pending |
 | `TASK-PROD-08` Asynchronous Event Processing | PLANNED | pending |
 | `TASK-PROD-09` API-backed Technician Dashboard | PLANNED | pending |
@@ -2086,4 +2086,36 @@ Claims still not enabled by TASK-PROD-04:
 - RUL or exact time-to-failure,
 - Expert B timbre-direction accuracy,
 - persistence/API/async/dashboard/observability/container deployment,
+- Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
+
+TASK-PROD-05 result:
+
+- Created `src/application/repositories.py` with `EventRepository` and
+  `AnalysisRepository` contracts plus record dataclasses for events, analysis
+  runs, and structured analysis results.
+- Created `src/infrastructure/persistence/sqlite_repository.py` for local
+  development and unit tests.
+- Created PostgreSQL migration
+  `src/infrastructure/persistence/migrations/001_initial_postgres.sql` as the
+  production-oriented persistence schema target.
+- Stored audio references and structured JSON payloads, not raw WAV bytes,
+  NumPy arrays, embeddings, model weights, or generated scientific artifacts.
+- Added persistence tests for event create/read/list, machine filtering, status
+  transitions, failed event persistence, analysis run failure persistence,
+  structured result round trip, file-backed reconnect survival, invalid status
+  rejection, and no raw binary database columns.
+- Runtime gate wrote one Fan `id_00` event/result to a file-backed SQLite
+  database, closed the connection, reopened it, and retrieved the completed
+  event plus Expert B `k=30`, selected semantic retriever metadata, and
+  Structured Health Context v0.2 marker.
+
+Claims still not enabled by TASK-PROD-05:
+
+- accepted production operation,
+- production maintenance validation,
+- confirmed physical root cause,
+- probability/confidence/severity claims,
+- RUL or exact time-to-failure,
+- Expert B timbre-direction accuracy,
+- API/async/dashboard/observability/container deployment,
 - Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
