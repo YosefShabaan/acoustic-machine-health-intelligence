@@ -8,11 +8,11 @@ This repository implements the foundation of an explainable acoustic machine hea
 
 VERIFIED RESULT: Expert A and the controlled SNR experiment are complete for Fan `id_00`. AUC improves from `0.6142` at `-6 dB` to `0.8306` at `0 dB` and `0.9980` at `+6 dB`.
 
-IMPLEMENTED THROUGH FINAL FAN MVP REPORT: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index, TASK-04 saved one reviewed same-audio Expert A -> Expert B abnormal JSON, TASK-05 defined the qualitative evidence protocol, TASK-06 implemented the Structured Health Context schema and translator, TASK-07 implemented a deterministic guardrailed explanation agent, TASK-08 implemented an approved-source local maintenance retriever, TASK-09 implemented a grounded maintenance agent with citation guardrails, TASK-10 implemented a bounded end-to-end Fan MVP orchestrator, TASK-11 rendered a static dashboard MVP, and TASK-12 produced the final Fan MVP evidence report plus academic claims register.
+IMPLEMENTED THROUGH REAL INTELLIGENCE COMPLETION: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index, TASK-04 saved one reviewed same-audio Expert A -> Expert B abnormal JSON, TASK-05 defined the qualitative evidence protocol, TASK-06 implemented the Structured Health Context schema and translator, TASK-07 implemented the deterministic guardrailed explanation layer, TASK-08 implemented approved-source retrieval foundations, TASK-09 implemented a grounded maintenance agent with citation guardrails, TASK-10 implemented a bounded end-to-end Fan MVP orchestrator, TASK-11 rendered a static dashboard MVP, TASK-12 produced the final Fan MVP evidence report plus academic claims register, and the Real Intelligence Completion phase added secure Gemini integration, live Gemini explanation, approved public Fan maintenance corpus, section-aware chunking, semantic retrieval, retrieval evaluation, Gemini-backed Maintenance Agent V2, Structured Health Context v0.2 provenance, one real Gemini + semantic RAG end-to-end smoke, a bounded 20-event Fan system evaluation, and an upgraded static evidence dashboard.
 
-PLANNED/BLOCKED: multi-machine generalization, domain robustness, and production maintenance grounding.
+PLANNED/BLOCKED: multi-machine generalization, domain robustness, and production maintenance validation.
 
-NEXT TECHNICAL STEP: TASK-13 Pump generalization is blocked until Pump data is staged at `D:\PDM_Data\MIMII\pump\id_00`. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
+NEXT TECHNICAL STEP: Pump generalization remains blocked until Pump data is staged at `D:\PDM_Data\MIMII\pump\id_00`. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
 
 # 3. Problem Statement
 
@@ -127,11 +127,39 @@ Component responsibilities:
 |---|---|---|---|---|---|
 | Expert A | Log-Mel audio features | Conv1D autoencoder reconstruction | score, threshold, boolean | Detect acoustic departure | Does not explain timbre or root cause |
 | Expert B | Same audio event, Expert A result, normal references | embedding kNN + timbre rank scores | five timbre rank scores and references | Characterize acoustic difference | No direction labels without threshold; no diagnosis |
-| Structured Context | Expert A/B outputs | schema translation | deterministic JSON | Preserve evidence and limits | First schema implemented |
-| LLM | structured context | guarded deterministic or mockable generation | technician-facing explanation | Explain evidence cautiously | Not retrieval-grounded yet |
-| RAG | context query + approved docs | manifest-gated local retrieval | source evidence | Ground recommendations | Retriever implemented; production KB empty |
-| Maintenance Agent | context, explanation, retrieved evidence | citation validation + output assembly | grounded technician output | Combine evidence and sources | Fixture-grounded smoke only; production docs empty |
-| Dashboard | end-to-end JSON | static HTML rendering | evidence view | Display status and limits | First MVP implemented |
+| Structured Context | Expert A/B outputs plus provider metadata | schema translation | versioned JSON | Preserve evidence, provenance, and limits | v0.2 records traceability; not diagnosis |
+| LLM | structured context | Gemini or deterministic guarded generation | technician-facing explanation | Explain evidence cautiously | Does not create maintenance actions or diagnosis |
+| RAG | context query + approved public Fan corpus | lexical/semantic retrieval with source IDs and chunk IDs | source evidence | Ground recommendations | Semantic selection is bounded to current Fan corpus/eval set |
+| Maintenance Agent | context, explanation, retrieved evidence | Gemini V2 + citation validation + deterministic fallback | grounded technician output | Combine evidence and retrieved sources | Not production maintenance validation |
+| Dashboard | real intelligence JSON + bounded evaluation JSON | static HTML rendering | evidence view | Display provenance, status, timings, citations, and limits | Static evidence artifact only |
+
+# 7.1 Real Intelligence Completion Summary
+
+COMPLETED ON 2026-07-09.
+
+New bounded evidence:
+
+- Gemini provider preflight and environment-only secret loading exist.
+- Live Gemini explanation over Structured Health Context is integrated.
+- Approved public Fan maintenance corpus `AMHI-FAN-MAINT-KB-v1` exists.
+- Section-aware source-preserving chunking is implemented and reviewed.
+- Gemini semantic retrieval exists and was compared against lexical and hybrid retrieval on a 24-query project evaluation set.
+- Semantic retrieval was selected for the bounded Fan MVP path.
+- Maintenance Agent V2 generates inspection-oriented citation-valid actions over retrieved source chunks.
+- Structured Health Context v0.2 records Expert A, Expert B, LLM, RAG, and maintenance provenance.
+- TASK-FAN-13 completed one real Gemini + semantic RAG same-audio Fan event with fallback_used=false for explanation and maintenance generation.
+- TASK-FAN-14 completed a bounded 20-event Fan integration evaluation with 10 downstream continuations, zero observed Gemini fallbacks, zero maintenance fallbacks, zero citation validation failures, and zero pipeline failures.
+- TASK-DASH-02 rendered the upgraded static Fan intelligence dashboard.
+
+Primary artifacts:
+
+```text
+D:\PDM_Data\MIMII\processed\real_intelligence_end_to_end_fan_id_00_minus6dB_task_fan_13.json
+D:\PDM_Data\MIMII\processed\fan_system_evaluation_fan_id_00_minus6dB_task_fan_14.json
+D:\PDM_Data\MIMII\processed\dashboard_real_intelligence_fan_id_00_minus6dB_task_dash_02.html
+docs/FAN_REAL_INTELLIGENCE_REPORT.md
+docs/FAN_SYSTEM_EVALUATION.md
+```
 
 # 8. Research Foundation
 
@@ -990,12 +1018,12 @@ The unique legacy unsuffixed model was preserved externally at
 | Expert B tests | DONE for guardrails | 7 tests OK | rank/filter/schema/API-compat/same-audio identity checks | scientific accuracy | later labels |
 | Expert B reference index | DONE for bounded Fan MVP | `D:\PDM_Data\MIMII\processed\timbre_reference_index_fan_id_00_minus6dB.json` | 40 references, k=30, load/filter/kNN validated | optional full 1011-reference offline index | later optional |
 | Expert A -> Expert B integration | DONE for one bounded smoke | `D:\PDM_Data\MIMII\processed\expert_b_smoke_fan_id_00_minus6dB_task04.json` | same abnormal audio path scored by Expert A and characterized by Expert B | broader review | later |
-| Context layer | DONE for first schema | `src/context`, `tests/test_context_schema.py`, sample context JSON | versioned schema, translator, tests, one smoke context | RAG usage | TASK-08 |
-| LLM | DONE for guarded offline explanation | `src/agents/diagnostic_agent.py`, `tests/test_llm_guardrails.py`, TASK-07 smoke JSON | deterministic explanation, prompt guardrails, optional mockable generator | live model integration optional later | later |
-| RAG | DONE for source-preserving retriever | `src/rag`, `tests/test_rag_grounding.py`, TASK-08 smoke JSON | approved-manifest indexing, source IDs/snippets, safe unavailable result, citation validation | approved production docs | data input |
-| Grounded maintenance agent | DONE for fixture-grounded smoke | `src/agents/maintenance_agent.py`, `tests/test_maintenance_agent.py`, TASK-09 smoke JSON | source-required recommendation, citation validation, safe unavailable mode | production approved docs | data input |
-| Orchestrator | DONE for one Fan MVP smoke | `scripts/run_end_to_end_demo.py`, `tests/test_end_to_end_orchestrator.py`, TASK-10 output JSON | one bounded same-event path with component timings | broader event coverage | later |
-| Dashboard | DONE for static MVP | `app/dashboard.py`, `tests/test_dashboard.py`, TASK-11 HTML | displays one Fan output with evidence, sources, recommendation, and limits | broader UI | later |
+| Context layer | DONE for v0.2 provenance schema | `src/context`, `tests/test_context_schema.py`, TASK-CTX-02 sample JSON | versioned schema, translator, tests, migration support, LLM/RAG/maintenance metadata | formal model versioning | later |
+| LLM | DONE for live Gemini guarded explanation | `src/agents/diagnostic_agent.py`, `src/agents/gemini_provider.py`, `tests/test_llm_guardrails.py` | live Gemini JSON generation plus deterministic fallback and guardrails | production operations | later |
+| RAG | DONE for evaluated selected semantic Fan retriever | `src/rag`, `tests/test_rag_grounding.py`, `tests/test_rag_retrieval_evaluation.py`, `docs/RAG_RETRIEVAL_EVALUATION.md` | approved public Fan corpus, lexical baseline, semantic retriever, hybrid comparison, selected semantic path | production maintenance review | later |
+| Grounded maintenance agent | DONE for Gemini V2 source-grounded output | `src/agents/maintenance_agent.py`, `tests/test_maintenance_agent.py`, TASK-MAINT-01/FAN-13 artifacts | live Gemini grounded actions, source_id/chunk_id citation validation, fallback | production validation | later |
+| Orchestrator | DONE for one real Fan smoke and bounded 20-event integration evaluation | `scripts/run_real_intelligence_fan_smoke.py`, `scripts/evaluate_fan_system.py`, tests, FAN-13/FAN-14 artifacts | same-audio real Gemini/RAG path and bounded multi-event evidence | broader machines | later |
+| Dashboard | DONE for upgraded static evidence dashboard | `app/dashboard.py`, `tests/test_dashboard.py`, TASK-DASH-02 HTML | real Gemini/RAG provenance, evaluation summary, timings, citations, limits | live app outside scope | later |
 | Final Fan MVP report | DONE | `docs/fan_mvp_final_report.md`, `docs/academic_claims.md` | supported/unsupported claims recorded | no broader machine validation | none |
 | Pump | BLOCKED | data missing at `D:\PDM_Data\MIMII\pump\id_00` | none | staging/evaluation | TASK-13 |
 | Valve | TODO | data missing | none | staging/evaluation | TASK-14 |
@@ -1022,7 +1050,7 @@ one bounded Fan same-audio smoke complete; qualitative evidence protocol documen
 Explanation/RAG/application layers:
 
 ```text
-context, guardrailed explanation, source-preserving retriever, grounded maintenance agent, one end-to-end Fan path, and static dashboard implemented
+context v0.2, live Gemini explanation, evaluated semantic RAG, Gemini V2 grounded maintenance, one real end-to-end Fan path, bounded 20-event Fan integration evaluation, and upgraded static dashboard implemented
 ```
 
 Generalization/robustness:
@@ -1033,7 +1061,7 @@ future work
 
 Core MVP implementation progress:
 
-The Fan MVP engineering and reporting path is complete for one bounded same-audio Fan `id_00` event: data staging, preprocessing, Expert A, SNR evaluation, Expert B guardrail code, bounded Expert B runtime, a loadable bounded Expert B reference index, one same-audio Expert A -> Expert B smoke, a qualitative Expert B review protocol, Structured Health Context, a guardrailed explanation agent, a source-preserving retriever, a grounded maintenance agent, one end-to-end Fan MVP JSON, one dashboard HTML artifact, and the final evidence/claims reports now exist.
+The Fan MVP engineering and reporting path is complete through Real Intelligence Completion for bounded Fan `id_00`: data staging, preprocessing, Expert A, SNR evaluation, Expert B guardrail code, bounded Expert B runtime, a loadable bounded Expert B reference index, one same-audio Expert A -> Expert B smoke, a qualitative Expert B review protocol, Structured Health Context v0.2, live Gemini explanation, approved public Fan maintenance corpus, evaluated selected semantic retriever, Gemini Maintenance Agent V2, one real Gemini + semantic RAG end-to-end smoke, a bounded 20-event Fan system integration evaluation, an upgraded static evidence dashboard, and final evidence/claims reports now exist.
 
 Research validation progress:
 
@@ -1041,11 +1069,11 @@ Expert A validation is strong for Fan `id_00` SNR sensitivity. Expert B scientif
 
 WHERE ARE WE NOW?
 
-We have a verified acoustic anomaly detector, a loadable bounded timbre-difference reference index for Fan `id_00` minus6dB, one reviewed same-audio abnormal Expert A -> Expert B JSON, a documented qualitative Expert B evidence protocol, one validated Structured Health Context JSON, one guarded explanation JSON, a source-preserving maintenance retriever, one fixture-grounded maintenance output JSON, one end-to-end Fan MVP JSON, one dashboard HTML artifact, and a final Fan MVP evidence package. The immediate next task is Pump generalization, but it is blocked because Pump data is not staged.
+We have a verified acoustic anomaly detector, a loadable bounded timbre-difference reference index for Fan `id_00` minus6dB, one reviewed same-audio abnormal Expert A -> Expert B JSON, a documented qualitative Expert B evidence protocol, Structured Health Context v0.2, live Gemini guarded explanation, an approved public Fan maintenance corpus, source-preserving lexical and semantic retrieval, one selected semantic retrieval path, Gemini V2 grounded maintenance output, one real end-to-end Fan smoke, a bounded 20-event Fan integration evaluation, an upgraded dashboard HTML artifact, and a final Real Intelligence report. The immediate next scientific expansion remains Pump generalization, but it is blocked because Pump data is not staged.
 
 WHAT REMAINS?
 
-Approved production maintenance documents, staged Pump/Valve/Slide Rail data for machine generalization, and MIMII DG data/assets for domain robustness.
+Production maintenance validation/review, staged Pump/Valve/Slide Rail data for machine generalization, and MIMII DG data/assets for domain robustness.
 
 # 28. Remaining Work
 
@@ -1057,11 +1085,19 @@ Approved production maintenance documents, staged Pump/Valve/Slide Rail data for
 | TASK-05 | Expert B Qualitative Evidence Protocol | DONE | TASK-04 | qualitative protocol |
 | TASK-06 | Structured Health Context Schema And Translator | DONE | TASK-04 | schema/tests/sample context |
 | TASK-07 | Guardrailed LLM Explanation Agent | DONE | TASK-06 | deterministic guarded explanation artifact |
-| TASK-08 | Maintenance Knowledge Base And Retriever | DONE | TASK-06 | source-preserving retriever/tests; production KB empty |
+| TASK-08 | Maintenance Knowledge Base And Retriever | DONE | TASK-06 | source-preserving retriever/tests |
 | TASK-09 | Grounded Maintenance Agent | DONE | TASK-07 + TASK-08 | sourced technician output with fixture source |
 | TASK-10 | End-To-End Fan MVP Orchestrator | DONE | TASK-04 + TASK-06 + TASK-09 | final JSON with component timings |
 | TASK-11 | Dashboard MVP | DONE | TASK-10 | static dashboard HTML |
 | TASK-12 | Fan MVP Final Evaluation And Academic Report | DONE | TASK-10 + TASK-11 | Fan MVP evidence package |
+| TASK-AI-01 | Gemini Secret And Provider Preflight | DONE | TASK-12 | environment-only Gemini config |
+| TASK-AI-02 | Live Gemini Text Generator | DONE | TASK-AI-01 | live Gemini guarded explanation |
+| TASK-RAG-01..05 | Approved Fan Corpus And Retrieval Selection | DONE | TASK-12 | AMHI-FAN-MAINT-KB-v1 and selected semantic retriever |
+| TASK-MAINT-01 | Gemini Grounded Maintenance Agent V2 | DONE | TASK-RAG-05 | citation-valid live Gemini maintenance smoke |
+| TASK-CTX-02 | Structured Health Context v0.2 | DONE | TASK-MAINT-01 | provenance metadata |
+| TASK-FAN-13 | Real Gemini + RAG Fan Smoke | DONE | TASK-CTX-02 | one validated real Fan end-to-end event |
+| TASK-FAN-14 | Bounded Fan System Evaluation | DONE | TASK-FAN-13 | 20-event bounded Fan integration evaluation |
+| TASK-DASH-02 | Updated Fan Intelligence Evidence Dashboard | DONE | TASK-FAN-14 | upgraded static provenance dashboard |
 | TASK-13 | Pump Generalization | BLOCKED - Pump data missing | TASK-12 + data | pump report/artifacts |
 | TASK-14 | Valve Generalization | test architecture transfer | TASK-12 + data | valve report/artifacts |
 | TASK-15 | Slide Rail Generalization | test architecture transfer | TASK-12 + data | slide rail report/artifacts |
@@ -1082,17 +1118,17 @@ TASK-01 was superseded by TASK-00 because repository normalization and active-sc
 | Expert B reference indexing is operationally bounded | Yes | TASK-02 timings and TASK-03 final artifact | full 1011-reference offline index not run |
 | Expert B technically works end-to-end | Yes for one bounded Fan smoke | TASK-04 smoke JSON | not a broad accuracy evaluation |
 | Expert B qualitative review protocol exists | Yes | `docs/expert_b_qualitative_protocol.md` | does not replace labels |
-| Structured Health Context exists | Yes | `src/context`, 5 context tests OK, sample context JSON | first schema only |
-| Guardrailed LLM explanation wrapper exists | Yes | `src/agents/diagnostic_agent.py`, 4 guardrail tests OK, TASK-07 smoke JSON | deterministic/offline wrapper; grounding handled downstream by RAG/maintenance agent |
-| Source-preserving maintenance retriever exists | Yes | `src/rag`, 4 RAG tests OK, TASK-08 smoke JSON | production approved-source manifest is absent |
-| Grounded maintenance agent exists | Yes for fixture-grounded smoke | `src/agents/maintenance_agent.py`, 5 maintenance tests OK, TASK-09 smoke JSON | production approved-source manifest is absent |
-| End-to-end Fan MVP path exists | Yes for one bounded smoke | `scripts/run_end_to_end_demo.py`, TASK-10 JSON, 4 end-to-end tests OK | uses fixture maintenance source; one event |
-| Dashboard MVP exists | Yes | `app/dashboard.py`, 3 dashboard tests OK, TASK-11 HTML | static one-artifact MVP |
+| Structured Health Context exists | Yes, v0.2 | `src/context`, context tests OK, TASK-CTX-02/FAN-13 artifacts | provenance records artifact IDs, LLM, RAG, and maintenance metadata |
+| Guardrailed LLM explanation wrapper exists | Yes, live Gemini integrated | `src/agents/diagnostic_agent.py`, `src/agents/gemini_provider.py`, tests, FAN-13 artifact | production operations still out of scope |
+| Source-preserving maintenance retriever exists | Yes, lexical baseline and selected semantic retriever | `src/rag`, RAG tests, `docs/RAG_RETRIEVAL_EVALUATION.md` | production maintenance validation still out of scope |
+| Grounded maintenance agent exists | Yes, Gemini V2 source-grounded | `src/agents/maintenance_agent.py`, maintenance tests, MAINT-01/FAN-13 artifacts | production maintenance validation still out of scope |
+| End-to-end Fan MVP path exists | Yes for one real smoke plus bounded integration evaluation | `scripts/run_real_intelligence_fan_smoke.py`, `scripts/evaluate_fan_system.py`, FAN-13/FAN-14 artifacts | bounded Fan only |
+| Dashboard MVP exists | Yes, upgraded static evidence dashboard | `app/dashboard.py`, 4 dashboard tests OK, TASK-DASH-02 HTML | not a live production app |
 | Final Fan MVP evidence package exists | Yes | `docs/fan_mvp_final_report.md`, `docs/academic_claims.md` | bounded Fan MVP only |
 | Expert B accurately predicts timbre direction | No | labels unavailable | requires labels/protocol |
 | Expert B diagnoses root cause | No | forbidden by architecture | no labels/model |
-| Technician maintenance output is retrieval-grounded | Yes for TASK-09 fixture output | grounded maintenance output includes retrieved fixture citation | production docs absent |
-| Production maintenance recommendations are grounded | No | production KB empty | requires approved docs |
+| Technician maintenance output is retrieval-grounded | Yes for approved public Fan corpus in bounded Fan runs | MAINT-01/FAN-13/FAN-14 artifacts cite retrieved source_id/chunk_id pairs | production validation absent |
+| Production maintenance recommendations are grounded | No | current corpus is approved public evidence, not production maintenance review | requires production/maintenance review |
 | Architecture generalizes to Pump/Valve/Slide Rail | No | data not staged/evaluated | future |
 | System is robust to domain shift | No | MIMII DG not staged/evaluated | future |
 | System predicts RUL | No | outside active scope | not planned |

@@ -48,9 +48,8 @@ Done:
 - Bounded 20-event Fan system integration evaluation.
 - Updated static Fan intelligence evidence dashboard.
 
-Current next work:
+Current remaining work:
 
-- Final Real Intelligence Completion documentation and project record reconciliation.
 - Multi-machine Pump generalization remains blocked because
   `D:\PDM_Data\MIMII\pump\id_00` is not staged.
 
@@ -116,6 +115,7 @@ Use the task plan and project state as the execution source of truth:
 - `docs/TASK_EXECUTION_LOG.md`
 - `project_state.json`
 - `docs/fan_mvp_final_report.md`
+- `docs/FAN_REAL_INTELLIGENCE_REPORT.md`
 - `docs/academic_claims.md`
 
 Large scientific data and generated model artifacts live outside Git under:

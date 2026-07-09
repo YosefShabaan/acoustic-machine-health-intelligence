@@ -49,6 +49,7 @@ Scope: claims supported by the current repository after `TASK-DASH-02`.
 | TASK-FAN-14 completed 10 downstream Expert B/context/RAG/Gemini/maintenance continuations with zero observed pipeline failures, zero Gemini explanation fallbacks, zero maintenance fallbacks, and zero citation validation failures. | VERIFIED REPOSITORY FACT | `docs/FAN_SYSTEM_EVALUATION.md`, external TASK-FAN-14 artifact |
 | One historical static dashboard HTML artifact exists for the TASK-10 fixture-era MVP. | VERIFIED REPOSITORY FACT | TASK-11 HTML |
 | TASK-DASH-02 rendered an updated static Fan intelligence dashboard over the real Gemini/RAG smoke and bounded Fan system evaluation artifacts. | VERIFIED REPOSITORY FACT | external TASK-DASH-02 HTML artifact, `tests/test_dashboard.py` |
+| The Real Intelligence Completion report exists and summarizes provider, corpus, retrieval, maintenance, context, smoke, evaluation, dashboard, latency, and claim limits. | VERIFIED REPOSITORY FACT | `docs/FAN_REAL_INTELLIGENCE_REPORT.md` |
 
 ## Project Decisions
 

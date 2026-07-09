@@ -1858,3 +1858,79 @@ TASK-12 + explicit optional approval -> TASK-18
 No task depends on a later task. Fan MVP is completed before multi-machine
 generalization. Domain robustness and optional MIMII-Agent-inspired work are
 deferred until after the Fan MVP.
+
+## Real Intelligence Completion Addendum
+
+Plan version: `real_intelligence_completion_v1_2026-07-09`
+
+Status: `COMPLETE`
+
+Scope:
+
+- Fan `id_00` `minus6dB` bounded MVP only.
+- Same-machine, same-audio Expert A -> Expert B architecture.
+- Approved public Fan maintenance corpus.
+- Live Gemini explanation and maintenance generation over structured context
+  and retrieved source chunks.
+- Static evidence dashboard.
+
+Completed tasks:
+
+| Task | Status | Evidence |
+|---|---|---|
+| `TASK-AI-01` Gemini secret/provider preflight | DONE | `src/agents/gemini_provider.py`, secure env-based config, tests |
+| `TASK-AI-02` live Gemini text generator | DONE | live Gemini explanation smoke, guardrail tests |
+| `TASK-RAG-01` approved public Fan corpus | DONE | `data/manuals/approved_sources.json`, `docs/RAG_SOURCE_REGISTER.md` |
+| `TASK-RAG-02` section-aware chunking | DONE | `docs/RAG_CORPUS_CHUNKING_REVIEW.md`, RAG tests |
+| `TASK-RAG-03` Gemini semantic retriever | DONE | external semantic embedding index, semantic retriever tests |
+| `TASK-RAG-04` retrieval evaluation set | DONE | `data/manuals/fan_maintenance_retrieval_eval_v1.json` |
+| `TASK-RAG-05` retrieval comparison/selection | DONE | `docs/RAG_RETRIEVAL_EVALUATION.md`; semantic selected |
+| `TASK-MAINT-01` Gemini Maintenance Agent V2 | DONE | live citation-valid maintenance smoke, tests |
+| `TASK-CTX-02` Structured Health Context v0.2 | DONE | v0.2 schema/tests/sample artifact |
+| `TASK-FAN-13` one-event real Gemini + RAG smoke | DONE | `D:\PDM_Data\MIMII\processed\real_intelligence_end_to_end_fan_id_00_minus6dB_task_fan_13.json` |
+| `TASK-FAN-14` bounded Fan system evaluation | DONE | `docs/FAN_SYSTEM_EVALUATION.md`, external 20-event evaluation artifact |
+| `TASK-DASH-02` updated static evidence dashboard | DONE | `D:\PDM_Data\MIMII\processed\dashboard_real_intelligence_fan_id_00_minus6dB_task_dash_02.html` |
+| `FINAL-DOCS` final report and record reconciliation | DONE | `docs/FAN_REAL_INTELLIGENCE_REPORT.md`, updated records |
+
+Final verification:
+
+- Artifact-independent repository tests passed: 76 tests OK.
+- Compileall passed for `src`, `scripts`, `tests`, and `app`.
+- `project_state.json` validates as JSON.
+- `git diff --check` passed.
+- Secret scans found no tracked Gemini API key pattern.
+- Large/generated scientific artifact guard found no tracked WAV, NumPy array,
+  model weight, generated dashboard HTML, embedding index, or processed output
+  artifact.
+
+Claims enabled:
+
+- Bounded Fan `id_00` real Gemini + selected semantic RAG integration evidence.
+- Bounded 20-event Fan integration evidence.
+- Source/chunk-citation-valid maintenance communication over approved public Fan
+  corpus chunks.
+- Structured Health Context v0.2 provenance recording.
+
+Claims still not enabled:
+
+- production readiness,
+- production maintenance validation,
+- confirmed physical root cause,
+- fault probability or confidence,
+- severity percentage,
+- RUL or exact time-to-failure,
+- Expert B quantitative direction accuracy,
+- Pump, Valve, Slide Rail, cross-machine, or MIMII DG generalization.
+
+Do not mark the following complete from this phase:
+
+- Pump
+- Valve
+- Slide Rail
+- Cross-Machine
+- MIMII DG
+- Production API
+- Persistence
+- Async Worker
+- Docker
+- Cloud Deployment
