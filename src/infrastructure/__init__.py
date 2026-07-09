@@ -5,9 +5,23 @@ from .artifact_registry import (
     ArtifactRegistry,
     ResolvedArtifactConfig,
 )
+from .audio_storage import (
+    AudioNotFoundError,
+    AudioStorage,
+    AudioStorageError,
+    AudioStorageMetadata,
+    LocalAudioStorage,
+    UnsupportedAudioTypeError,
+)
 
 __all__ = [
+    "AudioNotFoundError",
+    "AudioStorage",
+    "AudioStorageError",
+    "AudioStorageMetadata",
     "ArtifactNotRegisteredError",
     "ArtifactRegistry",
+    "LocalAudioStorage",
     "ResolvedArtifactConfig",
+    "UnsupportedAudioTypeError",
 ]

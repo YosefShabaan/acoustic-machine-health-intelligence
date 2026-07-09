@@ -1960,8 +1960,8 @@ Ordered productionization tasks:
 | `TASK-PROD-01` Define Fan Production Architecture | DONE | `docs/PRODUCTION_ARCHITECTURE.md` |
 | `TASK-PROD-02` Extract reusable AMHI Pipeline Service | DONE | `src/application/pipeline_service.py`, `tests/test_pipeline_service.py` |
 | `TASK-PROD-03` Machine-aware Artifact Registry | DONE | `src/infrastructure/artifact_registry.py`, `tests/test_artifact_registry.py` |
-| `TASK-PROD-04` Audio Storage abstraction | NEXT | pending |
-| `TASK-PROD-05` Event and Result Persistence | PLANNED | pending |
+| `TASK-PROD-04` Audio Storage abstraction | DONE | `src/infrastructure/audio_storage.py`, `tests/test_audio_storage.py` |
+| `TASK-PROD-05` Event and Result Persistence | NEXT | pending |
 | `TASK-PROD-06` API v1 contract | PLANNED | pending |
 | `TASK-PROD-07` FastAPI Fan Event API | PLANNED | pending |
 | `TASK-PROD-08` Asynchronous Event Processing | PLANNED | pending |
@@ -2056,4 +2056,34 @@ Claims still not enabled by TASK-PROD-03:
 - probability/confidence/severity claims,
 - RUL or exact time-to-failure,
 - Expert B timbre-direction accuracy,
+- Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
+
+TASK-PROD-04 result:
+
+- Created `src/infrastructure/audio_storage.py`.
+- Added `AudioStorage` protocol, `AudioStorageMetadata`, `LocalAudioStorage`,
+  `AudioStorageError`, `AudioNotFoundError`, and `UnsupportedAudioTypeError`.
+- Exported the storage boundary from `src/infrastructure/__init__.py`.
+- Integrated `AMHIPipelineService` with `AudioStorage.resolve(...)` before Expert
+  A scoring, so the scientific pipeline receives the resolved local processing
+  path plus storage metadata.
+- Added audio storage metadata to pipeline results for both flagged and
+  unflagged paths.
+- Added `tests/test_audio_storage.py` for valid local WAV references, missing
+  path rejection, unsupported extension rejection, metadata shape, and no-copy
+  behavior.
+- Updated pipeline service tests to use fake storage and avoid external-file
+  dependence in CI.
+- Runtime smoke resolved the real Fan reference WAV through `LocalAudioStorage`
+  with `copied=False`.
+
+Claims still not enabled by TASK-PROD-04:
+
+- accepted production operation,
+- production maintenance validation,
+- confirmed physical root cause,
+- probability/confidence/severity claims,
+- RUL or exact time-to-failure,
+- Expert B timbre-direction accuracy,
+- persistence/API/async/dashboard/observability/container deployment,
 - Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.

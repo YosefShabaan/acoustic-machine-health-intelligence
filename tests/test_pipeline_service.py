@@ -17,7 +17,7 @@ from application import (  # noqa: E402
     AMHIPipelineService,
     FanPipelineArtifactConfig,
 )
-from infrastructure import ArtifactNotRegisteredError  # noqa: E402
+from infrastructure import ArtifactNotRegisteredError, AudioStorageMetadata  # noqa: E402
 from rag import RetrievalResponse, RetrievalResult  # noqa: E402
 
 
@@ -195,8 +195,25 @@ def _service(
                 r"D:\PDM_Data\MIMII\processed\rag_semantic_index_AMHI-FAN-MAINT-KB-v1_gemini-embedding-2_768.json"
             ),
         ),
+        audio_storage=FakeAudioStorage(),
         dependencies=dependencies,
     )
+
+
+class FakeAudioStorage:
+    """Unit-test audio storage that does not touch the filesystem."""
+
+    def resolve(self, audio_reference: str | Path) -> AudioStorageMetadata:
+        return AudioStorageMetadata(
+            original_reference=str(audio_reference),
+            processing_path=Path(audio_reference),
+            storage_backend="fake",
+            file_name=Path(audio_reference).name,
+            suffix=Path(audio_reference).suffix.lower(),
+            exists=True,
+            size_bytes=12345,
+            copied=False,
+        )
 
 
 def _expert_b_output(
@@ -301,6 +318,8 @@ class AMHIPipelineServiceTests(unittest.TestCase):
         )
 
         self.assertEqual(result["pipeline_status"], "completed")
+        self.assertEqual(result["audio_storage"]["storage_backend"], "fake")
+        self.assertFalse(result["audio_storage"]["copied"])
         self.assertEqual(result["expert_b_output"]["input_audio"]["path"], str(AUDIO_PATH))
         self.assertEqual(result["structured_context"]["event"]["audio_path"], str(AUDIO_PATH))
         self.assertEqual(

@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Fan Production MVP implementation in progress; TASK-PROD-03 complete.
+Status: Fan Production MVP implementation in progress; TASK-PROD-04 complete.
 
-Latest completed task: `TASK-PROD-03`.
+Latest completed task: `TASK-PROD-04`.
 
 Use this template after every task:
 
@@ -19,6 +19,68 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-PROD-04 - Audio Storage Abstraction
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $project-architect as the primary skill and $scientific-implementer as secondary implementation support.
+- Created src/infrastructure/audio_storage.py.
+- Added AudioStorage protocol, AudioStorageMetadata, LocalAudioStorage, AudioStorageError, AudioNotFoundError, and UnsupportedAudioTypeError.
+- Exported audio storage types from src/infrastructure/__init__.py.
+- Integrated AMHIPipelineService with audio_storage.resolve(audio_reference) before Expert A scoring.
+- Added audio_storage metadata to completed and unflagged pipeline results.
+- Updated tests/test_pipeline_service.py to use FakeAudioStorage so service unit tests do not require external WAV files.
+- Added tests/test_audio_storage.py for valid local WAV reference, missing path, unsupported extension, path metadata, and no-copy behavior.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_audio_storage.py" -v
+- python -m unittest discover -s tests -p "test_pipeline_service.py" -v
+- python -m compileall -q src\infrastructure src\application tests\test_audio_storage.py tests\test_pipeline_service.py
+- LocalAudioStorage smoke over D:\PDM_Data\MIMII\fan_minus6dB\id_00\abnormal\00000002.wav
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+- python -m json.tool project_state.json
+- git diff --check
+
+ACTUAL OUTPUT:
+- Audio storage tests: Ran 4 tests, OK.
+- Pipeline service tests: Ran 5 tests, OK.
+- Full unit suite: Ran 91 tests in 5.660s, OK.
+- compileall: passed.
+- project_state.json: valid JSON.
+- git diff --check: passed; line-ending warnings only.
+- LocalAudioStorage smoke: LOCAL_AUDIO_STORAGE_SMOKE=OK; backend=local; file_name=00000002.wav; suffix=.wav; exists=True; size_bytes=2560080; copied=False.
+
+RUNTIME GATE:
+- Resolved one existing Fan reference WAV through LocalAudioStorage.
+- No training, indexing, Expert A scoring, Expert B characterization, RAG retrieval, Gemini call, dataset move, or dataset copy was run.
+
+IMPLEMENTATION REVIEW:
+- The pipeline service now depends on the AudioStorage abstraction instead of treating audio_reference as the processing path directly.
+- LocalAudioStorage validates file existence and supported suffix before processing.
+- No full MIMII dataset move/copy behavior was introduced.
+- Future AzureBlobAudioStorage can implement the same protocol without adding cloud SDKs in this task.
+
+SCIENTIFIC REVIEW:
+- Expert A preprocessing/scoring semantics were not changed; the service still passes a resolved local path to the existing scientific path.
+- Expert B semantics, RAG selection, Gemini behavior, and Structured Health Context behavior are unchanged.
+- No new scientific performance claim was added.
+
+DIFF REVIEW:
+- Changed files: src/infrastructure/audio_storage.py, src/infrastructure/__init__.py, src/application/pipeline_service.py, tests/test_audio_storage.py, tests/test_pipeline_service.py, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No repo-local WAV, NumPy array, model weight, reference index, dashboard HTML, smoke output, or generated scientific artifact was added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-PROD-05 - Event and Result Persistence.
 ```
 
 ```text

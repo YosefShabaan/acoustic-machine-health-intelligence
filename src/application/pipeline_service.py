@@ -25,6 +25,8 @@ from data_loader import _extract_logmel
 from infrastructure import (
     ArtifactNotRegisteredError,
     ArtifactRegistry,
+    AudioStorage,
+    LocalAudioStorage,
     ResolvedArtifactConfig,
 )
 from models.anomaly_detector import compute_threshold, rebuild_validation_tensor
@@ -90,6 +92,7 @@ class AMHIPipelineService:
 
     artifacts: FanPipelineArtifactConfig | None = None
     artifact_registry: ArtifactRegistry = field(default_factory=ArtifactRegistry)
+    audio_storage: AudioStorage = field(default_factory=LocalAudioStorage)
     dependencies: AMHIPipelineDependencies = field(
         default_factory=AMHIPipelineDependencies,
     )
@@ -122,7 +125,8 @@ class AMHIPipelineService:
         if artifact_config.rag_corpus_version != self.corpus_version:
             raise ValueError("Resolved RAG corpus version does not match service configuration")
 
-        audio_path = Path(audio_reference)
+        audio_metadata = self.audio_storage.resolve(audio_reference)
+        audio_path = audio_metadata.processing_path
         timings: dict[str, float] = {}
         total_start = perf_counter()
 
@@ -148,6 +152,7 @@ class AMHIPipelineService:
                 expert_a=expert_a,
                 timings=timings,
                 artifacts=artifact_config,
+                audio_storage_metadata=audio_metadata.to_dict(),
             )
 
         start = perf_counter()
@@ -232,6 +237,7 @@ class AMHIPipelineService:
                 "snr_tag": snr_tag,
             },
             "audio_path": str(audio_path),
+            "audio_storage": audio_metadata.to_dict(),
             "reference_index_path": str(artifact_config.expert_b_reference_index_path),
             "semantic_index_path": str(artifact_config.semantic_index_path),
             "artifact_metadata": artifact_config.to_metadata(),
@@ -321,6 +327,7 @@ class AMHIPipelineService:
         expert_a: dict[str, Any],
         timings: dict[str, float],
         artifacts: ResolvedArtifactConfig,
+        audio_storage_metadata: dict[str, Any],
     ) -> dict[str, Any]:
         return {
             "task": task_id,
@@ -332,6 +339,7 @@ class AMHIPipelineService:
                 "snr_tag": snr_tag,
             },
             "audio_path": str(audio_path),
+            "audio_storage": audio_storage_metadata,
             "reference_index_path": str(artifacts.expert_b_reference_index_path),
             "semantic_index_path": str(artifacts.semantic_index_path),
             "artifact_metadata": artifacts.to_metadata(),
