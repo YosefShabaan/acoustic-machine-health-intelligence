@@ -2,7 +2,7 @@
 
 Date: 2026-07-09
 
-Scope: claims supported by the current repository after `TASK-FAN-13`.
+Scope: claims supported by the current repository after `TASK-FAN-14`.
 
 ## Claim Classification Rules
 
@@ -45,6 +45,8 @@ Scope: claims supported by the current repository after `TASK-FAN-13`.
 | One end-to-end Fan MVP JSON exists. | VERIFIED REPOSITORY FACT | TASK-10 JSON |
 | TASK-FAN-13 ran one bounded Fan `id_00` same-audio event through Expert A, Expert B, Structured Health Context v0.2, selected semantic RAG, live Gemini explanation, and live Gemini grounded maintenance output. | VERIFIED REPOSITORY FACT | external TASK-FAN-13 artifact, `tests/test_real_intelligence_fan_smoke.py` |
 | TASK-FAN-13 produced three citation-valid inspection actions over retrieved DOE Fan maintenance chunks with explanation fallback_used=false and maintenance fallback_used=false. | VERIFIED REPOSITORY FACT | external TASK-FAN-13 artifact |
+| TASK-FAN-14 evaluated 20 bounded Fan events: 10 normal events and 10 Expert A-flagged abnormal events selected as an integration stress set. | VERIFIED REPOSITORY FACT | `docs/FAN_SYSTEM_EVALUATION.md`, external TASK-FAN-14 artifact |
+| TASK-FAN-14 completed 10 downstream Expert B/context/RAG/Gemini/maintenance continuations with zero observed pipeline failures, zero Gemini explanation fallbacks, zero maintenance fallbacks, and zero citation validation failures. | VERIFIED REPOSITORY FACT | `docs/FAN_SYSTEM_EVALUATION.md`, external TASK-FAN-14 artifact |
 | One static dashboard HTML artifact exists. | VERIFIED REPOSITORY FACT | TASK-11 HTML |
 
 ## Project Decisions
@@ -67,6 +69,7 @@ Scope: claims supported by the current repository after `TASK-FAN-13`.
 | Statement | Classification | Evidence | Required wording |
 |---|---|---|---|
 | Low SNR is the primary observed limitation of weak `minus6dB` Expert A separation. | INFERENCE | Controlled SNR-only comparison, AUC improves 0.6142 -> 0.8306 -> 0.9980 | "strongly indicated as the primary limitation" |
+| The bounded Fan MVP integration works for the evaluated Fan stress set. | INFERENCE | TASK-FAN-14 20-event integration artifact | "bounded Fan integration evidence, not diagnostic accuracy" |
 | The bounded Fan MVP integration works for one same-audio abnormal event. | INFERENCE | TASK-10 JSON, TASK-11 dashboard artifact, and TASK-FAN-13 real Gemini/RAG smoke | "one bounded Fan MVP path" |
 | Expert B rank scores can guide qualitative listening/inspection focus. | INFERENCE | TASK-04 rank scores and qualitative protocol | "relative rank among selected normal references" |
 
@@ -107,7 +110,10 @@ approved Fan corpus chunks. TASK-FAN-13 then ran one bounded same-audio Fan
 event through the live Gemini explanation and live Gemini grounded maintenance
 path with the selected semantic retriever and no fallback. Structured Health
 Context v0.2 records the actual model, reference index, retriever, corpus, LLM,
-and maintenance-agent metadata used for the bounded trace.
+and maintenance-agent metadata used for the bounded trace. TASK-FAN-14 adds a
+bounded 20-event Fan integration evaluation with 10 downstream continuations,
+zero observed Gemini fallbacks, zero maintenance fallbacks, zero citation
+validation failures, and zero pipeline failures.
 ```
 
 Must include limitation:

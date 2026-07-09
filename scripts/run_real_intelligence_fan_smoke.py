@@ -121,10 +121,11 @@ def validate_real_intelligence_output(
     output: dict[str, Any],
     *,
     require_live_gemini: bool = True,
+    expected_task: str = TASK_ID,
 ) -> None:
     """Validate TASK-FAN-13 identity, provenance, grounding, and claim bounds."""
-    if output.get("task") != TASK_ID:
-        raise ValueError(f"output task must be {TASK_ID}")
+    if output.get("task") != expected_task:
+        raise ValueError(f"output task must be {expected_task}")
 
     context = output["structured_context"]
     validate_structured_context(context)
@@ -227,6 +228,7 @@ def run_real_intelligence_fan_smoke(
     distance: str = DEFAULT_DISTANCE,
     retrieval_top_k: int = 3,
     require_live_gemini: bool = True,
+    task_id: str = TASK_ID,
 ) -> dict[str, Any]:
     """Run one bounded real Fan event through Expert A/B, RAG, and Gemini."""
     if cfg.RAG_FAN_MVP_SELECTED_RETRIEVER != "semantic":
@@ -272,7 +274,10 @@ def run_real_intelligence_fan_smoke(
     timings["expert_b_seconds"] = perf_counter() - start
 
     created_at = datetime.now(UTC).isoformat()
-    analysis_run_id = f"analysis_{machine_type}_{machine_id}_{snr_tag}_{audio_path.stem}_task_fan_13"
+    task_token = re.sub(r"[^a-z0-9]+", "_", task_id.lower()).strip("_")
+    analysis_run_id = (
+        f"analysis_{machine_type}_{machine_id}_{snr_tag}_{audio_path.stem}_{task_token}"
+    )
 
     start = perf_counter()
     pre_context = context_from_expert_b_output(
@@ -324,7 +329,7 @@ def run_real_intelligence_fan_smoke(
     timings["context_provenance_update_seconds"] = perf_counter() - start
 
     output = {
-        "task": TASK_ID,
+        "task": task_id,
         "architecture": (
             "audio -> Expert A -> Expert B -> Structured Health Context v0.2 -> "
             "semantic RAG -> Gemini guarded explanation -> Gemini grounded "
@@ -336,6 +341,7 @@ def run_real_intelligence_fan_smoke(
             "snr_tag": snr_tag,
         },
         "audio_path": str(audio_path),
+        "output_path": str(output_path),
         "reference_index_path": str(reference_index_path),
         "semantic_index_path": str(semantic_index_path),
         "retrieval_top_k": retrieval_top_k,
@@ -359,7 +365,11 @@ def run_real_intelligence_fan_smoke(
     }
 
     start = perf_counter()
-    validate_real_intelligence_output(output, require_live_gemini=require_live_gemini)
+    validate_real_intelligence_output(
+        output,
+        require_live_gemini=require_live_gemini,
+        expected_task=task_id,
+    )
     timings["validation_seconds"] = perf_counter() - start
     timings["total_seconds"] = perf_counter() - total_start
     output["validation"] = {
@@ -368,7 +378,11 @@ def run_real_intelligence_fan_smoke(
         "citation_pairs_valid": True,
         "forbidden_claim_hits": find_forbidden_claim_hits(output),
     }
-    validate_real_intelligence_output(output, require_live_gemini=require_live_gemini)
+    validate_real_intelligence_output(
+        output,
+        require_live_gemini=require_live_gemini,
+        expected_task=task_id,
+    )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(output, indent=2), encoding="utf-8")

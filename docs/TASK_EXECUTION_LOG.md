@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Real Intelligence Completion in progress; TASK-FAN-13 complete.
+Status: Real Intelligence Completion in progress; TASK-FAN-14 complete.
 
-Latest completed task: `TASK-FAN-13`.
+Latest completed task: `TASK-FAN-14`.
 
 Use this template after every task:
 
@@ -19,6 +19,79 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-FAN-14 - Bounded Fan System Evaluation
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Added scripts/evaluate_fan_system.py.
+- Added tests/test_fan_system_evaluation.py.
+- Created docs/FAN_SYSTEM_EVALUATION.md.
+- Selected a bounded 20-event Fan id_00 minus6dB integration stress set: 10 first-lexicographic normal events and 10 Expert A-flagged abnormal events found by lexicographic scan, excluding the TASK-FAN-13 reference event to avoid duplicate Gemini calls.
+- Ran Expert A for every event.
+- Ran Expert B, Structured Health Context v0.2, selected semantic RAG, live Gemini explanation, and Gemini grounded maintenance only for Expert A-flagged events.
+- Recorded preflight timing/cost estimate and API quota/rate handling review before live generation.
+- Saved the external machine-readable artifact to D:\PDM_Data\MIMII\processed\fan_system_evaluation_fan_id_00_minus6dB_task_fan_14.json.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_fan_system_evaluation.py" -v
+- python -m unittest discover -s tests -p "test_real_intelligence_fan_smoke.py" -v
+- python -m compileall -q scripts\evaluate_fan_system.py scripts\run_real_intelligence_fan_smoke.py tests\test_fan_system_evaluation.py tests\test_real_intelligence_fan_smoke.py
+- python -m unittest discover -s tests -p "test_*.py"
+- preflight helper run over selected 20 events without Gemini
+- python scripts\evaluate_fan_system.py
+
+ACTUAL OUTPUT:
+- Unit suite before live run: Ran 75 tests, OK.
+- Preflight event count: 20.
+- Preflight selected 10 normal and 10 abnormal events.
+- Preflight Expert A-flagged continuations: 10.
+- Estimated Gemini calls: 30.
+- First three events had 1 continuation and 3 estimated Gemini calls.
+- Abnormal candidates scanned: 59.
+- Live evaluation: EVENTS=20, NORMAL_EVENTS=10, ABNORMAL_EVENTS=10.
+- Expert A flagged count: 10.
+- Expert B run count: 10.
+- Same-audio identity successes: 10.
+- Context validation successes: 10.
+- Retrieval available: 10.
+- Gemini explanation successes: 10; fallbacks: 0.
+- Maintenance generation successes: 10; fallbacks: 0.
+- Citation validation failures: 0.
+- Pipeline failures: 0.
+- Forbidden claim failures: 0.
+- Top retrieved source distribution: doe_fan_sourcebook_2003=10.
+- Completed pipeline total latency: mean 23.444230s, min 18.117228s, max 31.403587s.
+- Total evaluation wall time: 242.509219s.
+
+IMPLEMENTATION REVIEW:
+- The evaluator uses a documented deterministic stress-set policy and records the selection bias explicitly.
+- Expert B is gated on Expert A and never runs for unflagged normal events.
+- FAN-14 reuses the FAN-13 validator with task-specific expected task IDs.
+- Live Gemini generation runs sequentially with no parallel burst.
+- Generated JSON event/evaluation artifacts are external under D:\PDM_Data\MIMII\processed.
+
+SCIENTIFIC REVIEW:
+- This is bounded multi-event integration evidence, not Expert A recall, fault-diagnosis accuracy, Expert B direction accuracy, production maintenance validation, or multi-machine generalization.
+- The abnormal event selection intentionally exercises downstream continuations and must not be presented as an unbiased abnormal sample.
+- Rank scores remain qualitative local ranks, not probabilities or confidence.
+- Zero observed fallbacks/failures are repository facts for this bounded run only.
+
+DIFF REVIEW:
+- Changed files: scripts/run_real_intelligence_fan_smoke.py, scripts/evaluate_fan_system.py, tests/test_real_intelligence_fan_smoke.py, tests/test_fan_system_evaluation.py, docs/FAN_SYSTEM_EVALUATION.md, README.md, docs/academic_claims.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- External artifact: D:\PDM_Data\MIMII\processed\fan_system_evaluation_fan_id_00_minus6dB_task_fan_14.json.
+- External per-event artifacts: D:\PDM_Data\MIMII\processed\fan_system_evaluation_fan_id_00_minus6dB_task_fan_14_events.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-DASH-02 - Updated Fan Intelligence Evidence Dashboard.
 ```
 
 ```text

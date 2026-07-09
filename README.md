@@ -29,7 +29,7 @@ audio event that Expert A evaluated; it is not an independent diagnosis system.
 
 ## Fan MVP Status
 
-The Fan MVP is complete through `TASK-FAN-13` for one bounded same-audio Fan
+The Fan MVP is complete through `TASK-FAN-14` for one bounded same-audio Fan
 `id_00` path.
 
 Done:
@@ -45,10 +45,11 @@ Done:
 - Final Fan MVP evidence report and academic claims register.
 - Real Gemini + selected semantic RAG end-to-end Fan smoke using Structured
   Health Context v0.2.
+- Bounded 20-event Fan system integration evaluation.
 
 Current next work:
 
-- `TASK-FAN-14` bounded Fan system evaluation.
+- `TASK-DASH-02` updated Fan intelligence evidence dashboard.
 - Multi-machine Pump generalization remains blocked because
   `D:\PDM_Data\MIMII\pump\id_00` is not staged.
 
@@ -86,6 +87,19 @@ Real intelligence Fan smoke (`TASK-FAN-13`):
 - Total runtime: `25.781358s`.
 - Forbidden claim hits: `[]`.
 - TASK-10 comparison is historical only; changed free text is not scientific improvement evidence.
+
+Bounded Fan system evaluation (`TASK-FAN-14`):
+
+- Event set: 10 normal Fan events + 10 Expert A-flagged abnormal Fan events.
+- Expert B executions: 10.
+- Same-audio identity successes: 10.
+- Context validation successes: 10.
+- Retrieval available: 10.
+- Gemini explanation fallbacks: 0.
+- Maintenance fallbacks: 0.
+- Citation validation failures: 0.
+- Pipeline failures: 0.
+- Total wall time: `242.509219s`.
 
 ## Workflow
 
@@ -138,7 +152,7 @@ Current local evidence:
 
 ```text
 python -m unittest discover -s tests -p "test_*.py"
-Ran 71 tests
+Ran 75 tests
 OK
 ```
 
@@ -161,6 +175,7 @@ Supported:
 - A bounded live Gemini maintenance-agent smoke produced citation-valid inspection actions over approved Fan maintenance chunks.
 - Structured Health Context v0.2 records provenance for Expert A, Expert B, LLM, RAG, and Maintenance Agent outputs.
 - One bounded real Gemini + semantic RAG Fan smoke completed with live Gemini explanation and live Gemini grounded maintenance output.
+- One bounded 20-event Fan system integration evaluation completed with 10 downstream continuations and no observed fallback, citation, or pipeline failures.
 
 Not supported:
 
@@ -176,7 +191,6 @@ Not supported:
 
 Backlog and blocked work:
 
-- Bounded Fan system evaluation.
 - Updated Fan intelligence evidence dashboard.
 - Pump data staging.
 - Pump Expert A evaluation.
