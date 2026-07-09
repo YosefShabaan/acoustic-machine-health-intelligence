@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-from datetime import UTC, datetime
 import json
 from pathlib import Path
 import re
@@ -17,31 +16,13 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 import config as cfg  # noqa: E402
-from agents import (  # noqa: E402
-    GeminiMaintenanceTextGenerator,
-    GeminiTextGenerator,
-    build_retrieval_query,
-    explain_context,
-    generate_grounded_maintenance_output,
-    validate_maintenance_output,
-)
+from agents import validate_maintenance_output  # noqa: E402
+from application import AMHIPipelineService, FanPipelineArtifactConfig  # noqa: E402
 from context.schemas import CONTEXT_SCHEMA_VERSION, TIMBRE_ATTRIBUTES, validate_structured_context  # noqa: E402
-from context.translator import context_from_expert_b_output  # noqa: E402
-from models.timbre_difference import (  # noqa: E402
-    DEFAULT_DISTANCE,
-    DEFAULT_K,
-    AcousticTimbreDifferenceExpert,
-    ExpertABottleneckEmbedder,
-)
-from rag import (  # noqa: E402
-    GeminiEmbeddingProvider,
-    SemanticRetriever,
-    default_embedding_index_path,
-    load_embedding_index,
-)
-from utils.audio_reference_index import load_reference_index  # noqa: E402
+from models.timbre_difference import DEFAULT_DISTANCE, DEFAULT_K  # noqa: E402
+from rag import default_embedding_index_path  # noqa: E402
 
-from run_expert_b_smoke import _default_index, score_expert_a  # noqa: E402
+from run_expert_b_smoke import _default_index  # noqa: E402
 
 
 CORPUS_VERSION = "AMHI-FAN-MAINT-KB-v1"
@@ -238,131 +219,32 @@ def run_real_intelligence_fan_smoke(
     if distance != DEFAULT_DISTANCE:
         raise ValueError(f"TASK-FAN-13 preserves Expert B distance={DEFAULT_DISTANCE}")
 
-    timings: dict[str, float] = {}
-    total_start = perf_counter()
-
-    start = perf_counter()
-    reference_index = load_reference_index(reference_index_path)
-    embedder = ExpertABottleneckEmbedder(snr_tag=snr_tag)
-    timings["load_reference_index_and_embedder_seconds"] = perf_counter() - start
-
-    start = perf_counter()
-    expert_a = score_expert_a(audio_path, embedder)
-    if not expert_a["is_anomaly"]:
-        raise ValueError(
-            f"Expert A did not flag supplied audio: {audio_path}; "
-            f"score={expert_a['anomaly_score']:.6f}, "
-            f"threshold={expert_a['threshold']:.6f}"
-        )
-    timings["audio_expert_a_seconds"] = perf_counter() - start
-
-    start = perf_counter()
-    expert = AcousticTimbreDifferenceExpert(
-        reference_index=reference_index,
-        embedder=embedder,
+    service = AMHIPipelineService(
+        artifacts=FanPipelineArtifactConfig(
+            reference_index_path=reference_index_path,
+            semantic_index_path=semantic_index_path,
+        ),
         k=k,
         distance=distance,
-        rank_threshold=None,
+        retrieval_top_k=retrieval_top_k,
+        corpus_version=CORPUS_VERSION,
     )
-    expert_b_output = expert.characterize(
-        audio_path=audio_path,
+    output = service.process_event(
+        audio_reference=audio_path,
         machine_type=machine_type,
         machine_id=machine_id,
         snr_tag=snr_tag,
-        expert_a=expert_a,
+        task_id=task_id,
     )
-    timings["expert_b_seconds"] = perf_counter() - start
-
-    created_at = datetime.now(UTC).isoformat()
-    task_token = re.sub(r"[^a-z0-9]+", "_", task_id.lower()).strip("_")
-    analysis_run_id = (
-        f"analysis_{machine_type}_{machine_id}_{snr_tag}_{audio_path.stem}_{task_token}"
-    )
-
-    start = perf_counter()
-    pre_context = context_from_expert_b_output(
-        expert_b_output,
-        created_at=created_at,
-        analysis_run_id=analysis_run_id,
-        reference_index_path=reference_index_path,
-    )
-    timings["context_translation_seconds"] = perf_counter() - start
-
-    start = perf_counter()
-    explanation = explain_context(pre_context, generator=GeminiTextGenerator())
-    timings["gemini_explanation_seconds"] = perf_counter() - start
-
-    start = perf_counter()
-    retrieval_query = build_retrieval_query(pre_context)
-    semantic_index = load_embedding_index(semantic_index_path)
-    retrieval = SemanticRetriever(
-        semantic_index,
-        GeminiEmbeddingProvider(),
-    ).retrieve(retrieval_query, top_k=retrieval_top_k)
-    timings["retrieval_seconds"] = perf_counter() - start
-
-    start = perf_counter()
-    technician_output = generate_grounded_maintenance_output(
-        pre_context,
-        explanation=explanation,
-        retrieval=retrieval,
-        generator=GeminiMaintenanceTextGenerator(),
-        retriever_type="semantic",
-        corpus_version=CORPUS_VERSION,
-    )
-    timings["gemini_maintenance_seconds"] = perf_counter() - start
-
-    start = perf_counter()
-    final_context = context_from_expert_b_output(
-        expert_b_output,
-        created_at=created_at,
-        analysis_run_id=analysis_run_id,
-        reference_index_path=reference_index_path,
-        llm_metadata=explanation.get("metadata"),
-        rag_metadata={
-            "retriever_type": "semantic",
-            "corpus_version": CORPUS_VERSION,
-            "retrieval_query": retrieval_query,
-        },
-        maintenance_metadata=technician_output.get("metadata"),
-    )
-    timings["context_provenance_update_seconds"] = perf_counter() - start
-
-    output = {
-        "task": task_id,
-        "architecture": (
-            "audio -> Expert A -> Expert B -> Structured Health Context v0.2 -> "
-            "semantic RAG -> Gemini guarded explanation -> Gemini grounded "
-            "maintenance -> validation"
-        ),
-        "machine_scope": {
-            "machine_type": machine_type,
-            "machine_id": machine_id,
-            "snr_tag": snr_tag,
-        },
-        "audio_path": str(audio_path),
-        "output_path": str(output_path),
-        "reference_index_path": str(reference_index_path),
-        "semantic_index_path": str(semantic_index_path),
-        "retrieval_top_k": retrieval_top_k,
-        "retrieval_query": retrieval_query,
-        "expert_b_output": expert_b_output,
-        "structured_context": final_context,
-        "guarded_explanation": explanation,
-        "retrieval": retrieval.to_dict(),
-        "technician_output": technician_output,
-        "task10_comparison": load_task10_comparison(old_task10_output_path),
-        "limits": {
-            "same_machine_same_audio": True,
-            "rank_scores_are_probabilities": False,
-            "physical_root_cause_confirmed": False,
-            "remaining_life_prediction_available": False,
-            "production_maintenance_validation_complete": False,
-            "multi_machine_generalization_enabled": False,
-            "free_text_change_is_scientific_improvement": False,
-        },
-        "timings": timings,
-    }
+    expert_a = output.get("expert_a", {})
+    if output.get("pipeline_status") != "completed":
+        raise ValueError(
+            f"Expert A did not flag supplied audio: {audio_path}; "
+            f"score={float(expert_a.get('anomaly_score', 0.0)):.6f}, "
+            f"threshold={float(expert_a.get('threshold', 0.0)):.6f}"
+        )
+    output["output_path"] = str(output_path)
+    output["task10_comparison"] = load_task10_comparison(old_task10_output_path)
 
     start = perf_counter()
     validate_real_intelligence_output(
@@ -370,8 +252,11 @@ def run_real_intelligence_fan_smoke(
         require_live_gemini=require_live_gemini,
         expected_task=task_id,
     )
-    timings["validation_seconds"] = perf_counter() - start
-    timings["total_seconds"] = perf_counter() - total_start
+    output["timings"]["validation_seconds"] = perf_counter() - start
+    output["timings"]["total_seconds"] = (
+        float(output["timings"]["total_seconds"])
+        + float(output["timings"]["validation_seconds"])
+    )
     output["validation"] = {
         "validator": "validate_real_intelligence_output",
         "require_live_gemini": require_live_gemini,

@@ -1958,8 +1958,8 @@ Ordered productionization tasks:
 | Task | Status | Evidence |
 |---|---|---|
 | `TASK-PROD-01` Define Fan Production Architecture | DONE | `docs/PRODUCTION_ARCHITECTURE.md` |
-| `TASK-PROD-02` Extract reusable AMHI Pipeline Service | NEXT | pending |
-| `TASK-PROD-03` Machine-aware Artifact Registry | PLANNED | pending |
+| `TASK-PROD-02` Extract reusable AMHI Pipeline Service | DONE | `src/application/pipeline_service.py`, `tests/test_pipeline_service.py` |
+| `TASK-PROD-03` Machine-aware Artifact Registry | NEXT | pending |
 | `TASK-PROD-04` Audio Storage abstraction | PLANNED | pending |
 | `TASK-PROD-05` Event and Result Persistence | PLANNED | pending |
 | `TASK-PROD-06` API v1 contract | PLANNED | pending |
@@ -1990,6 +1990,36 @@ TASK-PROD-01 result:
   expansion, not as implemented support.
 
 Claims still not enabled by TASK-PROD-01:
+
+- accepted production operation,
+- production maintenance validation,
+- confirmed physical root cause,
+- probability/confidence/severity claims,
+- RUL or exact time-to-failure,
+- Expert B timbre-direction accuracy,
+- multi-machine or domain-robustness generalization.
+
+TASK-PROD-02 result:
+
+- Created `src/application/pipeline_service.py` and `src/application/__init__.py`.
+- Added `AMHIPipelineService.process_event(audio_reference, machine_type,
+  machine_id, snr_tag, task_id=...)` for the current Fan `id_00` scope.
+- Added injectable dependencies so service behavior can be unit-tested without
+  loading artifacts or calling Gemini.
+- Refactored `scripts/run_real_intelligence_fan_smoke.py` so the CLI path calls
+  the reusable service instead of owning a second orchestration implementation.
+- Added `tests/test_pipeline_service.py` for unflagged gating, flagged full
+  path, same-audio identity, fallback metadata propagation, retrieval metadata
+  propagation, stage timing presence, and unsupported-machine rejection.
+- Runtime gate on the existing Fan reference event preserved Expert A score,
+  threshold, anomaly decision, Expert B k/distance/rank_threshold/null
+  directions/rank scores, Structured Health Context v0.2, semantic retriever,
+  corpus version, and retrieved chunks compared with `TASK-FAN-13`.
+- During the runtime gate, Gemini returned `ClientError`; the strict live run
+  therefore failed as expected, and the allowed-fallback probe completed with
+  deterministic fallback metadata recorded for explanation and maintenance.
+
+Claims still not enabled by TASK-PROD-02:
 
 - accepted production operation,
 - production maintenance validation,

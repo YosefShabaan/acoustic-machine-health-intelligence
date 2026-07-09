@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Fan Production MVP implementation in progress; TASK-PROD-01 complete.
+Status: Fan Production MVP implementation in progress; TASK-PROD-02 complete.
 
-Latest completed task: `TASK-PROD-01`.
+Latest completed task: `TASK-PROD-02`.
 
 Use this template after every task:
 
@@ -19,6 +19,79 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-PROD-02 - Extract Reusable AMHI Pipeline Service
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $project-architect as the primary skill and $scientific-implementer as secondary implementation support.
+- Created src/application/__init__.py.
+- Created src/application/pipeline_service.py with AMHIPipelineService, FanPipelineArtifactConfig, AMHIPipelineDependencies, and UnsupportedMachineScopeError.
+- Implemented process_event(audio_reference, machine_type, machine_id, snr_tag, task_id=...) for the active Fan id_00 scope.
+- Preserved Expert B k=30, distance=euclidean, rank_threshold=None, and null direction fields.
+- Implemented unflagged Expert A gating so downstream Expert B/RAG/Gemini work is skipped when Expert A does not flag the event.
+- Refactored scripts/run_real_intelligence_fan_smoke.py to call AMHIPipelineService, then handle validation, task10 comparison metadata, and JSON serialization.
+- Added tests/test_pipeline_service.py for unflagged gating, flagged full path, same-audio identity, retrieval metadata propagation, fallback metadata propagation, stage timings, and unsupported-machine rejection.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_pipeline_service.py" -v
+- python -m unittest discover -s tests -p "test_real_intelligence_fan_smoke.py" -v
+- python -m compileall -q src\application scripts\run_real_intelligence_fan_smoke.py tests\test_pipeline_service.py
+- python scripts\run_real_intelligence_fan_smoke.py --output D:\PDM_Data\MIMII\processed\real_intelligence_end_to_end_fan_id_00_minus6dB_task_prod_02.json
+- python scripts\run_real_intelligence_fan_smoke.py --allow-gemini-fallback --output D:\PDM_Data\MIMII\processed\real_intelligence_end_to_end_fan_id_00_minus6dB_task_prod_02_fallback_probe.json
+- TASK-FAN-13 vs TASK-PROD-02 fallback probe semantic comparison script.
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+- python -m json.tool project_state.json
+- git diff --check
+
+ACTUAL OUTPUT:
+- Pipeline service tests: Ran 5 tests, OK.
+- Real-intelligence smoke validator tests: Ran 5 tests, OK.
+- Full unit suite: Ran 81 tests in 5.688s, OK.
+- compileall: passed.
+- project_state.json: valid JSON.
+- git diff --check: passed; line-ending warnings only.
+- Gemini secret preflight: present without printing the value.
+- Strict live runtime gate reached Gemini but failed validation because maintenance Gemini fallback was used.
+- Fallback probe completed: EVENT_ID=fan_id_00_minus6dB_00000002; Expert A score=0.622095, threshold=0.593284, is_anomaly=True; Expert B ranks sharpness=0.933333, roughness=0.933333, boominess=0.000000, brightness=0.933333, depth=0.666667; explanation fallback=True; maintenance fallback=True; forbidden hits=[]; total seconds=17.031731.
+- Fallback metadata reason: ClientError for explanation and maintenance.
+- Semantic comparison with TASK-FAN-13 matched event_id, audio_path, Expert A score/threshold/decision, context schema, Expert B k/distance/rank_threshold/selected_count/rank scores, semantic retriever, corpus version, and retrieved source/chunk pairs.
+
+RUNTIME GATE:
+- One existing Fan reference event was processed through the refactored service-backed CLI path.
+- The strict live path was not marked successful because Gemini returned ClientError and validation correctly rejected fallback when live Gemini was required.
+- The allowed-fallback probe proved orchestration semantics and metadata propagation without claiming live-generation success for this run.
+
+IMPLEMENTATION REVIEW:
+- The CLI no longer owns the full real-intelligence orchestration; it delegates to AMHIPipelineService.
+- The service has no HTTP, database, dashboard, or GitHub behavior.
+- The service returns structured pipeline results and leaves output file writing to the script wrapper.
+- Tests use injected fakes, so CI does not need live artifacts or Gemini calls.
+
+SCIENTIFIC REVIEW:
+- Expert A scoring behavior and metrics were not changed.
+- Expert B method semantics are unchanged.
+- Same-audio identity is preserved.
+- Structured Health Context v0.2 provenance now records fallback metadata from the service result.
+- The Gemini ClientError fallback is operational evidence only; it is not a scientific improvement or failure-rate claim.
+- No root-cause, probability/confidence/severity, RUL, production maintenance validation, multi-machine, or domain-robustness claim was added.
+
+DIFF REVIEW:
+- Changed files: src/application/__init__.py, src/application/pipeline_service.py, scripts/run_real_intelligence_fan_smoke.py, tests/test_pipeline_service.py, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- External runtime artifact: D:\PDM_Data\MIMII\processed\real_intelligence_end_to_end_fan_id_00_minus6dB_task_prod_02_fallback_probe.json.
+- No repo-local data/model/generated scientific artifact was added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-PROD-03 - Machine-Aware Artifact Registry.
 ```
 
 ```text
