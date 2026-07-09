@@ -1962,8 +1962,8 @@ Ordered productionization tasks:
 | `TASK-PROD-03` Machine-aware Artifact Registry | DONE | `src/infrastructure/artifact_registry.py`, `tests/test_artifact_registry.py` |
 | `TASK-PROD-04` Audio Storage abstraction | DONE | `src/infrastructure/audio_storage.py`, `tests/test_audio_storage.py` |
 | `TASK-PROD-05` Event and Result Persistence | DONE | `src/application/repositories.py`, `src/infrastructure/persistence/sqlite_repository.py`, `src/infrastructure/persistence/migrations/001_initial_postgres.sql`, `tests/test_persistence.py` |
-| `TASK-PROD-06` API v1 contract | NEXT | pending |
-| `TASK-PROD-07` FastAPI Fan Event API | PLANNED | pending |
+| `TASK-PROD-06` API v1 contract | DONE | `docs/API_CONTRACT_V1.md`, `tests/test_api_contract_doc.py` |
+| `TASK-PROD-07` FastAPI Fan Event API | NEXT | pending |
 | `TASK-PROD-08` Asynchronous Event Processing | PLANNED | pending |
 | `TASK-PROD-09` API-backed Technician Dashboard | PLANNED | pending |
 | `TASK-PROD-10` Structured Logging | PLANNED | pending |
@@ -2118,4 +2118,35 @@ Claims still not enabled by TASK-PROD-05:
 - RUL or exact time-to-failure,
 - Expert B timbre-direction accuracy,
 - API/async/dashboard/observability/container deployment,
+- Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
+
+TASK-PROD-06 result:
+
+- Created `docs/API_CONTRACT_V1.md`.
+- Defined `/api/v1` endpoints before route implementation:
+  `POST /api/v1/events`, `GET /api/v1/events/{event_id}`,
+  `GET /api/v1/events`, `GET /api/v1/machines/{machine_type}/{machine_id}/events`,
+  `GET /api/v1/health`, and `GET /api/v1/ready`.
+- Chose canonical `multipart/form-data` WAV upload for Fan Production MVP
+  ingestion, with config-gated JSON registered-reference ingestion for local
+  development and unit tests only.
+- Documented `202 Accepted` queued event semantics so HTTP ingestion does not
+  block on the full Gemini/pipeline path.
+- Documented event summary, completed/failed result shapes, error schema,
+  pagination, timestamp format, health, readiness, versioning, response safety,
+  and scientific guardrails.
+- Added `tests/test_api_contract_doc.py` to assert required endpoints, status
+  values, ingestion decision, async boundary, claim guardrails, and absence of
+  a staged local dataset path leak in the contract.
+
+Claims still not enabled by TASK-PROD-06:
+
+- accepted production operation,
+- production maintenance validation,
+- confirmed physical root cause,
+- probability/confidence/severity claims,
+- RUL or exact time-to-failure,
+- Expert B timbre-direction accuracy,
+- implemented API routes,
+- async processing, dashboard, observability, or container deployment,
 - Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.

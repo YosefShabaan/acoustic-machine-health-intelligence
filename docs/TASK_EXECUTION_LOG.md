@@ -2,9 +2,9 @@
 
 Plan version: `master_execution_plan_v3_2026-07-07`
 
-Status: Fan Production MVP implementation in progress; TASK-PROD-05 complete.
+Status: Fan Production MVP implementation in progress; TASK-PROD-06 complete.
 
-Latest completed task: `TASK-PROD-05`.
+Latest completed task: `TASK-PROD-06`.
 
 Use this template after every task:
 
@@ -19,6 +19,64 @@ SCIENTIFIC REVIEW:
 DIFF REVIEW:
 VERDICT:
 NEXT TASK:
+```
+
+```text
+TASK:
+TASK-PROD-06 - API v1 Contract
+
+STARTED:
+2026-07-09
+
+IMPLEMENTED:
+- Used $project-architect as the primary skill and $scientific-implementer as secondary implementation support.
+- Created docs/API_CONTRACT_V1.md.
+- Defined /api/v1 endpoint contract before implementing routes.
+- Chose canonical multipart/form-data WAV upload for Fan Production MVP ingestion.
+- Documented config-gated development JSON registered-reference ingestion.
+- Documented 202 Accepted queued event semantics, event/result schemas, errors, pagination, timestamps, health, readiness, response safety, versioning, and scientific guardrails.
+- Added tests/test_api_contract_doc.py to guard the contract.
+
+TESTS:
+- python -m unittest discover -s tests -p "test_api_contract_doc.py" -v
+- python -m compileall -q tests\test_api_contract_doc.py
+- API contract smoke over docs/API_CONTRACT_V1.md
+- python -m unittest discover -s tests -p "test_*.py"
+- python -m compileall -q src scripts tests app
+
+ACTUAL OUTPUT:
+- API contract doc tests: Ran 4 tests, OK.
+- Focused compileall: passed.
+- Runtime contract smoke: TASK_PROD_06_API_CONTRACT_SMOKE=OK; endpoint_count=6; base_path=/api/v1; ingestion_mode=multipart_upload_canonical; dev_reference_mode=config_gated.
+- Full unit suite: Ran 102 tests in 5.001s, OK.
+- Full compileall: passed.
+
+RUNTIME GATE:
+- Verified the contract document contains all six required endpoints, base path, canonical ingestion mode, and config-gated development reference mode.
+- Verified the contract document does not include the staged local dataset path.
+- No FastAPI routes, worker, Gemini call, audio processing, training, indexing, or dashboard rendering was run.
+
+IMPLEMENTATION REVIEW:
+- The API contract is defined before route implementation, as required.
+- The contract keeps route behavior separate from AMHIPipelineService orchestration, persistence adapters, and dashboard rendering.
+- POST semantics create a queued persistent event and return 202 rather than blocking on the long-running pipeline.
+- Response schemas mask local processing paths by default and expose only safe audio metadata.
+
+SCIENTIFIC REVIEW:
+- The contract keeps Fan id_00 minus6dB as the only supported full Real Intelligence path.
+- Unsupported machine scopes are explicit API errors, not silent Fan fallback.
+- The contract preserves Expert B k=30, distance=euclidean, rank_threshold=None, qualitative rank evidence, selected semantic retriever, and Structured Health Context v0.2.
+- No RUL, root-cause, confidence/probability, production maintenance validation, multi-machine, or domain-robustness claim was added.
+
+DIFF REVIEW:
+- Changed files: docs/API_CONTRACT_V1.md, tests/test_api_contract_doc.py, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md, project_state.json.
+- No route implementation, dependency addition, repo-local WAV, NumPy array, model weight, embedding index, generated dashboard, or generated scientific output artifact was added.
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-PROD-07 - FastAPI Fan Event API.
 ```
 
 ```text
