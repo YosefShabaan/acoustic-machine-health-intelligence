@@ -20,7 +20,7 @@ from api import ApiDependencies, create_app  # noqa: E402
 from application import EventProcessingService  # noqa: E402
 from infrastructure import (  # noqa: E402
     ArtifactRegistry,
-    LocalAudioStorage,
+    LocalDurableAudioStorage,
     SQLiteAnalysisRepository,
     SQLiteEventRepository,
     connect_sqlite,
@@ -63,7 +63,7 @@ class StructuredLoggingTests(unittest.TestCase):
                         event_repository=SQLiteEventRepository(connection),
                         analysis_repository=SQLiteAnalysisRepository(connection),
                         artifact_registry=ArtifactRegistry(),
-                        audio_storage=LocalAudioStorage(),
+                        audio_storage=LocalDurableAudioStorage(upload_dir=tmp_path / "uploads"),
                         structured_logger=StructuredLogger(logger),
                         upload_dir=tmp_path / "uploads",
                     ),

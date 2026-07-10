@@ -17,7 +17,7 @@ if str(SRC_DIR) not in sys.path:
 
 from api import ApiDependencies, create_app  # noqa: E402
 from infrastructure import (  # noqa: E402
-    LocalAudioStorage,
+    LocalDurableAudioStorage,
     SQLiteAnalysisRepository,
     SQLiteEventRepository,
     connect_sqlite,
@@ -157,7 +157,7 @@ class HealthReadinessTests(unittest.TestCase):
                     analysis_repository=self.analyses,
                     artifact_registry=artifact_registry
                     or _ReadyArtifactRegistry(self.semantic_index_path),
-                    audio_storage=LocalAudioStorage(),
+                    audio_storage=LocalDurableAudioStorage(upload_dir=self.tmp_path / "uploads"),
                     upload_dir=self.tmp_path / "uploads",
                     worker_initialized=worker_initialized,
                 ),
@@ -204,6 +204,9 @@ class _ReadyArtifactRegistry:
             semantic_index_path=self.semantic_index_path,
             real_intelligence_available=True,
         )
+
+    def verify_manifest(self, config: ResolvedArtifactConfig, check_hashes: bool = False) -> None:
+        pass
 
 
 class _MissingArtifactRegistry:

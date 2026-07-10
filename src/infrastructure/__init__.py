@@ -8,9 +8,11 @@ from .artifact_registry import (
 from .audio_storage import (
     AudioNotFoundError,
     AudioStorage,
+    DurableAudioStorage,
     AudioStorageError,
     AudioStorageMetadata,
     LocalAudioStorage,
+    LocalDurableAudioStorage,
     UnsupportedAudioTypeError,
 )
 from .persistence import (
@@ -23,11 +25,13 @@ from .persistence import (
 __all__ = [
     "AudioNotFoundError",
     "AudioStorage",
+    "DurableAudioStorage",
     "AudioStorageError",
     "AudioStorageMetadata",
     "ArtifactNotRegisteredError",
     "ArtifactRegistry",
     "LocalAudioStorage",
+    "LocalDurableAudioStorage",
     "PostgresAnalysisRepository",
     "PostgresEventRepository",
     "ResolvedArtifactConfig",

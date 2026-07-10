@@ -18,7 +18,7 @@ from api import ApiDependencies, create_app  # noqa: E402
 from application import EVENT_STATUS_COMPLETED  # noqa: E402
 from infrastructure import (  # noqa: E402
     ArtifactRegistry,
-    LocalAudioStorage,
+    LocalDurableAudioStorage,
     SQLiteAnalysisRepository,
     SQLiteEventRepository,
     connect_sqlite,
@@ -39,7 +39,7 @@ class ApiV1Tests(unittest.TestCase):
                 event_repository=self.events,
                 analysis_repository=self.analyses,
                 artifact_registry=ArtifactRegistry(),
-                audio_storage=LocalAudioStorage(),
+                audio_storage=LocalDurableAudioStorage(upload_dir=self.tmp_path / "uploads"),
                 upload_dir=self.tmp_path / "uploads",
                 allow_registered_audio_reference=True,
                 max_upload_bytes=1024 * 1024,

@@ -32,6 +32,8 @@ from infrastructure import (
     AudioStorage,
     AudioStorageError,
     AudioStorageMetadata,
+    DurableAudioStorage,
+    LocalDurableAudioStorage,
     LocalAudioStorage,
     SQLiteAnalysisRepository,
     SQLiteEventRepository,
@@ -75,7 +77,7 @@ class ApiDependencies:
     event_repository: EventRepository
     analysis_repository: AnalysisRepository
     artifact_registry: ArtifactRegistry = field(default_factory=ArtifactRegistry)
-    audio_storage: AudioStorage = field(default_factory=LocalAudioStorage)
+    audio_storage: DurableAudioStorage | None = None
     structured_logger: StructuredLogger = field(default_factory=get_structured_logger)
     metrics_registry: MetricsRegistry = field(default_factory=MetricsRegistry)
     upload_dir: Path = field(
@@ -152,6 +154,7 @@ def create_default_dependencies() -> ApiDependencies:
         event_repository=event_repository,
         analysis_repository=analysis_repository,
         upload_dir=upload_dir,
+        audio_storage=LocalDurableAudioStorage(upload_dir=upload_dir),
         allow_registered_audio_reference=(
             os.environ.get("AMHI_ALLOW_REGISTERED_AUDIO_REFERENCE", "0") == "1"
         ),
@@ -533,27 +536,23 @@ async def _store_uploaded_audio(
     upload = submission.uploaded_file
     if upload is None:
         raise ApiException(400, "invalid_request", "audio_file is required.")
+    
+    if deps.audio_storage is None:
+        raise ApiException(500, "server_error", "Audio storage is not configured.")
+        
     source_name = Path(upload.filename or "audio.wav").name
-    if Path(source_name).suffix.lower() != ".wav":
-        raise ApiException(
-            415,
-            "unsupported_audio_type",
-            "Only WAV audio uploads are supported.",
-        )
     content = await upload.read(deps.max_upload_bytes + 1)
-    if len(content) > deps.max_upload_bytes:
-        raise ApiException(
-            413,
-            "audio_too_large",
-            "Uploaded audio exceeds the configured size limit.",
-            details={"max_upload_bytes": deps.max_upload_bytes},
-        )
-    target_dir = deps.upload_dir / submission.event_id
-    target_dir.mkdir(parents=True, exist_ok=True)
-    target_path = target_dir / source_name
-    with target_path.open("wb") as handle:
-        handle.write(content)
-    return _resolve_stored_audio(target_path, deps)
+    
+    try:
+        reference = deps.audio_storage.store(submission.event_id, source_name, content)
+    except UnsupportedAudioTypeError as exc:
+        raise ApiException(415, "unsupported_audio_type", str(exc)) from exc
+    except AudioStorageError as exc:
+        if "size" in str(exc).lower():
+            raise ApiException(413, "audio_too_large", str(exc), details={"max_upload_bytes": deps.max_upload_bytes}) from exc
+        raise ApiException(400, "invalid_request", str(exc)) from exc
+
+    return _resolve_stored_audio(reference, deps)
 
 
 async def _close_submission_upload(submission: EventSubmission) -> None:
@@ -566,6 +565,8 @@ def _resolve_registered_audio(reference: str, deps: ApiDependencies) -> StoredAu
 
 
 def _resolve_stored_audio(reference: str | Path, deps: ApiDependencies) -> StoredAudio:
+    if deps.audio_storage is None:
+        raise ApiException(500, "server_error", "Audio storage is not configured.")
     try:
         metadata = deps.audio_storage.resolve(reference)
     except UnsupportedAudioTypeError as exc:
@@ -646,6 +647,8 @@ def _analysis_result_payload(result: AnalysisResultRecord) -> dict[str, Any]:
 
 
 def _audio_summary_for_event(event: EventRecord, deps: ApiDependencies) -> AudioSummary | None:
+    if deps.audio_storage is None:
+        return None
     try:
         return _audio_summary(deps.audio_storage.resolve(event.audio_reference))
     except AudioStorageError:
@@ -687,9 +690,10 @@ def _readiness(deps: ApiDependencies) -> dict[str, DependencyStatus]:
             machine_id=FAN_MACHINE_ID,
             snr_tag=FAN_REAL_INTELLIGENCE_SNR,
         ).require_real_intelligence()
+        deps.artifact_registry.verify_manifest(artifact, check_hashes=False)
         rows["artifact_registry"] = DependencyStatus(
             status="ok",
-            detail="fan/id_00/minus6dB Real Intelligence artifacts are registered",
+            detail="fan/id_00/minus6dB Real Intelligence artifacts are registered and verified",
         )
         rows["rag_index"] = DependencyStatus(
             status=(

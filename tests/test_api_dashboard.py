@@ -22,7 +22,7 @@ from application import (  # noqa: E402
 )
 from infrastructure import (  # noqa: E402
     ArtifactRegistry,
-    LocalAudioStorage,
+    LocalDurableAudioStorage,
     SQLiteAnalysisRepository,
     SQLiteEventRepository,
     connect_sqlite,
@@ -43,7 +43,7 @@ class ApiDashboardTests(unittest.TestCase):
                 event_repository=self.events,
                 analysis_repository=self.analyses,
                 artifact_registry=ArtifactRegistry(),
-                audio_storage=LocalAudioStorage(),
+                audio_storage=LocalDurableAudioStorage(upload_dir=self.tmp_path / "uploads"),
                 upload_dir=self.tmp_path / "uploads",
                 allow_registered_audio_reference=True,
             ),
