@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-import psycopg2
-import psycopg2.extras
+import psycopg
+from psycopg.rows import dict_row
 
 from application.repositories import (
     ANALYSIS_STATUS_COMPLETED,
@@ -28,16 +28,14 @@ from application.repositories import (
 MIGRATION_DIR = Path(__file__).parent / "migrations"
 
 
-def connect_postgres(database_url: str) -> psycopg2.extensions.connection:
+def connect_postgres(database_url: str) -> psycopg.Connection:
     """Connect to PostgreSQL and apply migrations."""
-    connection = psycopg2.connect(database_url)
-    connection.autocommit = False
-    psycopg2.extras.register_default_jsonb(connection)
+    connection = psycopg.connect(database_url, autocommit=False)
     _apply_migrations(connection)
     return connection
 
 
-def _apply_migrations(connection: psycopg2.extensions.connection) -> None:
+def _apply_migrations(connection: psycopg.Connection) -> None:
     """Apply SQL migration files in order."""
     migration_files = sorted(MIGRATION_DIR.glob("*.sql"))
     for migration_file in migration_files:
@@ -50,7 +48,7 @@ def _apply_migrations(connection: psycopg2.extensions.connection) -> None:
 class PostgresEventRepository:
     """PostgreSQL implementation of EventRepository."""
 
-    def __init__(self, connection: psycopg2.extensions.connection) -> None:
+    def __init__(self, connection: psycopg.Connection) -> None:
         self.connection = connection
 
     def create_event(
@@ -91,7 +89,7 @@ class PostgresEventRepository:
         return record
 
     def get_event(self, event_id: str) -> EventRecord | None:
-        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        with self.connection.cursor(row_factory=dict_row) as cursor:
             cursor.execute("SELECT * FROM events WHERE event_id = %s", (event_id,))
             row = cursor.fetchone()
         return _event_from_row(row) if row else None
@@ -103,7 +101,7 @@ class PostgresEventRepository:
         offset: int = 0,
         status: str | None = None,
     ) -> list[EventRecord]:
-        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        with self.connection.cursor(row_factory=dict_row) as cursor:
             if status is not None:
                 validate_event_status(status)
                 cursor.execute(
@@ -128,7 +126,7 @@ class PostgresEventRepository:
         return [_event_from_row(row) for row in rows]
 
     def count_events(self, *, status: str | None = None) -> int:
-        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        with self.connection.cursor(row_factory=dict_row) as cursor:
             if status is not None:
                 validate_event_status(status)
                 cursor.execute(
@@ -148,7 +146,7 @@ class PostgresEventRepository:
         limit: int = 100,
         offset: int = 0,
     ) -> list[EventRecord]:
-        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        with self.connection.cursor(row_factory=dict_row) as cursor:
             cursor.execute(
                 """
                 SELECT * FROM events
@@ -187,7 +185,7 @@ class PostgresEventRepository:
 
     def claim_next_queued(self) -> EventRecord | None:
         """Atomically claim the next queued event using SELECT ... FOR UPDATE."""
-        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        with self.connection.cursor(row_factory=dict_row) as cursor:
             cursor.execute(
                 """
                 UPDATE events
@@ -211,7 +209,7 @@ class PostgresEventRepository:
 class PostgresAnalysisRepository:
     """PostgreSQL implementation of AnalysisRepository."""
 
-    def __init__(self, connection: psycopg2.extensions.connection) -> None:
+    def __init__(self, connection: psycopg.Connection) -> None:
         self.connection = connection
 
     def create_run(
@@ -249,7 +247,7 @@ class PostgresAnalysisRepository:
         return record
 
     def get_run(self, analysis_run_id: str) -> AnalysisRunRecord | None:
-        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        with self.connection.cursor(row_factory=dict_row) as cursor:
             cursor.execute(
                 "SELECT * FROM analysis_runs WHERE analysis_run_id = %s",
                 (analysis_run_id,),
@@ -258,7 +256,7 @@ class PostgresAnalysisRepository:
         return _analysis_run_from_row(row) if row else None
 
     def get_latest_run_for_event(self, event_id: str) -> AnalysisRunRecord | None:
-        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        with self.connection.cursor(row_factory=dict_row) as cursor:
             cursor.execute(
                 """
                 SELECT * FROM analysis_runs
@@ -345,7 +343,7 @@ class PostgresAnalysisRepository:
         return record
 
     def get_result(self, analysis_run_id: str) -> AnalysisResultRecord | None:
-        with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+        with self.connection.cursor(row_factory=dict_row) as cursor:
             cursor.execute(
                 "SELECT * FROM analysis_results WHERE analysis_run_id = %s",
                 (analysis_run_id,),
@@ -389,7 +387,7 @@ def _json_dumps_or_none(value: dict[str, Any] | None) -> str | None:
 
 
 def _json_loads_safe(value: Any) -> dict[str, Any]:
-    """Parse a JSON value that might already be a dict (from psycopg2 JSONB)."""
+    """Parse a JSON value that might already be a dict (from psycopg JSONB)."""
     if isinstance(value, dict):
         return value
     if isinstance(value, str):

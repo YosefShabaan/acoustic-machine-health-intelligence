@@ -45,7 +45,7 @@ __all__ = [
 
 
 def __getattr__(name: str):
-    """Lazy import for PostgreSQL adapters to avoid psycopg2 dependency at import time."""
+    """Lazy import for PostgreSQL adapters to avoid psycopg dependency at import time."""
     _pg_names = {
         "PostgresAnalysisRepository",
         "PostgresEventRepository",

@@ -16,5 +16,5 @@ google-genai
 fastapi
 python-multipart
 httpx
-psycopg2-binary
+psycopg[binary]
 uvicorn

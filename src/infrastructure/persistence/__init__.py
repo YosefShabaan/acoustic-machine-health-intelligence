@@ -14,10 +14,9 @@ __all__ = [
     "initialize_sqlite_schema",
 ]
 
-# PostgreSQL adapters are imported lazily to avoid requiring psycopg2
-# in environments that only use SQLite (tests, local dev).
-# Use: from infrastructure.persistence.postgres_repository import ...
-# Or:  from infrastructure import PostgresEventRepository (when psycopg2 is available)
+# PostgreSQL adapters are imported lazily to avoid requiring psycopg
+# Use: from infrastructure.persistence.postgres_repository import connect_postgres
+# Or:  from infrastructure import PostgresEventRepository (when psycopg is available)
 
 
 def __getattr__(name: str):
