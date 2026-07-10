@@ -9,10 +9,19 @@ import tempfile
 from typing import Any
 from uuid import uuid4
 
-from fastapi import APIRouter, FastAPI, Query, Request
+from fastapi import APIRouter, FastAPI, Query, Request, Depends
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, PlainTextResponse
 from starlette.datastructures import UploadFile as StarletteUploadFile
+from starlette.middleware.sessions import SessionMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import HTTPException
+
+from api.auth import verify_api_session, verify_csrf_token, verify_secrets_configured
+from api.security import SecureHeadersMiddleware, limiter
 
 from application import (
     EVENT_STATUS_COMPLETED,
@@ -167,7 +176,39 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
     app = FastAPI(
         title="Acoustic Machine Health Intelligence API",
         version=API_VERSION,
+        docs_url=None if not os.environ.get("DEBUG_MODE", "false").lower() == "true" else "/docs",
+        redoc_url=None if not os.environ.get("DEBUG_MODE", "false").lower() == "true" else "/redoc",
+        openapi_url=None if not os.environ.get("DEBUG_MODE", "false").lower() == "true" else "/openapi.json",
     )
+    
+    verify_secrets_configured()
+    
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    
+    # Session middleware requires a secret key
+    from config import AMHI_SESSION_SECRET
+    app.add_middleware(
+        SessionMiddleware, 
+        secret_key=AMHI_SESSION_SECRET, 
+        session_cookie="amhi_session",
+        max_age=3600, # 1 hour bounded session
+        same_site="lax",
+        https_only=not os.environ.get("DEBUG_MODE", "false").lower() == "true"
+    )
+    
+    app.add_middleware(
+        TrustedHostMiddleware, allowed_hosts=os.environ.get("ALLOWED_HOSTS", "*").split(",")
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=os.environ.get("ALLOWED_ORIGINS", "*").split(","),
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["*"],
+    )
+    app.add_middleware(SecureHeadersMiddleware)
+    
     app.state.dependencies = dependencies or create_default_dependencies()
     router = APIRouter(prefix="/api/v1")
 
@@ -254,7 +295,9 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
                 },
             },
         },
+        dependencies=[Depends(verify_api_session), Depends(verify_csrf_token)]
     )
+    @limiter.limit("5/minute")
     async def create_event(request: Request) -> EventCreateResponse:
         deps = _dependencies(request)
         submission = await _parse_submission(request, deps)
@@ -303,6 +346,7 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
         "/events/{event_id}",
         response_model=EventDetailResponse,
         responses={404: {"model": ErrorResponse}},
+        dependencies=[Depends(verify_api_session)]
     )
     async def get_event(event_id: str, request: Request) -> EventDetailResponse:
         deps = _dependencies(request)
@@ -315,7 +359,11 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
             result=_analysis_result_payload(result) if result else None,
         )
 
-    @router.get("/events", response_model=EventListResponse)
+    @router.get(
+        "/events",
+        response_model=EventListResponse,
+        dependencies=[Depends(verify_api_session)]
+    )
     async def list_events(
         request: Request,
         status: str | None = Query(default=None),
@@ -344,7 +392,10 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
     @router.get(
         "/machines/{machine_type}/{machine_id}/events",
         response_model=EventListResponse,
-        responses={422: {"model": ErrorResponse}},
+        responses={
+            422: {"model": ErrorResponse},
+        },
+        dependencies=[Depends(verify_api_session)]
     )
     async def list_machine_events(
         machine_type: str,
@@ -400,7 +451,7 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
             dependencies=dependency_status,
         )
 
-    @router.get("/metrics", response_class=PlainTextResponse)
+    @router.get("/metrics", response_class=PlainTextResponse, dependencies=[Depends(verify_api_session)])
     async def metrics(request: Request) -> PlainTextResponse:
         deps = _dependencies(request)
         deps.metrics_registry.set_gauge(
@@ -417,6 +468,10 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
     return app
 
 async def _parse_submission(request: Request, deps: ApiDependencies) -> EventSubmission:
+    content_length = request.headers.get("content-length")
+    if content_length and int(content_length) > deps.max_upload_bytes:
+        raise ApiException(413, "payload_too_large", f"Request exceeds maximum size of {deps.max_upload_bytes} bytes.")
+        
     content_type = request.headers.get("content-type", "")
     event_id = f"event_{uuid4().hex}"
     if "multipart/form-data" in content_type:

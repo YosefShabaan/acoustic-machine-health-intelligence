@@ -6,8 +6,12 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, Query, Request
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Query, Request, Depends, Form, status
+from fastapi.responses import HTMLResponse, RedirectResponse
+
+from api.auth import verify_dashboard_session, verify_password, generate_csrf_token
+from config import AMHI_ADMIN_USERNAME, AMHI_ADMIN_PASSWORD_HASH
+from api.security import limiter
 
 from application import (
     EVENT_STATUS_COMPLETED,
@@ -23,7 +27,7 @@ from application import (
 dashboard_router = APIRouter()
 
 
-@dashboard_router.get("/dashboard", response_class=HTMLResponse)
+@dashboard_router.get("/dashboard", response_class=HTMLResponse, dependencies=[Depends(verify_dashboard_session)])
 async def dashboard_index(
     request: Request,
     status: str | None = Query(default=None),
@@ -39,10 +43,11 @@ async def dashboard_index(
     }:
         status = None
     events = deps.event_repository.list_events(limit=100, offset=0, status=status)
-    return HTMLResponse(_layout("AMHI Fan Events", _upload_section() + _event_table(events)))
+    csrf_token = request.session.get("csrf_token", "")
+    return HTMLResponse(_layout("AMHI Fan Events", _upload_section() + _event_table(events), csrf_token))
 
 
-@dashboard_router.get("/dashboard/events/{event_id}", response_class=HTMLResponse)
+@dashboard_router.get("/dashboard/events/{event_id}", response_class=HTMLResponse, dependencies=[Depends(verify_dashboard_session)])
 async def dashboard_event_detail(event_id: str, request: Request) -> HTMLResponse:
     """Render one event detail from persisted application state."""
     deps = request.app.state.dependencies
@@ -66,15 +71,89 @@ async def dashboard_event_detail(event_id: str, request: Request) -> HTMLRespons
         </script>
         """
         
-    return HTMLResponse(_layout(f"Event {event.event_id}", _event_detail(event, run, result) + auto_refresh))
+    csrf_token = request.session.get("csrf_token", "")
+    return HTMLResponse(_layout(f"Event {event.event_id}", _event_detail(event, run, result) + auto_refresh, csrf_token))
 
 
-def _layout(title: str, body: str) -> str:
+@dashboard_router.get("/dashboard/login", response_class=HTMLResponse)
+async def login_get(request: Request) -> HTMLResponse:
+    if request.session.get("authenticated"):
+        return RedirectResponse("/dashboard", status_code=status.HTTP_302_FOUND)
+    
+    body = """
+    <section>
+      <h2>Technician Login</h2>
+      <form method="POST" action="/dashboard/login">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" name="username" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" required>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </section>
+    """
+    return HTMLResponse(_layout("AMHI Login", body))
+
+from fastapi.responses import Response
+
+@dashboard_router.post("/dashboard/login", response_class=Response, response_model=None)
+@limiter.limit("10/minute")
+async def login_post(request: Request, username: str = Form(...), password: str = Form(...)):
+    if not AMHI_ADMIN_USERNAME or not AMHI_ADMIN_PASSWORD_HASH:
+        body = "<section><h2>Login Failed</h2><p>Server configuration error.</p></section>"
+        return HTMLResponse(_layout("AMHI Login", body), status_code=500)
+        
+    if username == AMHI_ADMIN_USERNAME and verify_password(password, AMHI_ADMIN_PASSWORD_HASH):
+        request.session["authenticated"] = True
+        request.session["username"] = username
+        request.session["csrf_token"] = generate_csrf_token()
+        return RedirectResponse("/dashboard", status_code=status.HTTP_302_FOUND)
+    else:
+        body = """
+        <section>
+          <h2>Technician Login</h2>
+          <div class="failed" style="padding: 10px; margin-bottom: 10px; border-radius: 4px;">Invalid username or password.</div>
+          <form method="POST" action="/dashboard/login">
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" name="username" required>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" name="password" required>
+            </div>
+            <button type="submit">Login</button>
+          </form>
+        </section>
+        """
+        return HTMLResponse(_layout("AMHI Login", body), status_code=401)
+
+@dashboard_router.post("/dashboard/logout", response_class=Response, response_model=None)
+async def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse("/dashboard/login", status_code=status.HTTP_302_FOUND)
+
+
+def _layout(title: str, body: str, csrf_token: str = "") -> str:
+    logout_btn = ""
+    if csrf_token:
+        logout_btn = f'''
+        <form method="POST" action="/dashboard/logout" style="display: inline; margin-left: auto;">
+            <input type="hidden" name="csrf_token" value="{csrf_token}">
+            <button type="submit" style="background: transparent; border: 1px solid white; font-weight: normal; padding: 4px 8px;">Logout</button>
+        </form>
+        '''
+        
     return f"""<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{csrf_token}">
   <title>{_e(title)}</title>
   <style>
     body {{ margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f3f6f8; color: #17202a; }}
@@ -107,7 +186,11 @@ def _layout(title: str, body: str) -> str:
   </style>
 </head>
 <body>
-  <header><h1>{_e(title)}</h1><div>Fan id_00 bounded application state</div></header>
+  <header style="display: flex; align-items: center; gap: 20px;">
+    <h1>{_e(title)}</h1>
+    <div>Fan id_00 bounded application state</div>
+    {logout_btn}
+  </header>
   <main>{body}</main>
 </body>
 </html>"""
@@ -163,14 +246,18 @@ def _upload_section() -> str:
           formData.append('audio_file', fileInput.files[0]);
           
           try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const response = await fetch('/api/v1/events', {
               method: 'POST',
+              headers: {
+                  'X-CSRF-Token': csrfToken
+              },
               body: formData
             });
             
             if (response.ok) {
               const data = await response.json();
-              window.location.href = '/dashboard/events/' + data.event_id;
+              window.location.href = '/dashboard/events/' + data.event.event_id;
             } else {
               const err = await response.json();
               errorDiv.innerText = err.error?.message || 'Upload failed.';

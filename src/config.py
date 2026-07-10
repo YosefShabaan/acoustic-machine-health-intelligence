@@ -186,5 +186,17 @@ RAG_FAN_MVP_SELECTED_RETRIEVER = "semantic"
 RANDOM_SEED = 42
 
 
+# ===========================================================================
+# SECURITY & AUTHENTICATION
+# ===========================================================================
+AMHI_ADMIN_USERNAME = os.environ.get("AMHI_ADMIN_USERNAME")
+AMHI_ADMIN_PASSWORD_HASH = os.environ.get("AMHI_ADMIN_PASSWORD_HASH")
+AMHI_SESSION_SECRET = os.environ.get("AMHI_SESSION_SECRET")
+# CSRF protection secret
+AMHI_CSRF_SECRET = os.environ.get("AMHI_CSRF_SECRET", AMHI_SESSION_SECRET)
+# Disable debug mode by default in production
+DEBUG_MODE = os.environ.get("DEBUG_MODE", "false").lower() == "true"
+
+
 if __name__ == "__main__":
     print(report_paths())

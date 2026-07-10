@@ -18,3 +18,6 @@ python-multipart
 httpx
 psycopg[binary]
 uvicorn
+bcrypt
+itsdangerous
+slowapi

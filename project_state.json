@@ -197,6 +197,21 @@
             "status": "blocked_data_missing",
             "primary_skill": "$project-architect",
             "notes": "D:\\PDM_Data\\MIMII\\pump\\id_00 is not present; no Pump data can be evaluated."
+        },
+        "task_launch_04_authentication": {
+            "status": "complete",
+            "primary_skill": "-architect",
+            "notes": "Implemented session-based authentication with bcrypt and itsdangerous."
+        },
+        "task_launch_05_security_hardening": {
+            "status": "complete",
+            "primary_skill": "-architect",
+            "notes": "Implemented production security headers, CORS, rate limiting, and upload size limits."
+        },
+        "task_launch_06_local_release_candidate_acceptance": {
+            "status": "complete",
+            "primary_skill": "-architect",
+            "notes": "Rebuilt docker container and passed E2E browser Playwright tests with 120s timeout."
         }
     },
     "verified_expert_a_snr_auc_results": {
@@ -775,7 +790,7 @@
             "action": "do not claim production maintenance validation; complete production/maintenance review in a separate approved phase"
         }
     ],
-    "last_state_update_reason": "TASK-PROD-12 implemented structured health/readiness checks for database, Fan artifacts, upload storage, semantic RAG index, Gemini config, and worker initialization, with tests/test_health_readiness.py.",
+    "last_state_update_reason": "TASK-LAUNCH-04, 05, and 06 implemented authentication, security hardening, and E2E local release candidate acceptance.",
     "continuation_policy_summary": {
         "on_continue_project": [
             "read AGENTS.md",
