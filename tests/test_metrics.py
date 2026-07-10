@@ -60,6 +60,11 @@ class MetricsTests(unittest.TestCase):
                         upload_dir=tmp_path / "uploads",
                     ),
                 )
+                from api.auth import verify_dashboard_session, verify_api_session, verify_csrf_token
+                app.dependency_overrides[verify_dashboard_session] = lambda: None
+                app.dependency_overrides[verify_api_session] = lambda: None
+                app.dependency_overrides[verify_csrf_token] = lambda: None
+                app.state.limiter.enabled = False
                 client = TestClient(app)
                 created = client.post(
                     "/api/v1/events",

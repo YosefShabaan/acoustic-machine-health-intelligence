@@ -150,19 +150,23 @@ class HealthReadinessTests(unittest.TestCase):
         artifact_registry=None,
         worker_initialized: bool = True,
     ) -> TestClient:
-        return TestClient(
-            create_app(
-                ApiDependencies(
-                    event_repository=event_repository or self.events,
-                    analysis_repository=self.analyses,
-                    artifact_registry=artifact_registry
-                    or _ReadyArtifactRegistry(self.semantic_index_path),
-                    audio_storage=LocalDurableAudioStorage(upload_dir=self.tmp_path / "uploads"),
-                    upload_dir=self.tmp_path / "uploads",
-                    worker_initialized=worker_initialized,
-                ),
+        app = create_app(
+            ApiDependencies(
+                event_repository=event_repository or self.events,
+                analysis_repository=self.analyses,
+                artifact_registry=artifact_registry
+                or _ReadyArtifactRegistry(self.semantic_index_path),
+                audio_storage=LocalDurableAudioStorage(upload_dir=self.tmp_path / "uploads"),
+                upload_dir=self.tmp_path / "uploads",
+                worker_initialized=worker_initialized,
             ),
         )
+        from api.auth import verify_dashboard_session, verify_api_session, verify_csrf_token
+        app.dependency_overrides[verify_dashboard_session] = lambda: None
+        app.dependency_overrides[verify_api_session] = lambda: None
+        app.dependency_overrides[verify_csrf_token] = lambda: None
+        app.state.limiter.enabled = False
+        return TestClient(app)
 
 
 class _ReadyArtifactRegistry:

@@ -45,6 +45,13 @@ class ApiV1Tests(unittest.TestCase):
                 max_upload_bytes=1024 * 1024,
             ),
         )
+        # Explicit test dependency overrides — no environment-variable bypasses.
+        from api.auth import verify_dashboard_session, verify_api_session, verify_csrf_token
+        self.app.dependency_overrides[verify_dashboard_session] = lambda: None
+        self.app.dependency_overrides[verify_api_session] = lambda: None
+        self.app.dependency_overrides[verify_csrf_token] = lambda: None
+        # Disable rate limiter for test isolation.
+        self.app.state.limiter.enabled = False
         self.client = TestClient(self.app)
 
     def tearDown(self) -> None:

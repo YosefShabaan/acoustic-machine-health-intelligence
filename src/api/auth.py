@@ -3,7 +3,6 @@
 import bcrypt
 import secrets
 from fastapi import Request, HTTPException, status
-from fastapi.responses import RedirectResponse
 import os
 from config import AMHI_ADMIN_USERNAME, AMHI_ADMIN_PASSWORD_HASH, AMHI_SESSION_SECRET, DEBUG_MODE
 
@@ -18,9 +17,11 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 def verify_dashboard_session(request: Request) -> None:
-    """Verify that the user has a valid authenticated session for the dashboard."""
-    if os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("TESTING") == "true":
-        return
+    """Verify that the user has a valid authenticated session for the dashboard.
+
+    No implicit environment-variable bypass. Tests must use explicit
+    FastAPI dependency overrides to replace this dependency.
+    """
     if not request.session.get("authenticated"):
         raise HTTPException(
             status_code=status.HTTP_302_FOUND,
@@ -28,9 +29,11 @@ def verify_dashboard_session(request: Request) -> None:
         )
 
 def verify_api_session(request: Request) -> None:
-    """Verify that the user has a valid authenticated session for the API."""
-    if os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("TESTING") == "true":
-        return
+    """Verify that the user has a valid authenticated session for the API.
+
+    No implicit environment-variable bypass. Tests must use explicit
+    FastAPI dependency overrides to replace this dependency.
+    """
     if not request.session.get("authenticated"):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -38,13 +41,15 @@ def verify_api_session(request: Request) -> None:
         )
 
 def verify_csrf_token(request: Request) -> None:
-    """Verify that the state-changing request contains a valid CSRF token."""
-    if os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("TESTING") == "true":
-        return
+    """Verify that the state-changing request contains a valid CSRF token.
+
+    No implicit environment-variable bypass. Tests must use explicit
+    FastAPI dependency overrides to replace this dependency.
+    """
     if request.method in ("POST", "PUT", "DELETE", "PATCH"):
         session_token = request.session.get("csrf_token")
         header_token = request.headers.get("X-CSRF-Token")
-        
+
         if not session_token or not header_token or not secrets.compare_digest(session_token, header_token):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

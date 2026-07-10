@@ -119,6 +119,9 @@ validation failures, and zero pipeline failures.
 TASK-DASH-02 renders the real Gemini/RAG provenance, maintenance citations,
 bounded evaluation summary, timing metadata, and limitations in a static evidence
 dashboard.
+AMHI provides a deployed browser-based Fan MVP that executes the verified
+multi-expert acoustic intelligence workflow and presents grounded AI-assisted
+maintenance evidence to an authenticated end user.
 ```
 
 Must include limitation:

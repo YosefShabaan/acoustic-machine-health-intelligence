@@ -1,0 +1,8 @@
+{
+	email {env.CADDY_EMAIL}
+}
+
+# The deployed HTTPS URL
+{$DOMAIN:localhost} {
+	reverse_proxy api:8000
+}

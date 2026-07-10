@@ -68,6 +68,11 @@ class StructuredLoggingTests(unittest.TestCase):
                         upload_dir=tmp_path / "uploads",
                     ),
                 )
+                from api.auth import verify_dashboard_session, verify_api_session, verify_csrf_token
+                app.dependency_overrides[verify_dashboard_session] = lambda: None
+                app.dependency_overrides[verify_api_session] = lambda: None
+                app.dependency_overrides[verify_csrf_token] = lambda: None
+                app.state.limiter.enabled = False
                 response = TestClient(app).post(
                     "/api/v1/events",
                     data={"machine_type": "fan", "machine_id": "id_00", "snr_tag": "minus6dB"},

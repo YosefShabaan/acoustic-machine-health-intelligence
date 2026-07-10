@@ -2364,3 +2364,47 @@ Claims still not enabled by TASK-PROD-12:
 - Expert B timbre-direction accuracy,
 - container deployment,
 - Pump, Valve, Slide Rail, cross-machine, or domain-robustness generalization.
+
+TASK-PROD-13 result:
+
+- Implemented `PostgresEventRepository` and `PostgresAnalysisRepository`.
+- Refactored dependencies to pick the DB type based on `DATABASE_URL`.
+- Upgraded the DB migration scripts to PostgreSQL.
+
+TASK-LAUNCH-01 result:
+
+- Prepared `docker-compose.prod.yml` and `Caddyfile`.
+- Configured PostgreSQL db, api, worker, and caddy reverse proxy services.
+
+TASK-LAUNCH-02 result:
+
+- Added bash startup scripts (`scripts/start_api.sh`, `scripts/start_worker.sh`).
+- Ensured PostgreSQL is reachable before startup.
+- Upgraded SQLite references to use generic PostgreSQL adapters.
+
+TASK-LAUNCH-03 result:
+
+- Reviewed code and found test mocks that were bypassing auth and DB settings.
+- Hardened `get_database_path()` and `require_authenticated_technician` against non-production defaults.
+
+TASK-LAUNCH-04 result:
+
+- Designed browser session login/logout endpoints.
+- Implemented itsdangerous session cookies (AMHI_SESSION_SECRET).
+- Implemented bcrypt single-tenant password hashing (AMHI_ADMIN_USERNAME, AMHI_ADMIN_PASSWORD_HASH).
+- Created dashboard login page in HTML/CSS.
+- Verified protection of routes.
+
+TASK-LAUNCH-05 result:
+
+- Wrote scratch/test_browser_flow.py to simulate an end-to-end user browser interaction flow.
+- Validated login, dashboard access, event upload, polling until completion, and result retrieval.
+- Ran manual curl smoke tests against API routes.
+
+TASK-LAUNCH-06 result:
+
+- Updated project_state.json to reflect the completion of the Fan End-User Production Launch.
+- Added docs/FAN_DEPLOYED_AI_PRODUCT_REPORT.md.
+- Updated docs/academic_claims.md.
+- Updated README.md, REPORT.md, docs/MASTER_EXECUTION_PLAN.md, docs/TASK_EXECUTION_LOG.md.
+- The project has successfully deployed the Fan MVP.

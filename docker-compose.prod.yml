@@ -1,0 +1,76 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: amhi-prod-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-amhi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-amhi_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-amhi_production}
+    volumes:
+      - amhi-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-amhi} -d ${POSTGRES_DB:-amhi_production}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: amhi-fan-production:latest
+    container_name: amhi-prod-api
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-amhi}:${POSTGRES_PASSWORD:-amhi_secret}@db:5432/${POSTGRES_DB:-amhi_production}
+      AMHI_ADMIN_USERNAME: ${AMHI_ADMIN_USERNAME}
+      AMHI_ADMIN_PASSWORD_HASH: ${AMHI_ADMIN_PASSWORD_HASH}
+      AMHI_SESSION_SECRET: ${AMHI_SESSION_SECRET}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      PDM_DATA_ROOT: /data/artifacts
+      DEBUG_MODE: "false"
+    volumes:
+      - amhi-uploads:/app/runtime/uploads
+      - amhi-artifacts:/data/artifacts:ro
+    ports:
+      - "8002:8000"
+
+  worker:
+    image: amhi-fan-production:latest
+    container_name: amhi-prod-worker
+    restart: always
+    command: ["python", "-m", "application.worker_runner", "--real"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-amhi}:${POSTGRES_PASSWORD:-amhi_secret}@db:5432/${POSTGRES_DB:-amhi_production}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      PDM_DATA_ROOT: /data/artifacts
+    volumes:
+      - amhi-uploads:/app/runtime/uploads
+      - amhi-artifacts:/data/artifacts:ro
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: amhi-prod-caddy
+    restart: always
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - api
+
+volumes:
+  amhi-db-data:
+  amhi-uploads:
+  amhi-artifacts:
+  caddy-data:
+  caddy-config:

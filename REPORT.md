@@ -10,6 +10,8 @@ VERIFIED RESULT: Expert A and the controlled SNR experiment are complete for Fan
 
 IMPLEMENTED THROUGH REAL INTELLIGENCE COMPLETION: Expert B code and unit tests exist, TASK-02 made reference-index building operationally bounded, TASK-03 produced a usable 40-reference Fan `id_00` minus6dB normal reference index, TASK-04 saved one reviewed same-audio Expert A -> Expert B abnormal JSON, TASK-05 defined the qualitative evidence protocol, TASK-06 implemented the Structured Health Context schema and translator, TASK-07 implemented the deterministic guardrailed explanation layer, TASK-08 implemented approved-source retrieval foundations, TASK-09 implemented a grounded maintenance agent with citation guardrails, TASK-10 implemented a bounded end-to-end Fan MVP orchestrator, TASK-11 rendered a static dashboard MVP, TASK-12 produced the final Fan MVP evidence report plus academic claims register, and the Real Intelligence Completion phase added secure Gemini integration, live Gemini explanation, approved public Fan maintenance corpus, section-aware chunking, semantic retrieval, retrieval evaluation, Gemini-backed Maintenance Agent V2, Structured Health Context v0.2 provenance, one real Gemini + semantic RAG end-to-end smoke, a bounded 20-event Fan system evaluation, and an upgraded static evidence dashboard.
 
+IMPLEMENTED THROUGH END-USER PRODUCT MVP: The project was refactored into a deployed web application containing an authenticated multi-tenant FastAPI service, a modular background worker, PostgreSQL/SQLite unified persistence, and an interactive browser-based dashboard. The system runs via Docker Compose and uses standard bcrypt/signed-cookie sessions.
+
 PLANNED/BLOCKED: multi-machine generalization, domain robustness, and production maintenance validation.
 
 NEXT TECHNICAL STEP: Pump generalization remains blocked until Pump data is staged at `D:\PDM_Data\MIMII\pump\id_00`. Quantitative Expert B timbre-direction accuracy remains blocked by missing five-attribute labels in the current Fan data.
@@ -1104,6 +1106,13 @@ Production maintenance validation/review, staged Pump/Valve/Slide Rail data for 
 | TASK-16 | Cross-Machine Comparison | synthesize per-machine evidence | TASK-13/14/15 | comparison doc |
 | TASK-17 | MIMII DG Domain Robustness | evaluate domain shift | TASK-12 + DG data | bounded robustness result |
 | TASK-18 | Optional MIMII-Agent-Inspired Evaluation | optional robustness branch | TASK-12 + explicit approval | optional plan/result |
+| TASK-PROD-13 | Postgres Migration | prepare DB for production | TASK-DASH-02 | unified SQLite/Postgres layer |
+| TASK-LAUNCH-01 | Deployment Config | containerize services | TASK-PROD-13 | docker-compose.prod.yml / Caddyfile |
+| TASK-LAUNCH-02 | Service Bootstrapping | configure container init | TASK-LAUNCH-01 | migration and startup scripts |
+| TASK-LAUNCH-03 | Environment Hardening | prevent testing bypasses | TASK-LAUNCH-02 | removed local mocks |
+| TASK-LAUNCH-04 | Browser Session Authentication | secure dashboard access | TASK-LAUNCH-03 | session cookie + login page |
+| TASK-LAUNCH-05 | Local Production Smoke | verify E2E container flow | TASK-LAUNCH-04 | working local auth/event cycle |
+| TASK-LAUNCH-06 | Deployed State Finalization | formalize delivery claims | TASK-LAUNCH-05 | documentation and project_state update |
 
 TASK-01 was superseded by TASK-00 because repository normalization and active-scope cleanup were completed here.
 
@@ -1125,6 +1134,7 @@ TASK-01 was superseded by TASK-00 because repository normalization and active-sc
 | End-to-end Fan MVP path exists | Yes for one real smoke plus bounded integration evaluation | `scripts/run_real_intelligence_fan_smoke.py`, `scripts/evaluate_fan_system.py`, FAN-13/FAN-14 artifacts | bounded Fan only |
 | Dashboard MVP exists | Yes, upgraded static evidence dashboard | `app/dashboard.py`, 4 dashboard tests OK, TASK-DASH-02 HTML | not a live production app |
 | Final Fan MVP evidence package exists | Yes | `docs/fan_mvp_final_report.md`, `docs/academic_claims.md` | bounded Fan MVP only |
+| Deployed Fan Product MVP exists | Yes | `docker-compose.prod.yml`, `docs/FAN_DEPLOYED_AI_PRODUCT_REPORT.md` | Single-tenant technician model |
 | Expert B accurately predicts timbre direction | No | labels unavailable | requires labels/protocol |
 | Expert B diagnoses root cause | No | forbidden by architecture | no labels/model |
 | Technician maintenance output is retrieval-grounded | Yes for approved public Fan corpus in bounded Fan runs | MAINT-01/FAN-13/FAN-14 artifacts cite retrieved source_id/chunk_id pairs | production validation absent |

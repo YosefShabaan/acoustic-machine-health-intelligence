@@ -29,8 +29,8 @@ audio event that Expert A evaluated; it is not an independent diagnosis system.
 
 ## Fan MVP Status
 
-The Fan MVP is complete through `TASK-DASH-02` for one bounded same-audio Fan
-`id_00` path.
+The Fan MVP is complete through `TASK-LAUNCH-06` for one bounded same-audio Fan
+`id_00` path and is now a **deployed browser-based product MVP**.
 
 Done:
 
@@ -43,10 +43,14 @@ Done:
 - End-to-end Fan MVP orchestrator.
 - Static dashboard MVP.
 - Final Fan MVP evidence report and academic claims register.
-- Real Gemini + selected semantic RAG end-to-end Fan smoke using Structured
-  Health Context v0.2.
+- Real Gemini + selected semantic RAG end-to-end Fan smoke using Structured Health Context v0.2.
 - Bounded 20-event Fan system integration evaluation.
 - Updated static Fan intelligence evidence dashboard.
+- Production API service with unified persistence (SQLite/Postgres).
+- Modular background event processing worker.
+- Click-only end-user dashboard with real-time UI refresh.
+- Authenticated browser session management and security hardening.
+- Containerized deployment architecture (Docker Compose, GCE ready).
 
 Current remaining work:
 
@@ -184,6 +188,7 @@ Supported:
 - One bounded real Gemini + semantic RAG Fan smoke completed with live Gemini explanation and live Gemini grounded maintenance output.
 - One bounded 20-event Fan system integration evaluation completed with 10 downstream continuations and no observed fallback, citation, or pipeline failures.
 - The static dashboard now renders real Gemini/RAG provenance, bounded evaluation summary, timings, and limitations.
+- AMHI provides a deployed browser-based Fan MVP that executes the verified multi-expert acoustic intelligence workflow and presents grounded AI-assisted maintenance evidence to an authenticated end user.
 
 Not supported:
 
