@@ -5,7 +5,10 @@ $RepoRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location $RepoRoot
 
 # 2. Verify Docker is available
+$OldErr = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
 docker info 2>&1 | Out-Null
+$ErrorActionPreference = $OldErr
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Docker is not running or not available in PATH. Please start Docker and try again."
     exit 1
