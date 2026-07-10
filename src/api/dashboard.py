@@ -39,7 +39,7 @@ async def dashboard_index(
     }:
         status = None
     events = deps.event_repository.list_events(limit=100, offset=0, status=status)
-    return HTMLResponse(_layout("AMHI Fan Events", _event_table(events)))
+    return HTMLResponse(_layout("AMHI Fan Events", _upload_section() + _event_table(events)))
 
 
 @dashboard_router.get("/dashboard/events/{event_id}", response_class=HTMLResponse)
@@ -54,7 +54,19 @@ async def dashboard_event_detail(event_id: str, request: Request) -> HTMLRespons
         )
     run = deps.analysis_repository.get_latest_run_for_event(event_id)
     result = deps.analysis_repository.get_result(run.analysis_run_id) if run else None
-    return HTMLResponse(_layout(f"Event {event.event_id}", _event_detail(event, run, result)))
+    
+    # Auto-refresh if the event is still queued or processing
+    auto_refresh = ""
+    if event.status in {EVENT_STATUS_QUEUED, EVENT_STATUS_PROCESSING}:
+        auto_refresh = """
+        <script>
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        </script>
+        """
+        
+    return HTMLResponse(_layout(f"Event {event.event_id}", _event_detail(event, run, result) + auto_refresh))
 
 
 def _layout(title: str, body: str) -> str:
@@ -85,6 +97,13 @@ def _layout(title: str, body: str) -> str:
     .warning {{ background: #fff7df; color: #7a5200; }}
     .failed {{ background: #fdecec; color: #8a1f17; }}
     code {{ background: #f7f9fb; border: 1px solid #d8e0e8; border-radius: 4px; padding: 2px 4px; }}
+    form {{ display: flex; flex-direction: column; gap: 12px; max-width: 400px; }}
+    .form-group {{ display: flex; flex-direction: column; gap: 4px; }}
+    label {{ font-size: 14px; font-weight: bold; color: #142433; }}
+    input[type="file"], select {{ padding: 8px; border: 1px solid #d8e0e8; border-radius: 4px; }}
+    button {{ background: #155e68; color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }}
+    button:hover {{ background: #114a52; }}
+    button:disabled {{ background: #a0b2b5; cursor: not-allowed; }}
   </style>
 </head>
 <body>
@@ -92,6 +111,83 @@ def _layout(title: str, body: str) -> str:
   <main>{body}</main>
 </body>
 </html>"""
+
+
+def _upload_section() -> str:
+    return """
+    <section>
+      <h2>Analyze New Fan Audio</h2>
+      <form id="uploadForm">
+        <div class="form-group">
+          <label>Machine Type</label>
+          <select name="machine_type" disabled>
+            <option value="fan" selected>Fan</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Machine ID</label>
+          <select name="machine_id" disabled>
+            <option value="id_00" selected>id_00</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>SNR Tag</label>
+          <select name="snr_tag" disabled>
+            <option value="minus6dB" selected>minus6dB</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Audio File (.wav)</label>
+          <input type="file" id="audio_file" name="audio_file" accept=".wav" required>
+        </div>
+        <button type="submit" id="submitBtn">Analyze Event</button>
+      </form>
+      <div id="uploadError" style="color: #8a1f17; margin-top: 10px; display: none;"></div>
+      <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const btn = document.getElementById('submitBtn');
+          const errorDiv = document.getElementById('uploadError');
+          const fileInput = document.getElementById('audio_file');
+          
+          if (!fileInput.files.length) return;
+          
+          btn.disabled = true;
+          btn.innerText = 'Uploading...';
+          errorDiv.style.display = 'none';
+          
+          const formData = new FormData();
+          formData.append('machine_type', 'fan');
+          formData.append('machine_id', 'id_00');
+          formData.append('snr_tag', 'minus6dB');
+          formData.append('audio_file', fileInput.files[0]);
+          
+          try {
+            const response = await fetch('/api/v1/events', {
+              method: 'POST',
+              body: formData
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              window.location.href = '/dashboard/events/' + data.event_id;
+            } else {
+              const err = await response.json();
+              errorDiv.innerText = err.error?.message || 'Upload failed.';
+              errorDiv.style.display = 'block';
+              btn.disabled = false;
+              btn.innerText = 'Analyze Event';
+            }
+          } catch (error) {
+            errorDiv.innerText = 'Network error during upload.';
+            errorDiv.style.display = 'block';
+            btn.disabled = false;
+            btn.innerText = 'Analyze Event';
+          }
+        });
+      </script>
+    </section>
+    """
 
 
 def _event_table(events: list[EventRecord]) -> str:
