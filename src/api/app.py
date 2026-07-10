@@ -127,17 +127,30 @@ class ApiException(Exception):
 
 def create_default_dependencies() -> ApiDependencies:
     """Create a local default dependency set for import-time app creation."""
-    sqlite_path = os.environ.get("AMHI_SQLITE_PATH", ":memory:")
-    connection = connect_sqlite(sqlite_path, check_same_thread=False)
+    database_url = os.environ.get("DATABASE_URL", "")
     upload_dir = Path(
         os.environ.get(
             "AMHI_UPLOAD_DIR",
             str(Path(tempfile.gettempdir()) / "amhi_uploads"),
         ),
     )
+    if database_url:
+        from infrastructure import (
+            PostgresEventRepository,
+            PostgresAnalysisRepository,
+            connect_postgres,
+        )
+        pg_connection = connect_postgres(database_url)
+        event_repository = PostgresEventRepository(pg_connection)
+        analysis_repository = PostgresAnalysisRepository(pg_connection)
+    else:
+        sqlite_path = os.environ.get("AMHI_SQLITE_PATH", ":memory:")
+        connection = connect_sqlite(sqlite_path, check_same_thread=False)
+        event_repository = SQLiteEventRepository(connection)
+        analysis_repository = SQLiteAnalysisRepository(connection)
     return ApiDependencies(
-        event_repository=SQLiteEventRepository(connection),
-        analysis_repository=SQLiteAnalysisRepository(connection),
+        event_repository=event_repository,
+        analysis_repository=analysis_repository,
         upload_dir=upload_dir,
         allow_registered_audio_reference=(
             os.environ.get("AMHI_ALLOW_REGISTERED_AUDIO_REFERENCE", "0") == "1"

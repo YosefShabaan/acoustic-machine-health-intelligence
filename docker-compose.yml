@@ -1,0 +1,72 @@
+name: amhi-fan-production
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-amhi}
+      POSTGRES_USER: ${POSTGRES_USER:-amhi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-amhi_local_dev_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-amhi} -d ${POSTGRES_DB:-amhi}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+    image: amhi-fan-production-mvp:local
+    command: ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      PYTHONPATH: /app/src
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-amhi}:${POSTGRES_PASSWORD:-amhi_local_dev_password}@postgres:5432/${POSTGRES_DB:-amhi}"
+      PDM_DATA_ROOT: /mnt/amhi-artifacts
+      AMHI_UPLOAD_DIR: /app/runtime/uploads
+      AMHI_ALLOW_REGISTERED_AUDIO_REFERENCE: "${AMHI_ALLOW_REGISTERED_AUDIO_REFERENCE:-1}"
+      AMHI_WORKER_INITIALIZED: "${AMHI_WORKER_INITIALIZED:-1}"
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
+      GEMINI_EMBEDDING_MODEL: ${GEMINI_EMBEDDING_MODEL:-gemini-embedding-2}
+    ports:
+      - "${AMHI_API_PORT:-8000}:8000"
+    volumes:
+      - runtime-data:/app/runtime
+      - ${AMHI_EXTERNAL_ARTIFACT_ROOT:-D:/PDM_Data/MIMII}:/mnt/amhi-artifacts:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=5).read()"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    image: amhi-fan-production-mvp:local
+    command: ["python", "-m", "application.worker_runner"]
+    environment:
+      PYTHONPATH: /app/src
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-amhi}:${POSTGRES_PASSWORD:-amhi_local_dev_password}@postgres:5432/${POSTGRES_DB:-amhi}"
+      PDM_DATA_ROOT: /mnt/amhi-artifacts
+      AMHI_UPLOAD_DIR: /app/runtime/uploads
+      AMHI_WORKER_PIPELINE_MODE: ${AMHI_WORKER_PIPELINE_MODE:-real}
+      AMHI_WORKER_MAX_EVENTS_PER_TICK: ${AMHI_WORKER_MAX_EVENTS_PER_TICK:-1}
+      AMHI_WORKER_IDLE_SLEEP_SECONDS: ${AMHI_WORKER_IDLE_SLEEP_SECONDS:-2}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
+      GEMINI_EMBEDDING_MODEL: ${GEMINI_EMBEDDING_MODEL:-gemini-embedding-2}
+    volumes:
+      - runtime-data:/app/runtime
+      - ${AMHI_EXTERNAL_ARTIFACT_ROOT:-D:/PDM_Data/MIMII}:/mnt/amhi-artifacts:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  runtime-data:
