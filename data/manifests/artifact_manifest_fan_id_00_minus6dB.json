@@ -1,0 +1,36 @@
+{
+    "machine_type": "fan",
+    "machine_id": "id_00",
+    "snr_tag": "minus6dB",
+    "version": "1.0.0",
+    "artifacts": [
+        {
+            "artifact_id": "expert_a_model",
+            "artifact_role": "anomaly_detection_model",
+            "logical_reference": "models_store/anomaly_detector_minus6dB.pt",
+            "checksum": "bc91348a058b09a25bf8622197e616362c0667f096859e140a93e92a2916d584",
+            "size_bytes": 13108832
+        },
+        {
+            "artifact_id": "expert_a_norm_stats",
+            "artifact_role": "anomaly_detection_normalization",
+            "logical_reference": "processed/ad_norm_stats_minus6dB.npz",
+            "checksum": "c6897fe3eed11140f880761256edc033fc1f0b8a1bc70696c8bac7bd70207755",
+            "size_bytes": 1012
+        },
+        {
+            "artifact_id": "expert_b_reference_index",
+            "artifact_role": "timbre_reference_index",
+            "logical_reference": "processed/timbre_reference_index_fan_id_00_minus6dB.json",
+            "checksum": "5363a9d1e15288334f06ab2df9a09a94780e88080c6c3d601e88b8ef6b023bd4",
+            "size_bytes": 110870
+        },
+        {
+            "artifact_id": "semantic_rag_index",
+            "artifact_role": "semantic_rag_index",
+            "logical_reference": "processed/rag_semantic_embeddings_amhi_fan_maint_kb_v1_gemini_embedding_2_768.json",
+            "checksum": "21c72977f64bcfd2106c4e15c16f2535e61d2cf9f7430fbc8391a107607c7e4b",
+            "size_bytes": 278680
+        }
+    ]
+}

@@ -2354,3 +2354,48 @@ DONE
 NEXT TASK:
 TASK-02 - Expert B Reference-Index Performance Root Cause And Optimization, awaiting approval.
 ```
+
+`	ext
+TASK:
+TASK-LAUNCH-01 - Production Artifact Portability
+
+STARTED:
+2026-07-10
+
+IMPLEMENTED:
+- Created scripts/generate_manifest.py to compute SHA-256 checksums and logical references.
+- Generated data/manifests/artifact_manifest_fan_id_00_minus6dB.json.
+- Updated ArtifactRegistry.verify_manifest to resolve required artifacts against PDM_DATA_ROOT.
+- Updated FastAPI /api/v1/ready and worker_runner.py to fail startup if manifest is missing or checksum verification fails.
+- Modified Dockerfile to include data/manifests in the container image.
+- Updated config.py to dynamically switch PDM_DATA_ROOT based on os.name or PDM_DATA_ROOT environment variable (default /mnt/amhi-artifacts).
+- Verified docker-compose.yml correctly maps external volume AMHI_EXTERNAL_ARTIFACT_ROOT to /mnt/amhi-artifacts.
+
+TESTS:
+- python scripts/generate_manifest.py
+- Container smoke test (scripts/container_smoke.py) with fresh docker stack.
+- Manual verification of volume mounts and file paths.
+
+ACTUAL OUTPUT:
+- Container smoke test: TASK_PROD_13_CONTAINER_SMOKE=OK; ready_status=ready; final_status=completed.
+- Manifest generation: Manifest written to D:\IOT\data\manifestsrtifact_manifest_fan_id_00_minus6dB.json.
+
+IMPLEMENTATION REVIEW:
+- Artifact loading is now portable and avoids hardcoded D:\ paths.
+- System correctly verifies that required scientific artifacts exist with expected checksums before reporting healthy/ready.
+- Bounded readiness checks without long loading overhead.
+
+SCIENTIFIC REVIEW:
+- Output semantics unchanged. 
+- Artifact checksums ensure that the correct version of the Expert A model, Reference Index, and RAG semantic index are used in the production container.
+
+DIFF REVIEW:
+- Modified src/config.py, src/infrastructure/artifact_registry.py, src/api/app.py, src/application/worker_runner.py, tests/test_health_readiness.py, Dockerfile
+- Created scripts/generate_manifest.py, data/manifests/artifact_manifest_fan_id_00_minus6dB.json
+
+VERDICT:
+DONE
+
+NEXT TASK:
+TASK-LAUNCH-02 - Durable Production Audio Storage
+`

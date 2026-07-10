@@ -151,6 +151,53 @@ class ArtifactRegistry:
             real_intelligence_available=real_intelligence_available,
         )
 
+    def verify_manifest(
+        self,
+        config: ResolvedArtifactConfig,
+        check_hashes: bool = False,
+    ) -> None:
+        """Verify that required artifacts in the manifest are present and valid."""
+        import json
+        import hashlib
+        
+        manifest_path = (
+            cfg.DATA_DIR 
+            / "manifests" 
+            / f"artifact_manifest_{config.machine_type}_{config.machine_id}_{config.snr_tag}.json"
+        )
+        if not manifest_path.exists():
+            raise ArtifactNotRegisteredError(f"Missing artifact manifest: {manifest_path}")
+            
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            manifest = json.load(f)
+            
+        artifacts = manifest.get("artifacts", [])
+        
+        for item in artifacts:
+            logical_ref = item["logical_reference"]
+            expected_checksum = item["checksum"]
+            
+            # Resolve logical reference against PDM_DATA_ROOT
+            artifact_path = cfg.PDM_DATA_ROOT / logical_ref
+            
+            if not artifact_path.exists():
+                raise FileNotFoundError(
+                    f"Required artifact missing: {logical_ref} "
+                    f"(expected at {artifact_path})"
+                )
+                
+            if check_hashes:
+                hasher = hashlib.sha256()
+                with open(artifact_path, "rb") as f:
+                    for chunk in iter(lambda: f.read(4096), b""):
+                        hasher.update(chunk)
+                actual_checksum = hasher.hexdigest()
+                if actual_checksum != expected_checksum:
+                    raise ValueError(
+                        f"Checksum mismatch for {logical_ref}. "
+                        f"Expected: {expected_checksum}, Got: {actual_checksum}"
+                    )
+
 
 def _normalize_machine_type(machine_type: str) -> str:
     return str(machine_type).strip().lower().replace(" ", "_")

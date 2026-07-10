@@ -28,6 +28,21 @@ def main() -> int:
     database_url = os.environ.get("DATABASE_URL", "")
     upload_dir = Path(os.environ.get("AMHI_UPLOAD_DIR", DEFAULT_UPLOAD_DIR))
     upload_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Fail fast if required production artifacts are not available
+    from infrastructure import ArtifactRegistry
+    from infrastructure.artifact_registry import (
+        FAN_MACHINE_ID,
+        FAN_MACHINE_TYPE,
+        FAN_REAL_INTELLIGENCE_SNR,
+    )
+    registry = ArtifactRegistry()
+    artifact = registry.resolve(
+        machine_type=FAN_MACHINE_TYPE,
+        machine_id=FAN_MACHINE_ID,
+        snr_tag=FAN_REAL_INTELLIGENCE_SNR,
+    ).require_real_intelligence()
+    registry.verify_manifest(artifact, check_hashes=False)
 
     if database_url:
         from infrastructure import (

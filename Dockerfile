@@ -24,6 +24,7 @@ RUN python -m pip install --upgrade pip \
 COPY src /app/src
 COPY app /app/app
 COPY data/manuals /app/data/manuals
+COPY data/manifests /app/data/manifests
 COPY scripts /app/scripts
 
 RUN mkdir -p /app/runtime/uploads

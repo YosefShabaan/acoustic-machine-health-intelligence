@@ -23,8 +23,10 @@ DATA_DIR = PROJECT_ROOT / "data"
 # EXTERNAL DATA ROOT
 # ---------------------------------------------------------------------------
 # All raw datasets and generated .npy/.npz/model artifacts live outside Git.
-# Override via PDM_DATA_ROOT; default is D:\PDM_Data\MIMII.
-PDM_DATA_ROOT = Path(os.environ.get("PDM_DATA_ROOT", r"D:\PDM_Data\MIMII"))
+# In production containers, this defaults to /mnt/amhi-artifacts.
+# On local Windows development, this defaults to D:\PDM_Data\MIMII.
+_DEFAULT_ROOT = r"D:\PDM_Data\MIMII" if os.name == "nt" else "/mnt/amhi-artifacts"
+PDM_DATA_ROOT = Path(os.environ.get("PDM_DATA_ROOT", _DEFAULT_ROOT))
 PDM_ZIPS_DIR = PDM_DATA_ROOT.parent / "Zips"
 PROCESSED_DIR = PDM_DATA_ROOT / "processed"
 MODELS_DIR = PDM_DATA_ROOT / "models_store"
