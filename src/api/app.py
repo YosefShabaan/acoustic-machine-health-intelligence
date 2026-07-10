@@ -194,7 +194,7 @@ def create_app(dependencies: ApiDependencies | None = None) -> FastAPI:
         session_cookie="amhi_session",
         max_age=3600, # 1 hour bounded session
         same_site="lax",
-        https_only=not os.environ.get("DEBUG_MODE", "false").lower() == "true"
+        https_only=not (os.environ.get("DEBUG_MODE", "false").lower() == "true" or os.environ.get("AMHI_LOCAL_HTTP", "false").lower() == "true")
     )
     
     app.add_middleware(
