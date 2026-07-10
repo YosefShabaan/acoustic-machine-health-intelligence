@@ -323,9 +323,14 @@ def _event_detail(
             "<section><h2>Failure</h2>"
             f"<p><code>{_e(event.error_code)}</code> {_e(event.error_summary or '')}</p></section>",
         )
-    body.append(_run_section(run))
+    body.append(_run_section(event, run))
     if result is None:
-        body.append("<section><h2>Analysis Result</h2><p>No analysis result available yet.</p></section>")
+        if event.status == EVENT_STATUS_QUEUED:
+            body.append("<section><h2>Analysis Result</h2><p>Waiting for AMHI worker to claim this event...</p></section>")
+        elif event.status == EVENT_STATUS_PROCESSING:
+            body.append("<section><h2>Analysis Result</h2><p>AMHI AI pipeline is processing this audio...</p></section>")
+        else:
+            body.append("<section><h2>Analysis Result</h2><p>No analysis result available yet.</p></section>")
     else:
         body.extend(
             [
@@ -342,11 +347,20 @@ def _event_detail(
     return "".join(body)
 
 
-def _run_section(run: AnalysisRunRecord | None) -> str:
+def _run_section(event: EventRecord, run: AnalysisRunRecord | None) -> str:
     if run is None:
+        if event.status == EVENT_STATUS_QUEUED:
+            return "<section><h2>Analysis Run</h2><p>Waiting for AMHI worker to claim this event...</p></section>"
         return "<section><h2>Analysis Run</h2><p>No worker has claimed this event.</p></section>"
+    
+    status_text = ""
+    if run.status == EVENT_STATUS_PROCESSING:
+        status_text = "<p>AMHI AI pipeline is processing this audio...</p>"
+        
     return (
-        "<section><h2>Analysis Run</h2><div class=\"grid\">"
+        "<section><h2>Analysis Run</h2>"
+        + status_text
+        + "<div class=\"grid\">"
         + _metric("Run ID", run.analysis_run_id)
         + _metric("Pipeline Version", run.pipeline_version)
         + _metric("Status", run.status)
@@ -361,7 +375,7 @@ def _run_section(run: AnalysisRunRecord | None) -> str:
 
 def _expert_a_section(expert_a: dict[str, Any]) -> str:
     return (
-        "<section><h2>Expert A</h2><div class=\"grid\">"
+        "<section><h2>Expert A &mdash; Acoustic Anomaly Detection</h2><div class=\"grid\">"
         + _metric("Anomaly Score", expert_a.get("anomaly_score", "not recorded"))
         + _metric("Threshold", expert_a.get("threshold", "not recorded"))
         + _metric("Decision", expert_a.get("is_anomaly", "not recorded"))
@@ -371,7 +385,7 @@ def _expert_a_section(expert_a: dict[str, Any]) -> str:
 
 def _expert_b_section(expert_b: dict[str, Any] | None) -> str:
     if not expert_b:
-        return "<section><h2>Expert B</h2><p>No Expert B evidence available.</p></section>"
+        return "<section><h2>Expert B &mdash; Timbre Difference Characterization</h2><p>No Expert B evidence available.</p></section>"
     rows = []
     for key in ("k", "distance", "rank_threshold", "directions"):
         if key in expert_b:
@@ -379,7 +393,7 @@ def _expert_b_section(expert_b: dict[str, Any] | None) -> str:
     if expert_b.get("skipped"):
         rows.append(_metric("Skipped", expert_b.get("reason", "not recorded")))
     return (
-        "<section><h2>Expert B</h2><div class=\"grid\">"
+        "<section><h2>Expert B &mdash; Timbre Difference Characterization</h2><div class=\"grid\">"
         + "".join(rows)
         + "</div><span class=\"flag warning\">Qualitative rank evidence, not confidence or probability.</span></section>"
     )
@@ -387,17 +401,17 @@ def _expert_b_section(expert_b: dict[str, Any] | None) -> str:
 
 def _context_section(context: dict[str, Any] | None) -> str:
     if not context:
-        return "<section><h2>Structured Health Context</h2><p>No context available.</p></section>"
+        return "<section><h2>Structured Health Context v0.2</h2><p>No context available.</p></section>"
     return (
-        "<section><h2>Structured Health Context</h2>"
+        "<section><h2>Structured Health Context v0.2</h2><div class=\"grid\">"
         + _metric("Schema Version", context.get("schema_version", "not recorded"))
-        + "</section>"
+        + "</div></section>"
     )
 
 
 def _retrieval_section(retrieval: dict[str, Any] | None) -> str:
     if not retrieval:
-        return "<section><h2>RAG Retrieval</h2><p>No retrieval metadata available.</p></section>"
+        return "<section><h2>Semantic RAG &mdash; Approved Maintenance Evidence</h2><p>No retrieval metadata available.</p></section>"
     source_rows = []
     for source in retrieval.get("sources", []) or []:
         source_rows.append(
@@ -408,10 +422,10 @@ def _retrieval_section(retrieval: dict[str, Any] | None) -> str:
             "</li>",
         )
     return (
-        "<section><h2>RAG Retrieval</h2><div class=\"grid\">"
-        + _metric("Retriever", retrieval.get("retriever_type", "not recorded"))
-        + _metric("Corpus", retrieval.get("corpus_version", "not recorded"))
-        + _metric("Query", retrieval.get("query", retrieval.get("retrieval_query", "not recorded")))
+        "<section><h2>Semantic RAG &mdash; Approved Maintenance Evidence</h2><div class=\"grid\">"
+        + _metric("Retriever Type", retrieval.get("retriever_type", "not recorded"))
+        + _metric("Corpus Version", retrieval.get("corpus_version", "not recorded"))
+        + _metric("Retrieval Query", retrieval.get("query", retrieval.get("retrieval_query", "not recorded")))
         + "</div><h3>Sources</h3><ul>"
         + ("".join(source_rows) if source_rows else "<li>No retrieved source rows available.</li>")
         + "</ul></section>"
@@ -420,11 +434,14 @@ def _retrieval_section(retrieval: dict[str, Any] | None) -> str:
 
 def _explanation_section(explanation: dict[str, Any] | None) -> str:
     if not explanation:
-        return "<section><h2>Explanation</h2><p>No explanation output available.</p></section>"
+        return "<section><h2>Gemini LLM &mdash; Guarded AI Explanation</h2><p>No explanation output available.</p></section>"
     metadata = explanation.get("metadata", {})
     return (
-        "<section><h2>Explanation</h2>"
+        "<section><h2>Gemini LLM &mdash; Guarded AI Explanation</h2>"
         + _fallback_flag(metadata.get("fallback_used"))
+        + "<div class=\"grid\">"
+        + _metric("Generation Mode", metadata.get("generation_mode", "not recorded"))
+        + "</div>"
         + f"<p>{_e(explanation.get('summary', 'No summary recorded.'))}</p>"
         + "</section>"
     )
@@ -432,7 +449,7 @@ def _explanation_section(explanation: dict[str, Any] | None) -> str:
 
 def _maintenance_section(maintenance: dict[str, Any] | None) -> str:
     if not maintenance:
-        return "<section><h2>Maintenance</h2><p>No maintenance output available.</p></section>"
+        return "<section><h2>Maintenance Agent V2 &mdash; Grounded Inspection Actions</h2><p>No maintenance output available.</p></section>"
     metadata = maintenance.get("metadata", {})
     recommendation = maintenance.get("recommendation", maintenance)
     actions = recommendation.get("recommended_next_actions", []) or maintenance.get(
@@ -446,11 +463,15 @@ def _maintenance_section(maintenance: dict[str, Any] | None) -> str:
             f"{_e(action.get('action', 'action'))} "
             f"<code>{_e(action.get('source_id', ''))}</code> "
             f"<code>{_e(action.get('chunk_id', ''))}</code>"
+            f"<br/><small>{_e(action.get('reason', ''))}</small>"
             "</li>",
         )
     return (
-        "<section><h2>Maintenance</h2>"
+        "<section><h2>Maintenance Agent V2 &mdash; Grounded Inspection Actions</h2>"
         + _fallback_flag(metadata.get("fallback_used"))
+        + "<div class=\"grid\">"
+        + _metric("Maintenance Mode", metadata.get("maintenance_mode", "not recorded"))
+        + "</div>"
         + f"<p>{_e(recommendation.get('text', maintenance.get('text', 'No recommendation text recorded.')))}</p>"
         + "<h3>Actions And Citations</h3><ul>"
         + ("".join(rendered_actions) if rendered_actions else "<li>No cited maintenance actions available.</li>")

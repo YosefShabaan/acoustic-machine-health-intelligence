@@ -81,10 +81,18 @@ Write-Host "Waiting for services to become ready..."
 $MaxAttempts = 30
 $Attempt = 0
 $IsReady = $false
+$WorkerFailed = $false
 
 while ($Attempt -lt $MaxAttempts) {
     $Attempt++
     Start-Sleep -Seconds 2
+    
+    # Check if worker is running
+    $RunningServices = docker compose -f docker-compose.prod.yml -f docker-compose.local.yml ps --services --filter "status=running" 2>&1
+    if ($LASTEXITCODE -eq 0 -and $RunningServices -notcontains "worker") {
+        $WorkerFailed = $true
+        break
+    }
     
     try {
         $Response = Invoke-WebRequest -Uri "http://127.0.0.1:8001/api/v1/ready" -Method Get -ErrorAction Stop
@@ -98,6 +106,13 @@ while ($Attempt -lt $MaxAttempts) {
     Write-Host -NoNewline "."
 }
 Write-Host ""
+
+if ($WorkerFailed) {
+    Write-Error "The AMHI worker container failed to start or exited unexpectedly."
+    Write-Host "Diagnostic command to inspect worker logs:"
+    Write-Host "docker compose -f docker-compose.prod.yml -f docker-compose.local.yml logs worker"
+    exit 1
+}
 
 if (-not $IsReady) {
     Write-Error "Services failed to become ready within the timeout period. Check docker logs."

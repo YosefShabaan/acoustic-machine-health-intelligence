@@ -6,6 +6,18 @@ services:
       AMHI_LOCAL_HTTP: "true"
     ports:
       - "8001:8000"
+    volumes:
+      - type: bind
+        source: ${AMHI_EXTERNAL_ARTIFACT_ROOT:-D:\PDM_Data\MIMII}
+        target: /data/artifacts
+        read_only: true
+
+  worker:
+    volumes:
+      - type: bind
+        source: ${AMHI_EXTERNAL_ARTIFACT_ROOT:-D:\PDM_Data\MIMII}
+        target: /data/artifacts
+        read_only: true
 
   caddy:
     profiles:
